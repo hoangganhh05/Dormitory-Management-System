@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum RoomType {
+  STANDARD
+  VIP
+}
+
+enum RoomStatus {
+  AVAILABLE
+  FULL
+  MAINTENANCE
+}
+
+enum BedStatus {
+  VACANT
+  OCCUPIED
+  RESERVED
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum UrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum MaintenanceStatus {
+  PENDING
+  PROCESSING
+  RESOLVED
+  REJECTED
+}
+
+enum TargetRole {
+  ALL
+  STUDENT
+  ADMIN
+}
+
+model User {
+  id                  Int                  @id @default(autoincrement())
+  email               String               @unique
+  password            String
+  fullName            String
+  studentCode         String?              @unique
+  phone               String?
+  gender              Gender               @default(MALE)
+  role                Role                 @default(STUDENT)
+  avatar              String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  occupiedBed         Bed?                 @relation("BedOccupant")
+  registrations       Registration[]
+  maintenanceRequests MaintenanceRequest[]
+  chatLogs            ChatLog[]
+
+  @@map("users")
+}
+
+model Room {
+  id                  Int                  @id @default(autoincrement())
+  roomNumber          String               @unique
+  building            String
+  floor               Int
+  roomType            RoomType             @default(STANDARD)
+  pricePerMonth       Decimal              @db.Decimal(10, 2)
+  capacity            Int                  @default(4)
+  currentOccupancy    Int                  @default(0)
+  status              RoomStatus           @default(AVAILABLE)
+  description         String?              @db.Text
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  beds                Bed[]
+  registrations       Registration[]
+  maintenanceRequests MaintenanceRequest[]
+
+  @@map("rooms")
+}
+
+model Bed {
+  id           Int          @id @default(autoincrement())
+  bedNumber    String
+  roomId       Int
+  room         Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  occupiedById Int?         @unique
+  occupiedBy   User?        @relation("BedOccupant", fields: [occupiedById], references: [id], onDelete: SetNull)
+  status       BedStatus    @default(VACANT)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  registrations Registration[]
+
+  @@unique([roomId, bedNumber])
+  @@map("beds")
+}
+
+model Registration {
+  id              Int                @id @default(autoincrement())
+  userId          Int
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredRoomId Int?
+  preferredRoom   Room?              @relation(fields: [preferredRoomId], references: [id], onDelete: SetNull)
+  allocatedBedId  Int?
+  allocatedBed    Bed?               @relation(fields: [allocatedBedId], references: [id], onDelete: SetNull)
+  semester        String
+  academicYear    String
+  startDate       DateTime
+  endDate         DateTime
+  status          RegistrationStatus @default(PENDING)
+  note            String?            @db.Text
+  rejectionReason String?            @db.Text
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@map("registrations")
+}
+
+model MaintenanceRequest {
+  id            Int               @id @default(autoincrement())
+  userId        Int
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId        Int
+  room          Room              @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  title         String
+  description   String            @db.Text
+  urgency       UrgencyLevel      @default(MEDIUM)
+  status        MaintenanceStatus @default(PENDING)
+  adminFeedback String?           @db.Text
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@map("maintenance_requests")
+}
+
+model Notification {
+  id         Int        @id @default(autoincrement())
+  title      String
+  content    String     @db.Text
+  targetRole TargetRole @default(ALL)
+  isPinned   Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@map("notifications")
+}
+
+model ChatLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sessionId   String?
+  userMessage String   @db.Text
+  botReply    String   @db.Text
+  createdAt   DateTime @default(now())
+
+  @@map("chat_logs")
+}
