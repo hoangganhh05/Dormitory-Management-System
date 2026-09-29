@@ -1,73 +1,103 @@
 # BÁO CÁO THỰC TẬP - TUẦN 2
 ## TÌM HIỂU CÔNG NGHỆ NỀN TẢNG SỬ DỤNG TRONG DỰ ÁN (KTX-003)
-### (Node.js, Express, TypeScript, Prisma, MySQL)
+### (Node.js, Express, TypeScript, Prisma ORM, MySQL)
 
-* **Sinh viên thực hiện:** Phạm Thị Ngọc Ánh - DTC235200050
+* **Sinh viên thực hiện:** Phạm Thị Ngọc Ánh - MSV: DTC235200050 (Lớp CNTT K22H)
 * **Đơn vị thực tập:** Công ty Cổ phần Công nghệ TFL
 * **Cán bộ hướng dẫn:** Lê Anh Duy
 
 ---
 
-### 1. Tổng quan vai trò của từng công nghệ trong hệ thống
+### 1. Tổng quan vai trò của từng công nghệ trong kiến trúc hệ thống
 
 ```text
-[Client / Admin Web App] 
-          |  (HTTP/RESTful JSON)
-          v
-[Express Web Server + TypeScript]  --> [Business Services & Auth Guard]
-          |                                      |
-          |                                      v
-          |--------------------------> [Gemini AI Service]
-          v
-   [Prisma ORM Client]
-          |  (SQL Queries)
-          v
-  [MySQL 8.4 Database]
+[Client Web App (Angular)]           [Admin Dashboard (Angular)]
+            \                                   /
+             \------- [ HTTP REST / JSON ] ----/
+                               |
+                               v
++--------------------------------------------------------------+
+|                     EXPRESS WEB SERVER (TS)                  |
+|  - Router & Dispatcher                                       |
+|  - Middleware Pipeline (CORS, JWT Guard, Input Validation)   |
+|  - Error Handling Middleware                                 |
++--------------------------------------------------------------+
+                               |
+                               v
++--------------------------------------------------------------+
+|                     BUSINESS SERVICE LAYER                   |
+|  - AuthService, RoomService, RegistrationService             |
+|  - GeminiAIService (Google Generative AI SDK)                |
++--------------------------------------------------------------+
+                               |
+                               v
++--------------------------------------------------------------+
+|                      PRISMA ORM CLIENT                       |
+|  - Type-safe Query Builder                                   |
+|  - Connection Pooling                                        |
++--------------------------------------------------------------+
+                               |
+                               v
+                    [ MySQL 8.4 DATABASE ]
 ```
 
-#### a. Node.js & Express
-- **Node.js:** Môi trường thực thi JavaScript phía server (Runtime) dựa trên V8 engine của Google Chrome, hoạt động theo mô hình bất đồng bộ hướng sự kiện (Non-blocking I/O, Event-driven), cho phép xử lý hàng ngàn kết nối đồng thời với hiệu năng cao và sử dụng ít tài nguyên.
-- **Express.js:** Framework tối giản và linh hoạt nhất cho Node.js, cung cấp hệ thống Routing mạnh mẽ, cơ chế Middleware dễ mở rộng để xử lý CORS, phân quyền, parse dữ liệu body JSON và xử lý lỗi tập trung.
+---
 
-#### b. TypeScript
-- Ngôn ngữ mã nguồn mở phát triển bởi Microsoft, là phần mở rộng có kiểu tĩnh (Strict Static Typing) cho JavaScript.
-- **Lợi ích trong dự án:**
-  - Bắt lỗi ngay trong quá trình biên dịch (Compile-time type checking), giảm thiểu tối đa các lỗi runtime phổ biến như `TypeError: Cannot read properties of undefined`.
-  - Khả năng tự động gợi ý code (IntelliSense) vượt trội trong Visual Studio Code, tăng tốc độ lập trình.
-  - Định nghĩa rõ ràng các `Interface`, `DTO` (Data Transfer Object) cho request và response của API.
+### 2. Phân tích chi tiết các thành phần công nghệ
 
-#### c. Prisma ORM
-- Công cụ ORM (Object-Relational Mapping) thế hệ mới dành cho Node.js & TypeScript.
-- **Thành phần cốt lõi:**
-  1. **Prisma Schema (`schema.prisma`):** Nơi định nghĩa tập trung cấu trúc CSDL và các mối quan hệ (1-1, 1-n, n-n) bằng cú pháp khai báo trực quan, thân thiện.
-  2. **Prisma Client:** Thư viện truy vấn CSDL được tự động sinh (auto-generated) dựa trên schema, mang lại trải nghiệm **Type-safe Database Queries** tuyệt đối.
-  3. **Prisma Migrate:** Quản lý lịch sử thay đổi cấu trúc bảng CSDL một cách nhất quán và có thể rollback khi cần.
-  4. **Prisma Studio:** Giao diện trực quan tích hợp sẵn trên trình duyệt để xem và chỉnh sửa dữ liệu trong MySQL nhanh chóng.
+#### a. Node.js & Express.js
+- **Node.js:** Môi trường thực thi JavaScript phía server xây dựng trên nền V8 Engine của Google Chrome. Node.js sử dụng mô hình I/O bất đồng bộ, hướng sự kiện (Non-blocking I/O, Event Loop), rất phù hợp với các ứng dụng web quản lý có tần suất truy vấn I/O cao (đọc/ghi CSDL) mà không làm tiêu tốn nhiều bộ nhớ RAM như mô hình đa luồng truyền thống.
+- **Express.js:** Framework tối giản hàng đầu cho Node.js, cung cấp hệ thống Routing linh hoạt và kiến trúc **Middleware Pipeline**. Mỗi HTTP Request đi qua một chuỗi các middleware (xác thực token, kiểm tra vai trò admin, parse JSON body, validate dữ liệu) trước khi tới Controller.
+
+#### b. TypeScript (Static Strict Typing)
+- **Lý do lựa chọn:** Giúp phát hiện lỗi cú pháp và kiểu dữ liệu ngay trong quá trình biên dịch (Compile-time), tránh lỗi sập server lúc runtime.
+- **Tính năng áp dụng trong dự án:**
+  - Định nghĩa tường minh các kiểu dữ liệu cho Request Body, Response DTO, Token Payload.
+  - Tự động gợi ý code (IntelliSense) giúp tăng tốc độ phát triển và giảm thiểu sai sót tên trường dữ liệu.
+
+#### c. Prisma ORM (Thế hệ mới)
+So sánh với các ORM truyền thống (như Sequelize hoặc TypeORM):
+- **Ưu điểm vượt trội của Prisma:**
+  1. **Tệp cấu hình tập trung (`schema.prisma`):** Khai báo schema dạng Declarative trực quan, tự động sinh mã SQL DDL.
+  2. **Type-safe hoàn toàn:** Prisma Client được sinh tự động từ schema, mọi trường trong database đều được map 1:1 sang interface TypeScript. Khi gõ sai tên cột hoặc sai kiểu dữ liệu, TypeScript sẽ báo đỏ ngay lập tức.
+  3. **Prisma Studio:** Công cụ GUI trực quan mở qua trình duyệt (`npx prisma studio`), giúp cán bộ hướng dẫn và lập trình viên dễ dàng duyệt, chỉnh sửa dữ liệu test trong MySQL.
+  4. **Prisma Migrate / DB Push:** Quản lý phiên bản cấu trúc bảng và đẩy schema vào MySQL nhanh chóng.
 
 #### d. MySQL 8.4
-- Hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) mã nguồn mở phổ biến hàng đầu thế giới, đảm bảo tính toàn vẹn dữ liệu tuân thủ chuẩn ACID.
-- Đóng vai trò lưu trữ toàn bộ dữ liệu nghiệp vụ của hệ thống KTX: Người dùng, Tòa nhà, Phòng, Giường, Phiếu đăng ký, Báo hỏng, Thông báo.
+- Hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) mã nguồn mở hàng đầu thế giới, đảm bảo chuẩn ACID:
+  - **Atomicity (Nguyên tử):** Đảm bảo thao tác duyệt đơn đăng ký và trừ chỗ trống của phòng phải diễn ra đồng thời trong một Transaction.
+  - **Consistency (Nhất quán):** Ràng buộc khóa ngoại (Foreign Keys) giữa `User`, `Room`, `Bed`, `Registration` không bị mâu thuẫn dữ liệu mồ côi.
 
 ---
 
-### 2. Mô hình kiến trúc phân tầng (Layered Architecture) trong Backend
+### 3. Mô hình phân tầng kiến trúc Backend (Layered Architecture)
 
-Backend được tổ chức theo kiến trúc 3 tầng chuẩn công nghiệp:
-1. **Controller Layer (`src/controllers/`):** Tiếp nhận HTTP Request từ client, gọi tầng Service để xử lý và trả về HTTP Response (mã status 200, 201, 400, 401, 404, 500 kèm dữ liệu JSON).
-2. **Service Layer (`src/services/`):** Chứa toàn bộ nghiệp vụ (Business Logic) của hệ thống (ví dụ: kiểm tra phòng còn giường trống không trước khi lưu đơn, mã hóa mật khẩu bằng bcrypt, tạo JWT token, format prompt cho Gemini AI).
-3. **Data Access Layer (`prisma/`):** Tương tác trực tiếp với MySQL thông qua Prisma Client để thực hiện các thao tác CRUD.
-4. **Middleware Layer (`src/middlewares/`):** Kiểm tra JWT token (`authMiddleware`), kiểm tra vai trò admin (`adminOnlyMiddleware`), kiểm tra tính hợp lệ của dữ liệu đầu vào (`validateMiddleware`).
+Dự án tuân thủ mô hình 4 tầng chuẩn:
+1. **Routing & Middleware Layer (`src/routes/`, `src/middlewares/`):**
+   - Tiếp nhận HTTP Request, kiểm tra JWT Token, chặn các request trái phép (401/403).
+2. **Controller Layer (`src/controllers/`):**
+   - Trích xuất dữ liệu từ `req.body`, `req.params`, `req.query`, gọi Service tương ứng và trả về JSON chuẩn hóa `{ success: boolean, data?: any, message?: string }`.
+3. **Service Layer (`src/services/`):**
+   - Chứa nghiệp vụ thực tế (Business Logic): mã hóa mật khẩu, kiểm tra sức chứa phòng, tự động gán giường trống đầu tiên, kết nối AI.
+4. **Data Access Layer (`prisma/`):**
+   - Thực thi các câu lệnh truy vấn qua `prisma.user`, `prisma.room`, `prisma.registration`.
 
 ---
 
-### 3. Quy trình thiết lập và khởi chạy dự án mẫu (Proof-of-Concept)
+### 4. Quy trình khởi chạy và các tập lệnh (npm scripts) của dự án mẫu
 
-1. **Khởi tạo dự án TypeScript:**
-   - Cài đặt `typescript`, `ts-node-dev`, `@types/node`, `@types/express`.
-   - Cấu hình file `tsconfig.json` với `module: "commonjs"`, `target: "ES2022"`, `strict: true`.
-2. **Cấu hình Prisma:**
-   - Cài đặt `@prisma/client` và `prisma` (devDependencies).
-   - Chạy lệnh `npx prisma init --datasource-provider mysql`.
-   - Cấu hình chuỗi kết nối `DATABASE_URL` trong file `.env`.
-3. **Tạo mã nguồn mẫu và kiểm tra kết nối:**
-   - Tạo endpoint `GET /api/health` trả về trạng thái server `uptime`, `timestamp` và `dbStatus`.
+| Lệnh | Ý nghĩa | Môi trường |
+| :--- | :--- | :---: |
+| `npm run dev` | Khởi chạy server ở chế độ phát triển với `ts-node-dev` (tự động reload khi code thay đổi) | Development |
+| `npm run build` | Biên dịch toàn bộ mã nguồn TypeScript sang JavaScript thuần trong thư mục `dist/` | Production |
+| `npm start` | Chạy ứng dụng đã build từ `dist/server.js` | Production |
+| `npx prisma generate` | Tự động sinh Prisma Client Type-safe dựa trên file `schema.prisma` | Dev & CI/CD |
+| `npx prisma db push` | Đồng bộ cấu trúc bảng từ schema trực tiếp vào MySQL database | Development |
+| `npx prisma studio` | Khởi động giao diện quản lý dữ liệu CSDL trực quan trên cổng `localhost:5555` | Debug & Test |
+
+---
+
+### 5. Kết luận đánh giá Tuần 2
+- Đã nắm vững lý thuyết và vai trò của từng công nghệ trong bộ stack.
+- Đã dựng thành công mã nguồn mẫu (Proof-of-Concept) chạy ổn định trên cổng `5000` với endpoint kiểm tra kết nối `/api/health`.
+- Sẵn sàng chuyển sang các bước thiết lập kiến trúc CSDL và giao diện người dùng.
