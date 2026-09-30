@@ -1,0 +1,15 @@
+{
+  "name": "dormitory-management-system",
+  "version": "1.0.0",
+  "description": "Hệ thống Quản lý Ký túc xá Tích hợp AI (Dormitory Management System) - Đề tài Thực tập Tốt nghiệp ICTU & TFL Technology",
+  "author": "Pham Thi Ngoc Anh <DTC235200050@ictu.edu.vn>",
+  "scripts": {
+    "start:backend": "npm --prefix backend run start",
+    "dev:backend": "npm --prefix backend run dev",
+    "start:frontend": "npm --prefix frontend start",
+    "build:all": "npm --prefix backend run build && npm --prefix frontend run build",
+    "seed": "npm --prefix backend run prisma:seed",
+    "test:e2e": "node backend/dist/scripts/run-e2e-tests.js",
+    "test:security": "node backend/dist/scripts/run-security-audit-tests.js"
+  }
+}
