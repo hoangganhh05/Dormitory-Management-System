@@ -1,0 +1,136 @@
+<div class="registrations-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Xét Duyệt Đơn Đăng Ký Lưu Trú</h1>
+      <p class="page-subtitle">Kiểm tra thông tin sinh viên nộp hồ sơ, phê duyệt và gán số giường lưu trú chính thức.</p>
+    </div>
+  </div>
+
+  <!-- Status Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-item" [class.active]="currentTab() === 'PENDING'" (click)="currentTab.set('PENDING')">
+      ⏳ Chờ xét duyệt (3)
+    </button>
+    <button class="tab-item" [class.active]="currentTab() === 'APPROVED'" (click)="currentTab.set('APPROVED')">
+      ✓ Đã phê duyệt (1)
+    </button>
+    <button class="tab-item" [class.active]="currentTab() === 'REJECTED'" (click)="currentTab.set('REJECTED')">
+      ✕ Đã từ chối
+    </button>
+    <button class="tab-item" [class.active]="currentTab() === 'ALL'" (click)="currentTab.set('ALL')">
+      Tất cả hồ sơ ({{ registrations().length }})
+    </button>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-card">
+    <div class="table-responsive" *ngIf="filteredList().length > 0">
+      <table class="admin-data-table">
+        <thead>
+          <tr>
+            <th>Mã đơn</th>
+            <th>Sinh viên</th>
+            <th>Mã số SV</th>
+            <th>Giới tính</th>
+            <th>Phòng nguyện vọng</th>
+            <th>Học kỳ</th>
+            <th>Thời gian nộp</th>
+            <th>Trạng thái</th>
+            <th class="text-right">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredList()">
+            <td><span class="id-tag">#REG-00{{ row.id }}</span></td>
+            <td class="fw-bold">{{ row.studentName }}</td>
+            <td><span class="code-pill">{{ row.studentCode }}</span></td>
+            <td>{{ row.gender }}</td>
+            <td><strong>{{ row.preferredRoom }}</strong></td>
+            <td>{{ row.semester }}</td>
+            <td class="text-muted">{{ row.createdAt }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="row.status.toLowerCase()">
+                {{ row.status === 'PENDING' ? 'Chờ duyệt' : row.status === 'APPROVED' ? 'Đã duyệt' : 'Từ chối' }}
+              </span>
+              <div *ngIf="row.allocatedBed" class="sub-bed-info">
+                {{ row.allocatedBed }}
+              </div>
+            </td>
+            <td class="text-right">
+              <div class="action-btn-grp" *ngIf="row.status === 'PENDING'">
+                <button class="btn-approve" (click)="openApproveModal(row)">Duyệt</button>
+                <button class="btn-reject" (click)="openRejectModal(row)">Từ chối</button>
+              </div>
+              <span *ngIf="row.status !== 'PENDING'" class="text-muted">Đã xử lý</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredList().length === 0">
+      <div class="empty-icon">📂</div>
+      <h3>Không có đơn nào trong danh mục này</h3>
+      <p>Hiện không có hồ sơ sinh viên đăng ký lưu trú nào đang chờ xử lý.</p>
+    </div>
+  </div>
+
+  <!-- Approve Modal -->
+  <div class="modal-backdrop" *ngIf="selectedReg()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Phê duyệt đơn đăng ký & Gán giường</h3>
+        <button class="close-modal" (click)="closeApproveModal()">✕</button>
+      </div>
+      <div class="modal-body" *ngIf="selectedReg() as r">
+        <p class="modal-intro">
+          Xác nhận phê duyệt hồ sơ cho sinh viên <strong>{{ r.studentName }}</strong> (MSSV: {{ r.studentCode }}).
+        </p>
+        <div class="modal-info-box">
+          <div><strong>Phòng nguyện vọng:</strong> {{ r.preferredRoom }}</div>
+          <div><strong>Niên khóa:</strong> {{ r.semester }}</div>
+        </div>
+
+        <div class="form-group">
+          <label>Chọn giường còn trống trong phòng để gán:</label>
+          <select [ngModel]="selectedBed()" (ngModelChange)="selectedBed.set($event)">
+            <option *ngFor="let bed of availableBeds" [value]="bed">{{ bed }} - Đang trống</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeApproveModal()">Hủy bỏ</button>
+        <button class="btn-confirm-approve" (click)="confirmApprove()">Xác nhận phê duyệt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div class="modal-backdrop" *ngIf="rejectReg()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Từ chối đơn đăng ký lưu trú</h3>
+        <button class="close-modal" (click)="closeRejectModal()">✕</button>
+      </div>
+      <div class="modal-body" *ngIf="rejectReg() as r">
+        <p class="modal-intro">
+          Nhập lý do từ chối hồ sơ của sinh viên <strong>{{ r.studentName }}</strong>:
+        </p>
+        <div class="form-group">
+          <label>Lý do từ chối (gửi thông báo cho sinh viên):</label>
+          <textarea 
+            rows="3" 
+            [ngModel]="rejectReason()" 
+            (ngModelChange)="rejectReason.set($event)"
+            placeholder="Ví dụ: Phòng đã đủ chỉ tiêu / Hồ sơ chưa hợp lệ..."
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeRejectModal()">Hủy bỏ</button>
+        <button class="btn-confirm-reject" (click)="confirmReject()">Xác nhận từ chối</button>
+      </div>
+    </div>
+  </div>
+</div>
