@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { LoginComponent } from './features/auth/login/login.component';
 import { ClientLayoutComponent } from './features/client/client-layout/client-layout.component';
 import { ClientHomeComponent } from './features/client/client-home/client-home.component';
 import { ClientRoomsComponent } from './features/client/client-rooms/client-rooms.component';
@@ -12,12 +13,18 @@ import { AdminStudentsComponent } from './features/admin/admin-students/admin-st
 import { AdminRegistrationsComponent } from './features/admin/admin-registrations/admin-registrations.component';
 import { AdminMaintenanceComponent } from './features/admin/admin-maintenance/admin-maintenance.component';
 import { AdminNotificationsComponent } from './features/admin/admin-notifications/admin-notifications.component';
+import { adminGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     redirectTo: 'client/dashboard',
     pathMatch: 'full',
+  },
+  // Authentication route
+  {
+    path: 'login',
+    component: LoginComponent,
   },
   // Client Portal Routes (Sinh viên)
   {
@@ -31,10 +38,11 @@ export const routes: Routes = [
       { path: 'maintenance', component: ClientMaintenanceComponent },
     ],
   },
-  // Admin Portal Routes (Ban Quản lý KTX)
+  // Admin Portal Routes (Ban Quản lý KTX - Protected by adminGuard)
   {
     path: 'admin',
     component: AdminLayoutComponent,
+    canActivate: [adminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },

@@ -87,11 +87,12 @@
       <div class="topbar-right">
         <div class="system-time">Trường ĐH CNTT & TT (ICTU)</div>
         <div class="admin-user-box">
-          <div class="admin-avatar">AD</div>
+          <div class="admin-avatar">{{ currentUser()?.fullName ? currentUser()!.fullName[0] : 'AD' }}</div>
           <div class="admin-details">
-            <span class="admin-name">Ban Quản Lý KTX</span>
-            <span class="admin-role">Quản trị viên cấp cao</span>
+            <span class="admin-name">{{ currentUser()?.fullName || 'Ban Quản Lý KTX' }}</span>
+            <span class="admin-role">{{ currentUser()?.role === 'ADMIN' ? 'Quản trị viên cấp cao' : 'Cán bộ KTX' }}</span>
           </div>
+          <button class="admin-logout-btn" (click)="logout()" title="Đăng xuất khỏi hệ thống">⎋</button>
         </div>
       </div>
     </header>

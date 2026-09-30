@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -10,6 +11,9 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './admin-layout.component.css'
 })
 export class AdminLayoutComponent {
+  authService = inject(AuthService);
+
+  currentUser = this.authService.currentUser;
   isSidebarCollapsed = signal(false);
   isMobileSidebarOpen = signal(false);
 
@@ -23,5 +27,9 @@ export class AdminLayoutComponent {
 
   closeMobileSidebar(): void {
     this.isMobileSidebarOpen.set(false);
+  }
+
+  logout(): void {
+    this.authService.logout('/login');
   }
 }
