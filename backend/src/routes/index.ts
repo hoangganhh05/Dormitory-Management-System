@@ -8,6 +8,7 @@ import authRoutes from './auth.routes';
 import studentRoutes from './student.routes';
 import allocationRoutes from './allocation.routes';
 import notificationRoutes from './notification.routes';
+import aiRoutes from './ai.routes';
 
 const router = Router();
 
@@ -25,5 +26,8 @@ router.use('/allocations', allocationRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/maintenance', maintenanceRoutes);
 router.use('/dashboard', dashboardRoutes);
+
+// AI Services
+router.use('/ai', aiRoutes);
 
 export default router;
