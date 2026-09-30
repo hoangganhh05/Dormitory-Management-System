@@ -1,47 +1,77 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, map, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { CreateMaintenanceDto, MaintenanceApiResponse, MaintenanceRequest } from '../models/maintenance.model';
+import { Observable } from 'rxjs';
+import {
+  CreateMaintenanceDto,
+  MaintenanceApiResponse,
+  MaintenanceRequest,
+  MaintenanceStats,
+  MaintenanceQueryParams,
+  MaintenanceStatus,
+} from '../models/maintenance.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MaintenanceService {
-  private apiUrl = `${environment.apiUrl}/maintenance`;
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:5000/api/maintenance';
 
-  constructor(private http: HttpClient) {}
+  /**
+   * Thống kê tổng hợp số liệu bảo trì
+   */
+  getMaintenanceStats(): Observable<MaintenanceApiResponse<MaintenanceStats>> {
+    return this.http.get<MaintenanceApiResponse<MaintenanceStats>>(`${this.apiUrl}/stats`);
+  }
 
-  getRequests(status?: string): Observable<MaintenanceRequest[]> {
-    let params = new HttpParams();
-    if (status && status !== 'ALL') {
-      params = params.set('status', status);
+  /**
+   * Lấy danh sách toàn bộ yêu cầu (Admin) hỗ trợ lọc & tìm kiếm & phân trang
+   */
+  getRequests(params?: MaintenanceQueryParams): Observable<MaintenanceApiResponse<MaintenanceRequest[]>> {
+    let httpParams = new HttpParams();
+    if (params) {
+      if (params.status && params.status !== 'ALL') httpParams = httpParams.set('status', params.status);
+      if (params.urgency && params.urgency !== 'ALL') httpParams = httpParams.set('urgency', params.urgency);
+      if (params.building && params.building !== 'ALL') httpParams = httpParams.set('building', params.building);
+      if (params.search) httpParams = httpParams.set('search', params.search.trim());
+      if (params.page) httpParams = httpParams.set('page', String(params.page));
+      if (params.limit) httpParams = httpParams.set('limit', String(params.limit));
     }
-
-    return this.http.get<MaintenanceApiResponse>(this.apiUrl, { params }).pipe(
-      map((response) => response.data || []),
-      catchError((error) => {
-        console.error('[MaintenanceService.getRequests Error]', error);
-        return throwError(() => new Error(error.error?.message || 'Không thể kết nối đến máy chủ lấy danh sách báo hỏng.'));
-      })
-    );
+    return this.http.get<MaintenanceApiResponse<MaintenanceRequest[]>>(this.apiUrl, { params: httpParams });
   }
 
+  /**
+   * Lấy lịch sử yêu cầu của sinh viên đăng nhập
+   */
+  getMyRequests(): Observable<MaintenanceApiResponse<MaintenanceRequest[]>> {
+    return this.http.get<MaintenanceApiResponse<MaintenanceRequest[]>>(`${this.apiUrl}/my`);
+  }
+
+  /**
+   * Xem chi tiết yêu cầu
+   */
+  getRequestById(id: number): Observable<MaintenanceApiResponse<MaintenanceRequest>> {
+    return this.http.get<MaintenanceApiResponse<MaintenanceRequest>>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Gửi yêu cầu sửa chữa mới
+   */
   createRequest(dto: CreateMaintenanceDto): Observable<any> {
-    return this.http.post<any>(this.apiUrl, dto).pipe(
-      catchError((error) => {
-        console.error('[MaintenanceService.createRequest Error]', error);
-        return throwError(() => new Error(error.error?.message || 'Gửi yêu cầu báo hỏng thất bại. Vui lòng thử lại.'));
-      })
-    );
+    return this.http.post<any>(this.apiUrl, dto);
   }
 
-  updateStatus(id: number, status: string, adminFeedback?: string): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/${id}/status`, { status, adminFeedback }).pipe(
-      catchError((error) => {
-        console.error('[MaintenanceService.updateStatus Error]', error);
-        return throwError(() => new Error(error.error?.message || 'Cập nhật trạng thái sự cố thất bại trên máy chủ.'));
-      })
-    );
+  /**
+   * Cập nhật trạng thái xử lý & phản hồi kỹ thuật
+   */
+  updateStatus(id: number, status: MaintenanceStatus, adminFeedback?: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/status`, { status, adminFeedback });
+  }
+
+  /**
+   * Xóa yêu cầu sửa chữa
+   */
+  deleteRequest(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }
