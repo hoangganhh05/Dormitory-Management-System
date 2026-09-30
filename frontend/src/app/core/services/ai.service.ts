@@ -38,6 +38,11 @@ export interface AIStatusResponse {
   };
 }
 
+export interface ChatHistoryPayload {
+  role: 'user' | 'bot';
+  content: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -45,8 +50,12 @@ export class AiService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/ai`;
 
-  ask(prompt: string): Observable<AIAskResponse> {
-    return this.http.post<AIAskResponse>(`${this.apiUrl}/ask`, { prompt });
+  ask(prompt: string, history?: ChatHistoryPayload[]): Observable<AIAskResponse> {
+    const payload: { prompt: string; history?: ChatHistoryPayload[] } = { prompt };
+    if (history && history.length > 0) {
+      payload.history = history;
+    }
+    return this.http.post<AIAskResponse>(`${this.apiUrl}/ask`, payload);
   }
 
   getStatus(): Observable<AIStatusResponse> {

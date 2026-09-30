@@ -1,6 +1,11 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { ENV } from '../config/env';
 
+export interface ChatHistoryItem {
+  role: 'user' | 'model' | 'bot';
+  content: string;
+}
+
 export interface AIResponse {
   answer: string;
   source: 'GEMINI_LIVE' | 'KNOWLEDGE_BASE_FALLBACK';
@@ -114,9 +119,9 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
   }
 
   /**
-   * Sinh câu trả lời từ Gemini hoặc Fallback Knowledge Base
+   * Sinh câu trả lời từ Gemini hoặc Fallback Knowledge Base với hỗ trợ Multi-turn Context
    */
-  static async askAI(userPrompt: string): Promise<AIResponse> {
+  static async askAI(userPrompt: string, history?: ChatHistoryItem[]): Promise<AIResponse> {
     const client = this.getClient();
     const promptTrimmed = userPrompt?.trim() || '';
 
@@ -161,8 +166,25 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
           ],
         });
 
-        const result = await model.generateContent(promptTrimmed);
-        const responseText = result.response.text();
+        let responseText = '';
+
+        // Nếu có lịch sử trò chuyện, sử dụng chat session (Multi-turn)
+        if (history && Array.isArray(history) && history.length > 0) {
+          const formattedHistory = history
+            .filter(item => item.content && item.content.trim().length > 0)
+            .slice(-6) // Giữ tối đa 6 lượt tin nhắn gần nhất để tiết kiệm token và giữ trọng tâm
+            .map(item => ({
+              role: item.role === 'user' ? 'user' : 'model',
+              parts: [{ text: item.content }],
+            }));
+
+          const chat = model.startChat({ history: formattedHistory });
+          const result = await chat.sendMessage(promptTrimmed);
+          responseText = result.response.text();
+        } else {
+          const result = await model.generateContent(promptTrimmed);
+          responseText = result.response.text();
+        }
 
         return {
           answer: responseText,
