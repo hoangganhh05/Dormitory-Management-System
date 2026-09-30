@@ -1,0 +1,104 @@
+<div class="admin-shell" [class.sidebar-collapsed]="isSidebarCollapsed()">
+  <!-- Backdrop for mobile -->
+  <div class="mobile-backdrop" *ngIf="isMobileSidebarOpen()" (click)="closeMobileSidebar()"></div>
+
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar" [class.mobile-open]="isMobileSidebarOpen()">
+    <div class="sidebar-header">
+      <div class="admin-brand">
+        <div class="brand-badge-icon">🛡️</div>
+        <div class="brand-info" *ngIf="!isSidebarCollapsed()">
+          <span class="brand-title">KTX ADMIN</span>
+          <span class="brand-tag">BAN QUẢN LÝ - ICTU</span>
+        </div>
+      </div>
+      <button class="close-mobile-sidebar-btn" (click)="closeMobileSidebar()">✕</button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-menu">
+      <div class="menu-group-label" *ngIf="!isSidebarCollapsed()">ĐIỀU HÀNH TÁC NGHIỆP</div>
+
+      <a routerLink="/admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileSidebar()" class="menu-item" title="Tổng quan">
+        <span class="item-icon">📊</span>
+        <span class="item-label" *ngIf="!isSidebarCollapsed()">Tổng quan Dashboard</span>
+      </a>
+
+      <a routerLink="/admin/rooms" routerLinkActive="active" (click)="closeMobileSidebar()" class="menu-item" title="Quản lý Phòng & Giường">
+        <span class="item-icon">🏢</span>
+        <span class="item-label" *ngIf="!isSidebarCollapsed()">Quản lý Phòng & Giường</span>
+      </a>
+
+      <a routerLink="/admin/students" routerLinkActive="active" (click)="closeMobileSidebar()" class="menu-item" title="Quản lý Sinh viên">
+        <span class="item-icon">👥</span>
+        <span class="item-label" *ngIf="!isSidebarCollapsed()">Quản lý Sinh viên</span>
+      </a>
+
+      <a routerLink="/admin/registrations" routerLinkActive="active" (click)="closeMobileSidebar()" class="menu-item" title="Duyệt Đơn đăng ký">
+        <span class="item-icon">📝</span>
+        <span class="item-label" *ngIf="!isSidebarCollapsed()">Duyệt Đơn đăng ký</span>
+        <span class="badge-count amber" *ngIf="!isSidebarCollapsed()">3</span>
+      </a>
+
+      <a routerLink="/admin/maintenance" routerLinkActive="active" (click)="closeMobileSidebar()" class="menu-item" title="Xử lý Báo hỏng">
+        <span class="item-icon">🛠️</span>
+        <span class="item-label" *ngIf="!isSidebarCollapsed()">Xử lý Báo hỏng</span>
+        <span class="badge-count danger" *ngIf="!isSidebarCollapsed()">1</span>
+      </a>
+
+      <div class="menu-group-label" *ngIf="!isSidebarCollapsed()">HỆ THỐNG & TRỢ LÝ</div>
+
+      <a routerLink="/admin/notifications" routerLinkActive="active" (click)="closeMobileSidebar()" class="menu-item" title="Bảng tin thông báo">
+        <span class="item-icon">📢</span>
+        <span class="item-label" *ngIf="!isSidebarCollapsed()">Bảng tin thông báo</span>
+      </a>
+
+      <a routerLink="/admin/dashboard" routerLinkActive="active" (click)="closeMobileSidebar()" class="menu-item" title="Giám sát Trợ lý AI">
+        <span class="item-icon">🤖</span>
+        <span class="item-label" *ngIf="!isSidebarCollapsed()">Giám sát Trợ lý AI</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Bottom Footer -->
+    <div class="sidebar-footer">
+      <a routerLink="/client/dashboard" class="switch-portal-btn" title="Chuyển sang Cổng Sinh viên">
+        <span class="portal-icon">↩️</span>
+        <span class="portal-text" *ngIf="!isSidebarCollapsed()">Cổng Sinh viên</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Container -->
+  <div class="admin-main-wrap">
+    <!-- Top Header Bar -->
+    <header class="admin-topbar">
+      <div class="topbar-left">
+        <button class="toggle-sidebar-btn desktop-only" (click)="toggleSidebar()" title="Đóng/Mở thanh điều hướng">
+          ☰
+        </button>
+        <button class="toggle-sidebar-btn mobile-only" (click)="toggleMobileSidebar()" title="Mở menu">
+          ☰
+        </button>
+        <div class="admin-portal-badge">
+          <span class="indicator-dot">●</span> Hệ thống Ban Quản lý Ký túc xá
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="system-time">Trường ĐH CNTT & TT (ICTU)</div>
+        <div class="admin-user-box">
+          <div class="admin-avatar">AD</div>
+          <div class="admin-details">
+            <span class="admin-name">Ban Quản Lý KTX</span>
+            <span class="admin-role">Quản trị viên cấp cao</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Content -->
+    <main class="admin-body">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

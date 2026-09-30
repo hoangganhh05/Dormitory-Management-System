@@ -1,0 +1,151 @@
+<div class="admin-dashboard-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-titles">
+      <h1 class="page-title">Bảng Điều Khiển Tổng Quan KTX</h1>
+      <p class="page-subtitle">Giám sát công suất phòng, quản lý sinh viên nội trú và điều hành tác nghiệp Ký túc xá.</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/admin/registrations" class="btn-primary">
+        <span>📝</span> Duyệt đơn đăng ký (3)
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Metrics Grid -->
+  <div class="kpi-grid">
+    <div *ngFor="let item of stats" class="kpi-card">
+      <div class="kpi-icon-box" [ngClass]="item.color">{{ item.icon }}</div>
+      <div class="kpi-info">
+        <span class="kpi-label">{{ item.label }}</span>
+        <span class="kpi-val">{{ item.value }}</span>
+        <span class="kpi-sub">{{ item.sub }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Split Grid -->
+  <div class="dashboard-split-grid">
+    <!-- Left Column: Operations -->
+    <div class="split-col-left">
+      <!-- Registration Approvals Card -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <div class="card-title-group">
+            <h3 class="card-title">Đơn đăng ký lưu trú mới nộp</h3>
+            <span class="card-badge-amber">3 đơn chờ duyệt</span>
+          </div>
+          <a routerLink="/admin/registrations" class="card-action-link">Xem tất cả</a>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Sinh viên</th>
+                <th>Mã sinh viên</th>
+                <th>Phòng đăng ký</th>
+                <th>Thời gian</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let reg of recentRegistrations">
+                <td class="fw-bold">{{ reg.student }}</td>
+                <td><span class="code-pill">{{ reg.code }}</span></td>
+                <td>{{ reg.room }}</td>
+                <td class="text-muted">{{ reg.date }}</td>
+                <td><span class="status-pill pending">Chờ duyệt</span></td>
+                <td>
+                  <a routerLink="/admin/registrations" class="action-btn-sm">Xét duyệt</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Maintenance Requests Card -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <div class="card-title-group">
+            <h3 class="card-title">Báo hỏng cơ sở vật chất gần đây</h3>
+            <span class="card-badge-danger">1 sự cố khẩn cấp</span>
+          </div>
+          <a routerLink="/admin/maintenance" class="card-action-link">Xem tất cả</a>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Vị trí</th>
+                <th>Nội dung sự cố</th>
+                <th>Mức độ</th>
+                <th>Trạng thái</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let issue of recentIssues">
+                <td class="fw-bold">{{ issue.room }}</td>
+                <td>{{ issue.title }}</td>
+                <td><span class="status-pill high">Khẩn cấp</span></td>
+                <td><span class="status-pill processing">Đang xử lý</span></td>
+                <td class="text-muted">{{ issue.date }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Analytics & System Status -->
+    <div class="split-col-right">
+      <!-- Building Occupancy Progress -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <h3 class="card-title">Tỷ lệ lấp đầy theo Tòa nhà</h3>
+        </div>
+
+        <div class="occupancy-list">
+          <div *ngFor="let b of buildingStats" class="building-item">
+            <div class="b-info">
+              <span class="b-name">{{ b.name }}</span>
+              <span class="b-count">{{ b.occupied }} / {{ b.capacity }} Giường</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="b.percent"></div>
+            </div>
+            <span class="b-percent">{{ b.percent }}% công suất</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI System Health Card -->
+      <div class="dash-card ai-health-card">
+        <div class="ai-health-header">
+          <span class="ai-sparkle-icon">🤖</span>
+          <div>
+            <h4 class="ai-health-title">Trợ lý AI Gemini 1.5 Flash</h4>
+            <span class="ai-status-active">● Trực tuyến & Sẵn sàng</span>
+          </div>
+        </div>
+        <p class="ai-health-desc">
+          Mô hình tự động giải đáp nội quy 10 điều của KTX đang hoạt động bình thường, hỗ trợ sinh viên 24/7.
+        </p>
+        <div class="ai-metrics-row">
+          <div class="ai-metric-item">
+            <span class="ai-metric-val">100%</span>
+            <span class="ai-metric-lbl">Tỷ lệ phản hồi</span>
+          </div>
+          <div class="ai-metric-item">
+            <span class="ai-metric-val">&lt; 1.5s</span>
+            <span class="ai-metric-lbl">Thời gian trả lời</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

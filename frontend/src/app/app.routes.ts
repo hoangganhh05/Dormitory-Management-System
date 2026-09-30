@@ -5,37 +5,44 @@ import { ClientRoomsComponent } from './features/client/client-rooms/client-room
 import { ClientRegisterRoomComponent } from './features/client/client-register-room/client-register-room.component';
 import { ClientMaintenanceComponent } from './features/client/client-maintenance/client-maintenance.component';
 
+import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
+import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
+import { AdminRoomsComponent } from './features/admin/admin-rooms/admin-rooms.component';
+import { AdminStudentsComponent } from './features/admin/admin-students/admin-students.component';
+import { AdminRegistrationsComponent } from './features/admin/admin-registrations/admin-registrations.component';
+import { AdminMaintenanceComponent } from './features/admin/admin-maintenance/admin-maintenance.component';
+import { AdminNotificationsComponent } from './features/admin/admin-notifications/admin-notifications.component';
+
 export const routes: Routes = [
   {
     path: '',
     redirectTo: 'client/dashboard',
     pathMatch: 'full',
   },
+  // Client Portal Routes (Sinh viên)
   {
     path: 'client',
     component: ClientLayoutComponent,
     children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
-      },
-      {
-        path: 'dashboard',
-        component: ClientHomeComponent,
-      },
-      {
-        path: 'rooms',
-        component: ClientRoomsComponent,
-      },
-      {
-        path: 'register-room',
-        component: ClientRegisterRoomComponent,
-      },
-      {
-        path: 'maintenance',
-        component: ClientMaintenanceComponent,
-      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: ClientHomeComponent },
+      { path: 'rooms', component: ClientRoomsComponent },
+      { path: 'register-room', component: ClientRegisterRoomComponent },
+      { path: 'maintenance', component: ClientMaintenanceComponent },
+    ],
+  },
+  // Admin Portal Routes (Ban Quản lý KTX)
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'rooms', component: AdminRoomsComponent },
+      { path: 'students', component: AdminStudentsComponent },
+      { path: 'registrations', component: AdminRegistrationsComponent },
+      { path: 'maintenance', component: AdminMaintenanceComponent },
+      { path: 'notifications', component: AdminNotificationsComponent },
     ],
   },
   {
