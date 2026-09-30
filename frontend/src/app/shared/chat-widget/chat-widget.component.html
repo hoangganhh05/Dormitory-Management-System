@@ -58,7 +58,7 @@
   <!-- Quick Suggestions (only show if chat is at initial state) -->
   @if (messages().length <= 1) {
     <div class="suggestions">
-      @for (s of suggestions; track s) {
+      @for (s of suggestions(); track s) {
         <button class="suggestion-chip" (click)="useSuggestion(s)">{{ s }}</button>
       }
     </div>
