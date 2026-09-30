@@ -166,6 +166,21 @@ export class AIController {
       const userContext = await AIController.resolveUserContext(req);
 
       const aiResponse = await GeminiService.askAI(prompt, validHistory, userContext);
+
+      // Ghi nhật ký hỏi đáp vào CSDL (bất đồng bộ để không chặn luồng trả lời)
+      try {
+        await prisma.chatLog.create({
+          data: {
+            userId: userContext?.userId ? Number(userContext.userId) : null,
+            sessionId: `${aiResponse.source}|${aiResponse.modelUsed}`,
+            userMessage: prompt.trim(),
+            botReply: aiResponse.answer,
+          },
+        });
+      } catch (logErr: any) {
+        console.warn('[AIController] Lỗi khi lưu ChatLog vào CSDL:', logErr.message);
+      }
+
       res.status(200).json({
         success: true,
         data: aiResponse,
@@ -175,6 +190,149 @@ export class AIController {
       res.status(500).json({
         success: false,
         message: 'Đã xảy ra lỗi khi xử lý yêu cầu AI. Vui lòng thử lại sau.',
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/ai/logs
+   * Lấy danh sách nhật ký hỏi đáp AI dành cho Ban Quản lý (Admin)
+   * Query: page, limit, search, source
+   */
+  static async getLogs(req: Request, res: Response): Promise<void> {
+    try {
+      const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+      const limit = Math.max(1, Math.min(100, parseInt(req.query.limit as string, 10) || 20));
+      const skip = (page - 1) * limit;
+
+      const search = (req.query.search as string)?.trim() || '';
+      const source = (req.query.source as string)?.trim() || '';
+
+      const where: any = {};
+
+      if (search) {
+        where.OR = [
+          { userMessage: { contains: search } },
+          { botReply: { contains: search } },
+          { user: { fullName: { contains: search } } },
+          { user: { studentCode: { contains: search } } },
+        ];
+      }
+
+      if (source && source !== 'ALL') {
+        where.sessionId = { startsWith: source };
+      }
+
+      const [total, logs] = await Promise.all([
+        prisma.chatLog.count({ where }),
+        prisma.chatLog.findMany({
+          where,
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                studentCode: true,
+                email: true,
+                gender: true,
+                role: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+      ]);
+
+      // Chuẩn hóa dữ liệu trả về kèm bóc tách source & model từ sessionId
+      const formattedLogs = logs.map((log: any) => {
+        const parts = (log.sessionId || '').split('|');
+        const sourceName = parts[0] || 'KNOWLEDGE_BASE_FALLBACK';
+        const modelName = parts[1] || 'ICTU-Dormitory-RuleEngine-v1';
+
+        return {
+          id: log.id,
+          userMessage: log.userMessage,
+          botReply: log.botReply,
+          source: sourceName,
+          model: modelName,
+          createdAt: log.createdAt,
+          user: log.user
+            ? {
+                id: log.user.id,
+                fullName: log.user.fullName,
+                studentCode: log.user.studentCode,
+                email: log.user.email,
+                gender: log.user.gender,
+              }
+            : null,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          logs: formattedLogs,
+          pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit) || 1,
+          },
+        },
+      });
+    } catch (error: any) {
+      console.error('[AIController] Lỗi lấy danh sách nhật ký AI:', error.message);
+      res.status(500).json({
+        success: false,
+        message: 'Không thể lấy danh sách nhật ký AI.',
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * GET /api/ai/stats
+   * Thống kê tổng quan số liệu hoạt động của Trợ lý AI (KPIs)
+   */
+  static async getStats(req: Request, res: Response): Promise<void> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [totalQueries, geminiLiveCount, fallbackCount, authenticatedCount, guestCount, todayCount] =
+        await Promise.all([
+          prisma.chatLog.count(),
+          prisma.chatLog.count({ where: { sessionId: { startsWith: 'GEMINI_LIVE' } } }),
+          prisma.chatLog.count({ where: { sessionId: { startsWith: 'KNOWLEDGE_BASE_FALLBACK' } } }),
+          prisma.chatLog.count({ where: { userId: { not: null } } }),
+          prisma.chatLog.count({ where: { userId: null } }),
+          prisma.chatLog.count({ where: { createdAt: { gte: today } } }),
+        ]);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          totalQueries,
+          todayQueries: todayCount,
+          bySource: {
+            geminiLive: geminiLiveCount,
+            fallbackKnowledge: fallbackCount,
+          },
+          byUserType: {
+            authenticated: authenticatedCount,
+            guest: guestCount,
+          },
+          serviceStatus: GeminiService.getServiceStatus(),
+        },
+      });
+    } catch (error: any) {
+      console.error('[AIController] Lỗi lấy thống kê AI:', error.message);
+      res.status(500).json({
+        success: false,
+        message: 'Không thể lấy số liệu thống kê AI.',
         error: error.message,
       });
     }

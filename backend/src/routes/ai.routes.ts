@@ -18,4 +18,18 @@ router.get('/status', AIController.getStatus);
  */
 router.post('/ask', AIController.ask);
 
+/**
+ * @route   GET /api/ai/logs
+ * @desc    Lấy danh sách nhật ký hỏi đáp AI (Dành riêng cho Admin)
+ * @access  Admin
+ */
+router.get('/logs', AIController.getLogs);
+
+/**
+ * @route   GET /api/ai/stats
+ * @desc    Lấy số liệu thống kê tổng quan hoạt động của Trợ lý AI (KPIs)
+ * @access  Admin
+ */
+router.get('/stats', AIController.getStats);
+
 export default router;
