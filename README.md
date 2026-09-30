@@ -201,8 +201,33 @@ npm run test:e2e
 | | `KTX-032` | Lưu trữ Lịch sử Hội thoại `localStorage` & Duy trì Ngữ cảnh Đa lượt | ✅ Hoàn thành |
 | | `KTX-033` | Tích hợp AI Cá nhân hóa theo Ngữ cảnh Sinh viên (User Context Grounding) | ✅ Hoàn thành |
 | | `KTX-034` | Phân hệ Giám sát Trợ lý AI, Bảng điều khiển KPIs & Lưu trữ `chat_logs` | ✅ Hoàn thành |
-| **EPIC E** | `KTX-040` | Bộ kiểm thử tích hợp toàn diện đầu - cuối E2E (12/12 Passed - 100%) | ✅ Hoàn thành |
-| | `KTX-041` | Đóng gói sản phẩm, cập nhật README và Báo cáo tổng kết thực tập | ✅ Hoàn thành |
+| **EPIC E** | `KTX-040` | Bộ kiểm thử tích hợp toàn diện đầu - cuối E2E (12/12 Passed - 100%) & Tìm hiểu quy trình nghiệm thu CS113 Hải Phòng | ✅ Hoàn thành |
+| | `KTX-041` | Đóng gói sản phẩm, kiểm thử các luồng chức năng Client/Admin & Báo cáo tổng kết | ✅ Hoàn thành |
+| | `KTX-042` | Rà soát ma trận phân quyền (RBAC Audit 15/15 Passed) & An toàn dữ liệu, chống rò rỉ secret/PII | ✅ Hoàn thành |
+| | `KTX-043` | Chuẩn bị bản demo an toàn, kịch bản thuyết trình nghiệm thu 5 màn & Launcher 1 chạm | ✅ Hoàn thành |
+| | `KTX-044` | Hoàn thiện trọn bộ 8 báo cáo tuần theo đề cương đã ký & Tổng kết bàn giao hồ sơ thực tập | ✅ Hoàn thành |
+
+---
+
+## 📚 Trọn bộ Hồ sơ 8 Tuần Thực tập Tốt nghiệp (Khớp 100% Đề cương)
+
+| Tuần | Nội dung công việc theo Đề cương Đã duyệt | File Báo cáo Chi tiết |
+| :---: | :--- | :--- |
+| **Tuần 1** | Tìm hiểu cơ cấu tổ chức, văn hóa công ty TFL và cài đặt công cụ làm việc. | [`docs/TUAN_1_CO_CAU_CONG_CU.md`](file:///e:/Dormitory-Management-System/docs/TUAN_1_CO_CAU_CONG_CU.md) |
+| **Tuần 2** | Tìm hiểu các công nghệ nền tảng sử dụng trong dự án (Node.js, Express, TypeScript, Prisma, MySQL). | [`docs/TUAN_2_STACK_CONG_NGHE.md`](file:///e:/Dormitory-Management-System/docs/TUAN_2_STACK_CONG_NGHE.md) |
+| **Tuần 3** | Tìm hiểu về tích hợp AI Chatbot (Gemini 1.5 Flash, Server Proxy, Fallback Engine). | [`docs/TUAN_3_TICH_HOP_AI_GEMINI.md`](file:///e:/Dormitory-Management-System/docs/TUAN_3_TICH_HOP_AI_GEMINI.md) |
+| **Tuần 4** | Quy trình nghiệm thu dự án thực tế: Hệ thống tiếp nhận thông tin và giám sát cuộc gọi Cảnh sát 113 - Công an tỉnh Hải Phòng. | [`docs/TUAN_4_QUY_TRINH_NGHIEM_THU_CS113.md`](file:///e:/Dormitory-Management-System/docs/TUAN_4_QUY_TRINH_NGHIEM_THU_CS113.md) |
+| **Tuần 5** | Lên kế hoạch xây dựng hệ thống quản lý KTX (Khảo sát nghiệp vụ, User Flows, CSDL 9 bảng). | [`docs/TUAN_5_KE_HOACH_XAY_DUNG_KTX.md`](file:///e:/Dormitory-Management-System/docs/TUAN_5_KE_HOACH_XAY_DUNG_KTX.md) |
+| **Tuần 6** | Xây dựng bộ khung và giao diện Client Portal & Admin Portal (Spartan UI, Tailwind CSS Anti-AI Slop). | [`docs/TUAN_6_XAY_DUNG_GIAO_DIEN_CLIENT_ADMIN.md`](file:///e:/Dormitory-Management-System/docs/TUAN_6_XAY_DUNG_GIAO_DIEN_CLIENT_ADMIN.md) |
+| **Tuần 7** | Xây dựng chức năng nghiệp vụ Client/Admin, kết nối REST API và Grounding Trợ lý AI cá nhân hóa. | [`docs/TUAN_7_XAY_DUNG_CHUC_NANG_CLIENT_ADMIN.md`](file:///e:/Dormitory-Management-System/docs/TUAN_7_XAY_DUNG_CHUC_NANG_CLIENT_ADMIN.md) |
+| **Tuần 8** | Kiểm thử tích hợp E2E, kiểm toán an toàn bảo mật RBAC, tổng kết và đánh giá quá trình thực tập. | [`docs/TUAN_8_TONG_KET_VA_DANH_GIA.md`](file:///e:/Dormitory-Management-System/docs/TUAN_8_TONG_KET_VA_DANH_GIA.md) |
+
+### 📑 Tài liệu Nghiệm thu & Bàn giao Trọng tâm
+- 📘 **Báo cáo Tổng kết Thực tập Tốt nghiệp:** [`docs/BAO_CAO_TONG_KET_THUC_TAP_TOT_NGHIEP.md`](file:///e:/Dormitory-Management-System/docs/BAO_CAO_TONG_KET_THUC_TAP_TOT_NGHIEP.md)
+- 📗 **Báo cáo Nghiệm thu KTX-044 (Bàn giao trọn bộ hồ sơ):** [`docs/BAO_CAO_KTX_044_HOAN_THIEN_HO_SO_THUC_TAP.md`](file:///e:/Dormitory-Management-System/docs/BAO_CAO_KTX_044_HOAN_THIEN_HO_SO_THUC_TAP.md)
+- 🧪 **Báo cáo Kiểm thử Tự động E2E (KTX-040):** [`docs/BAO_CAO_KTX_040_KIEM_THU_TICH_HOP_TOAN_DIEN_E2E.md`](file:///e:/Dormitory-Management-System/docs/BAO_CAO_KTX_040_KIEM_THU_TICH_HOP_TOAN_DIEN_E2E.md)
+- 🔒 **Báo cáo Kiểm toán Bảo mật & RBAC (KTX-042):** [`docs/BAO_CAO_KTX_042_RA_SOAT_QUYEN_VA_BAO_MAT_DU_LIEU.md`](file:///e:/Dormitory-Management-System/docs/BAO_CAO_KTX_042_RA_SOAT_QUYEN_VA_BAO_MAT_DU_LIEU.md)
+- 🎬 **Kịch bản Thuyết trình Demo Nghiệm thu (KTX-043):** [`docs/BAO_CAO_KTX_043_CHUAN_BI_DEMO_VA_HUONG_DAN_CHAY.md`](file:///e:/Dormitory-Management-System/docs/BAO_CAO_KTX_043_CHUAN_BI_DEMO_VA_HUONG_DAN_CHAY.md)
 
 ---
 *Bản quyền thuộc về Sinh viên thực hiện: **Phạm Thị Ngọc Ánh** — Đơn vị thực tập: **Công ty Cổ phần Công nghệ TFL** & **Trường Đại học CNTT & TT (ICTU)**.*
