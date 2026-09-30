@@ -1,0 +1,512 @@
+<div class="registrations-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <span>BQL KTX</span>
+        <span class="sep">/</span>
+        <span class="current">Xét duyệt đơn đăng ký</span>
+      </div>
+      <h1 class="page-title">Xử lý Hồ sơ & Đơn Đăng ký Lưu trú</h1>
+      <p class="page-subtitle">Thẩm định hồ sơ sinh viên, phê duyệt phân bổ giường phòng và quản lý lý do từ chối theo quy định KTX</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-refresh" (click)="loadData()" [disabled]="isLoading()" title="Tải lại danh sách">
+        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Làm mới
+      </button>
+    </div>
+  </div>
+
+  <!-- Feedback Banners -->
+  <div class="alert-success" *ngIf="actionSuccessMsg()">
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span>{{ actionSuccessMsg() }}</span>
+  </div>
+
+  <div class="alert-error" *ngIf="errorMessage() && !isLoading()">
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <span>{{ errorMessage() }}</span>
+    <button class="btn-retry" (click)="loadData()">Thử lại</button>
+  </div>
+
+  <!-- Metric Summary Cards -->
+  <div class="metrics-grid" *ngIf="stats() as st">
+    <div class="metric-card" [class.highlight]="currentTab() === 'ALL'" (click)="currentTab.set('ALL')">
+      <div class="metric-label">Tổng hồ sơ nộp</div>
+      <div class="metric-num">{{ st.total }}</div>
+      <div class="metric-note">Toàn bộ hồ sơ trong kỳ</div>
+    </div>
+
+    <div class="metric-card amber" [class.highlight]="currentTab() === 'PENDING'" (click)="currentTab.set('PENDING')">
+      <div class="metric-label">Chờ xét duyệt</div>
+      <div class="metric-num font-mono text-amber-600">{{ st.pending }}</div>
+      <div class="metric-note">Cần BQL xử lý gấp</div>
+    </div>
+
+    <div class="metric-card emerald" [class.highlight]="currentTab() === 'APPROVED'" (click)="currentTab.set('APPROVED')">
+      <div class="metric-label">Đã phê duyệt</div>
+      <div class="metric-num font-mono text-emerald-600">{{ st.approved }}</div>
+      <div class="metric-note">Đã gán giường lưu trú</div>
+    </div>
+
+    <div class="metric-card rose" [class.highlight]="currentTab() === 'REJECTED'" (click)="currentTab.set('REJECTED')">
+      <div class="metric-label">Bị từ chối</div>
+      <div class="metric-num font-mono text-rose-600">{{ st.rejected }}</div>
+      <div class="metric-note">Không đủ điều kiện tiếp nhận</div>
+    </div>
+
+    <div class="metric-card slate" [class.highlight]="currentTab() === 'CANCELLED'" (click)="currentTab.set('CANCELLED')">
+      <div class="metric-label">Đã tự hủy</div>
+      <div class="metric-num font-mono text-slate-500">{{ st.cancelled }}</div>
+      <div class="metric-note">Sinh viên rút lại đơn</div>
+    </div>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="toolbar-card">
+    <!-- Status Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn" [class.active]="currentTab() === 'PENDING'" (click)="currentTab.set('PENDING')">
+        Chờ duyệt ({{ stats()?.pending ?? 0 }})
+      </button>
+      <button class="tab-btn" [class.active]="currentTab() === 'APPROVED'" (click)="currentTab.set('APPROVED')">
+        Đã duyệt ({{ stats()?.approved ?? 0 }})
+      </button>
+      <button class="tab-btn" [class.active]="currentTab() === 'REJECTED'" (click)="currentTab.set('REJECTED')">
+        Từ chối ({{ stats()?.rejected ?? 0 }})
+      </button>
+      <button class="tab-btn" [class.active]="currentTab() === 'CANCELLED'" (click)="currentTab.set('CANCELLED')">
+        Đã hủy ({{ stats()?.cancelled ?? 0 }})
+      </button>
+      <button class="tab-btn" [class.active]="currentTab() === 'ALL'" (click)="currentTab.set('ALL')">
+        Tất cả ({{ stats()?.total ?? 0 }})
+      </button>
+    </div>
+
+    <div class="filter-controls">
+      <!-- Search Input -->
+      <div class="search-wrap">
+        <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="text"
+          [value]="searchTerm()"
+          (input)="searchTerm.set($any($event.target).value)"
+          placeholder="Tìm sinh viên, mã SV, số phòng..."
+          class="search-input"
+        />
+        <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')">✕</button>
+      </div>
+
+      <!-- Semester Filter -->
+      <select
+        [value]="selectedSemester()"
+        (change)="selectedSemester.set($any($event.target).value)"
+        class="filter-select"
+      >
+        <option value="ALL">Tất cả học kỳ</option>
+        <option *ngFor="let sem of semesterList()" [value]="sem">{{ sem }}</option>
+      </select>
+
+      <button class="btn-reset" (click)="resetFilters()" title="Đặt lại bộ lọc">
+        Đặt lại
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <span>Đang tải danh sách đơn đăng ký lưu trú...</span>
+  </div>
+
+  <!-- Data Table Card -->
+  <div class="table-card" *ngIf="!isLoading()">
+    <div class="table-header-meta">
+      <div class="meta-count">
+        Hiển thị: <strong>{{ filteredList().length }}</strong> / {{ registrations().length }} đơn
+      </div>
+      <div class="status-legend">
+        <span class="legend-badge-chip amber">Chờ duyệt</span>
+        <span class="legend-badge-chip emerald">Đã duyệt</span>
+        <span class="legend-badge-chip red">Từ chối</span>
+        <span class="legend-badge-chip slate">Đã hủy</span>
+      </div>
+    </div>
+
+    <div class="table-responsive" *ngIf="filteredList().length > 0">
+      <table class="table-b2b">
+        <thead>
+          <tr>
+            <th>Mã đơn</th>
+            <th>Sinh viên nộp đơn</th>
+            <th>Phòng nguyện vọng</th>
+            <th>Học kỳ</th>
+            <th>Ngày gửi</th>
+            <th>Trạng thái</th>
+            <th>Kết quả phân bổ / Lý do</th>
+            <th class="text-right">Thao tác xử lý</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reg of filteredList()" [class.row-pending]="reg.status === 'PENDING'">
+            <!-- Code -->
+            <td>
+              <span class="reg-code-badge">#REG-{{ reg.id }}</span>
+            </td>
+
+            <!-- Student Info -->
+            <td>
+              <div class="font-bold text-slate-900">{{ reg.user?.fullName }}</div>
+              <div class="student-sub-line">
+                <span class="font-mono text-blue-600">{{ reg.user?.studentCode }}</span>
+                <span class="dot">•</span>
+                <span>{{ reg.user?.gender === 'FEMALE' ? 'Nữ' : 'Nam' }}</span>
+                <span class="dot" *ngIf="reg.user?.phone">•</span>
+                <span class="font-mono" *ngIf="reg.user?.phone">{{ reg.user?.phone }}</span>
+              </div>
+            </td>
+
+            <!-- Preferred Room -->
+            <td>
+              <div *ngIf="reg.preferredRoom; else noRoomTemplate">
+                <span class="font-bold text-slate-900 font-mono">Phòng {{ reg.preferredRoom.roomNumber }}</span>
+                <div class="text-xs text-slate-500">{{ reg.preferredRoom.building }} • Tầng {{ reg.preferredRoom.floor }}</div>
+              </div>
+              <ng-template #noRoomTemplate>
+                <span class="text-slate-400 text-xs">Chưa chọn phòng</span>
+              </ng-template>
+            </td>
+
+            <!-- Semester -->
+            <td>
+              <span class="text-xs text-slate-700 font-medium">{{ reg.semester }}</span>
+            </td>
+
+            <!-- Created At -->
+            <td>
+              <span class="text-xs text-slate-500 font-mono">{{ reg.createdAt | date: 'HH:mm dd/MM/yyyy' }}</span>
+            </td>
+
+            <!-- Status Badge -->
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'badge-amber': reg.status === 'PENDING',
+                  'badge-emerald': reg.status === 'APPROVED',
+                  'badge-red': reg.status === 'REJECTED',
+                  'badge-slate': reg.status === 'CANCELLED'
+                }"
+              >
+                {{ reg.status === 'PENDING' ? 'Chờ duyệt' : reg.status === 'APPROVED' ? 'Đã duyệt' : reg.status === 'REJECTED' ? 'Từ chối' : 'Đã hủy' }}
+              </span>
+            </td>
+
+            <!-- Result Bed or Rejection Reason -->
+            <td class="max-w-xs">
+              <div *ngIf="reg.status === 'APPROVED'">
+                <span class="allocated-bed-chip" *ngIf="reg.allocatedBed">
+                  🛏️ Giường {{ reg.allocatedBed.bedNumber }}
+                </span>
+                <span class="text-xs text-emerald-700" *ngIf="!reg.allocatedBed">
+                  Đã duyệt (Chưa gán giường)
+                </span>
+              </div>
+
+              <div *ngIf="reg.status === 'REJECTED'" class="text-xs text-rose-700 truncate" [title]="reg.rejectionReason || ''">
+                Lý do: {{ reg.rejectionReason || 'Không đủ chỉ tiêu' }}
+              </div>
+
+              <div *ngIf="reg.status === 'CANCELLED'" class="text-xs text-slate-400">
+                Sinh viên tự hủy hồ sơ
+              </div>
+
+              <div *ngIf="reg.status === 'PENDING'" class="text-xs text-slate-500">
+                <span *ngIf="reg.note" [title]="reg.note">Ghi chú: {{ reg.note }}</span>
+                <span *ngIf="!reg.note">Chờ BQL tiếp nhận</span>
+              </div>
+            </td>
+
+            <!-- Actions -->
+            <td class="text-right">
+              <div class="action-btn-group">
+                <button
+                  class="btn-action primary"
+                  *ngIf="reg.status === 'PENDING'"
+                  (click)="openApproveModal(reg)"
+                  title="Duyệt đơn & Gán giường"
+                >
+                  Duyệt
+                </button>
+                <button
+                  class="btn-action danger"
+                  *ngIf="reg.status === 'PENDING'"
+                  (click)="openRejectModal(reg)"
+                  title="Từ chối đơn đăng ký"
+                >
+                  Từ chối
+                </button>
+                <button
+                  class="btn-action secondary"
+                  (click)="openDetailModal(reg)"
+                  title="Xem chi tiết hồ sơ"
+                >
+                  Chi tiết
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty Table State -->
+    <div class="empty-state" *ngIf="filteredList().length === 0">
+      <div class="empty-icon">📁</div>
+      <h3 class="empty-title">Không có đơn đăng ký nào trong mục này</h3>
+      <p class="empty-desc">Không tìm thấy hồ sơ nào thỏa mãn điều kiện lọc. Bạn có thể chọn trạng thái hoặc xóa bộ lọc.</p>
+      <button class="btn-reset-empty" (click)="resetFilters()">Xem tất cả</button>
+    </div>
+  </div>
+
+  <!-- MODAL 1: APPROVE REGISTRATION & ALLOCATE BED -->
+  <div class="modal-backdrop" *ngIf="isApproveModalOpen()" (click)="closeApproveModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Phê duyệt đơn đăng ký #REG-{{ selectedReg()?.id }}</h3>
+          <p class="modal-subtitle">Xác nhận duyệt lưu trú và phân bổ giường cho sinh viên</p>
+        </div>
+        <button class="btn-close-modal" (click)="closeApproveModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Student Info Strip -->
+        <div class="info-box">
+          <div class="info-row">
+            <span class="info-lbl">Sinh viên:</span>
+            <strong class="text-slate-900">{{ selectedReg()?.user?.fullName }}</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">Mã sinh viên:</span>
+            <span class="font-mono font-semibold text-blue-700">{{ selectedReg()?.user?.studentCode }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">Phòng nguyện vọng:</span>
+            <strong class="text-slate-900">Phòng {{ selectedReg()?.preferredRoom?.roomNumber }} ({{ selectedReg()?.preferredRoom?.building }})</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">Học kỳ lưu trú:</span>
+            <span>{{ selectedReg()?.semester }}</span>
+          </div>
+        </div>
+
+        <!-- Bed Allocation Selection -->
+        <div class="bed-select-section">
+          <label class="section-label">Chọn vị trí giường phân bổ:</label>
+
+          <div *ngIf="vacantBeds().length > 0; else noVacantBeds">
+            <p class="text-xs text-slate-500 mb-2">Phòng {{ selectedReg()?.preferredRoom?.roomNumber }} hiện có {{ vacantBeds().length }} giường đang trống:</p>
+            <div class="bed-options-grid">
+              <label
+                class="bed-radio-card"
+                *ngFor="let bed of vacantBeds()"
+                [class.selected]="selectedBedId() === bed.id"
+              >
+                <input
+                  type="radio"
+                  name="allocatedBed"
+                  [value]="bed.id"
+                  [checked]="selectedBedId() === bed.id"
+                  (change)="selectedBedId.set(bed.id)"
+                  class="sr-only"
+                />
+                <div class="bed-icon">🛏️</div>
+                <div class="bed-name font-mono">Giường {{ bed.bedNumber }}</div>
+                <span class="bed-status-tag">Trống</span>
+              </label>
+            </div>
+          </div>
+
+          <ng-template #noVacantBeds>
+            <div class="alert-warning-box">
+              ⚠️ Phòng {{ selectedReg()?.preferredRoom?.roomNumber }} hiện không còn giường trống (đã đủ sĩ số). Bạn vẫn có thể duyệt đơn để đưa sinh viên vào danh sách chờ xếp giường linh hoạt.
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeApproveModal()" [disabled]="isSubmitting()">
+          Hủy bỏ
+        </button>
+        <button type="button" class="btn-confirm-approve" (click)="confirmApprove()" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Đang duyệt...' : 'Xác nhận Phê duyệt' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: REJECT REGISTRATION -->
+  <div class="modal-backdrop" *ngIf="isRejectModalOpen()" (click)="closeRejectModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title text-rose-700">Từ chối đơn đăng ký #REG-{{ selectedReg()?.id }}</h3>
+          <p class="modal-subtitle">Hệ thống sẽ gửi phản hồi lý do từ chối đến tài khoản sinh viên</p>
+        </div>
+        <button class="btn-close-modal" (click)="closeRejectModal()">✕</button>
+      </div>
+
+      <form [formGroup]="rejectForm" (ngSubmit)="confirmReject()" class="modal-body">
+        <div class="info-box mb-3">
+          <div class="info-row">
+            <span class="info-lbl">Sinh viên:</span>
+            <strong>{{ selectedReg()?.user?.fullName }} ({{ selectedReg()?.user?.studentCode }})</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-lbl">Nguyện vọng:</span>
+            <span>Phòng {{ selectedReg()?.preferredRoom?.roomNumber }}</span>
+          </div>
+        </div>
+
+        <!-- Preset Reason Dropdown -->
+        <div class="form-group mb-3">
+          <label class="form-label">Chọn lý do mẫu nhanh:</label>
+          <select
+            formControlName="presetReason"
+            (change)="onPresetReasonChange($any($event.target).value)"
+            class="form-select"
+          >
+            <option value="Hồ sơ chưa đạt tiêu chuẩn tiếp nhận trong đợt này.">Hồ sơ chưa đạt tiêu chuẩn tiếp nhận trong đợt này.</option>
+            <option value="Phòng nguyện vọng đã kín chỉ tiêu chỗ ở.">Phòng nguyện vọng đã kín chỉ tiêu chỗ ở.</option>
+            <option value="Sinh viên không thuộc đối tượng ưu tiên xét duyệt đợt 1.">Sinh viên không thuộc đối tượng ưu tiên xét duyệt đợt 1.</option>
+            <option value="Thông tin hồ sơ hoặc số điện thoại liên lạc chưa chính xác.">Thông tin hồ sơ hoặc số điện thoại liên lạc chưa chính xác.</option>
+            <option value="">Lý do khác (Nhập tùy ý bên dưới)...</option>
+          </select>
+        </div>
+
+        <!-- Custom Reason Textarea -->
+        <div class="form-group">
+          <label class="form-label">Chi tiết lý do từ chối <span class="text-rose-500">*</span></label>
+          <textarea
+            formControlName="rejectionReason"
+            rows="3"
+            placeholder="Nhập cụ thể lý do từ chối để sinh viên được rõ..."
+            class="form-textarea"
+          ></textarea>
+          <span class="input-hint">Tối thiểu 5 ký tự</span>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeRejectModal()" [disabled]="isSubmitting()">
+            Hủy bỏ
+          </button>
+          <button type="submit" class="btn-confirm-reject" [disabled]="rejectForm.invalid || isSubmitting()">
+            {{ isSubmitting() ? 'Đang xử lý...' : 'Xác nhận Từ chối' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: VIEW REGISTRATION DETAIL -->
+  <div class="modal-backdrop" *ngIf="isDetailModalOpen()" (click)="closeDetailModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="flex items-center gap-2">
+          <span class="reg-code-badge">#REG-{{ selectedReg()?.id }}</span>
+          <div>
+            <h3 class="modal-title">Chi tiết đơn đăng ký lưu trú</h3>
+            <p class="modal-subtitle">Thời gian gửi: {{ selectedReg()?.createdAt | date: 'HH:mm - dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" (click)="closeDetailModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-section">
+          <h4 class="section-title">1. Thông tin sinh viên nộp đơn</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Họ và tên</span>
+              <strong class="info-val">{{ selectedReg()?.user?.fullName }}</strong>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Mã sinh viên</span>
+              <strong class="info-val font-mono text-blue-600">{{ selectedReg()?.user?.studentCode }}</strong>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email</span>
+              <span class="info-val">{{ selectedReg()?.user?.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Số điện thoại</span>
+              <span class="info-val font-mono">{{ selectedReg()?.user?.phone || 'Chưa cập nhật' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Giới tính</span>
+              <span class="info-val">{{ selectedReg()?.user?.gender === 'FEMALE' ? 'Nữ' : 'Nam' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section mt-4">
+          <h4 class="section-title">2. Nguyện vọng phòng & Thời gian lưu trú</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Phòng nguyện vọng</span>
+              <strong class="info-val text-slate-900">Phòng {{ selectedReg()?.preferredRoom?.roomNumber }}</strong>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Tòa nhà / Tầng</span>
+              <span class="info-val">{{ selectedReg()?.preferredRoom?.building }} - Tầng {{ selectedReg()?.preferredRoom?.floor }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Đơn giá tháng</span>
+              <span class="info-val font-mono">{{ selectedReg()?.preferredRoom?.pricePerMonth | number }} đ</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Học kỳ</span>
+              <span class="info-val">{{ selectedReg()?.semester }}</span>
+            </div>
+            <div class="info-item full">
+              <span class="info-label">Ghi chú của sinh viên</span>
+              <span class="info-val text-slate-600 italic">{{ selectedReg()?.note || 'Không có ghi chú thêm' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section mt-4">
+          <h4 class="section-title">3. Kết quả xử lý đơn</h4>
+          <div class="status-result-box" [ngClass]="selectedReg()?.status?.toLowerCase()">
+            <div class="status-result-title">
+              Trạng thái: <strong>{{ selectedReg()?.status === 'APPROVED' ? 'Đã phê duyệt' : selectedReg()?.status === 'PENDING' ? 'Đang chờ duyệt' : selectedReg()?.status === 'REJECTED' ? 'Bị từ chối' : 'Đã tự hủy' }}</strong>
+            </div>
+            <div *ngIf="selectedReg()?.status === 'APPROVED' && selectedReg()?.allocatedBed">
+              Phân bổ vào: <strong>Giường {{ selectedReg()?.allocatedBed?.bedNumber }}</strong>
+            </div>
+            <div *ngIf="selectedReg()?.status === 'REJECTED' && selectedReg()?.rejectionReason">
+              Lý do từ chối: {{ selectedReg()?.rejectionReason }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeDetailModal()">
+          Đóng cửa sổ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

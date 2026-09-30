@@ -1,0 +1,223 @@
+import { Component, signal, computed, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RegistrationService } from '../../../core/services/registration.service';
+import { Registration, RegistrationStatsSummary } from '../../../core/models/registration.model';
+
+@Component({
+  selector: 'app-admin-registrations',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './admin-registrations.component.html',
+  styleUrl: './admin-registrations.component.css'
+})
+export class AdminRegistrationsComponent implements OnInit {
+  private registrationService = inject(RegistrationService);
+  private fb = inject(FormBuilder);
+
+  registrations = signal<Registration[]>([]);
+  stats = signal<RegistrationStatsSummary | null>(null);
+  isLoading = signal(true);
+  errorMessage = signal('');
+  actionSuccessMsg = signal('');
+
+  // Filters
+  currentTab = signal<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'>('PENDING');
+  searchTerm = signal('');
+  selectedSemester = signal('ALL');
+
+  // Modals state
+  selectedReg = signal<Registration | null>(null);
+  isApproveModalOpen = signal(false);
+  isRejectModalOpen = signal(false);
+  isDetailModalOpen = signal(false);
+  isSubmitting = signal(false);
+
+  // Approve form
+  selectedBedId = signal<number | null>(null);
+
+  // Reject form
+  rejectForm: FormGroup;
+
+  // Computed filtered list
+  filteredList = computed(() => {
+    const tab = this.currentTab();
+    const search = this.searchTerm().toLowerCase().trim();
+    const semester = this.selectedSemester();
+
+    return this.registrations().filter((r) => {
+      const matchTab = tab === 'ALL' || r.status === tab;
+
+      const matchSemester = semester === 'ALL' || r.semester.includes(semester);
+
+      const matchSearch =
+        !search ||
+        (r.user?.fullName && r.user.fullName.toLowerCase().includes(search)) ||
+        (r.user?.studentCode && r.user.studentCode.toLowerCase().includes(search)) ||
+        (r.user?.email && r.user.email.toLowerCase().includes(search)) ||
+        (r.preferredRoom?.roomNumber && r.preferredRoom.roomNumber.toLowerCase().includes(search)) ||
+        String(r.id).includes(search);
+
+      return matchTab && matchSemester && matchSearch;
+    });
+  });
+
+  // Vacant beds in the preferred room for approval modal
+  vacantBeds = computed(() => {
+    const reg = this.selectedReg();
+    if (!reg || !reg.preferredRoom || !reg.preferredRoom.beds) return [];
+    return reg.preferredRoom.beds.filter((b) => b.status === 'VACANT');
+  });
+
+  // Unique semesters for dropdown
+  semesterList = computed(() => {
+    const set = new Set<string>();
+    this.registrations().forEach((r) => {
+      if (r.semester) set.add(r.semester);
+    });
+    return Array.from(set);
+  });
+
+  constructor() {
+    this.rejectForm = this.fb.group({
+      rejectionReason: ['', [Validators.required, Validators.minLength(5)]],
+      presetReason: [''],
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    this.registrationService.getRegistrations().subscribe({
+      next: (list) => {
+        this.registrations.set(list);
+        this.isLoading.set(false);
+      },
+      error: (err: Error) => {
+        console.error('[AdminRegistrationsComponent Error]', err);
+        this.errorMessage.set(err.message || 'Không thể tải danh sách đơn đăng ký.');
+        this.isLoading.set(false);
+      },
+    });
+
+    this.loadStats();
+  }
+
+  loadStats(): void {
+    this.registrationService.getRegistrationStats().subscribe({
+      next: (st) => this.stats.set(st),
+      error: (err) => console.error('[RegistrationStats Error]', err),
+    });
+  }
+
+  // VIEW DETAIL
+  openDetailModal(reg: Registration): void {
+    this.selectedReg.set(reg);
+    this.isDetailModalOpen.set(true);
+  }
+
+  closeDetailModal(): void {
+    this.isDetailModalOpen.set(false);
+    this.selectedReg.set(null);
+  }
+
+  // APPROVE WORKFLOW
+  openApproveModal(reg: Registration): void {
+    this.selectedReg.set(reg);
+    // Pre-select first vacant bed if available
+    const beds = (reg.preferredRoom?.beds || []).filter((b) => b.status === 'VACANT');
+    if (beds.length > 0) {
+      this.selectedBedId.set(beds[0].id);
+    } else {
+      this.selectedBedId.set(null);
+    }
+    this.isApproveModalOpen.set(true);
+  }
+
+  closeApproveModal(): void {
+    this.isApproveModalOpen.set(false);
+    this.selectedReg.set(null);
+  }
+
+  confirmApprove(): void {
+    const reg = this.selectedReg();
+    if (!reg) return;
+
+    this.isSubmitting.set(true);
+    const targetBedId = this.selectedBedId();
+
+    this.registrationService.approveRegistration(reg.id, targetBedId).subscribe({
+      next: (res) => {
+        this.isSubmitting.set(false);
+        this.closeApproveModal();
+        this.showSuccess(res.message || `Đã phê duyệt đơn đăng ký #${reg.id} cho sinh viên ${reg.user?.fullName}!`);
+        this.loadData();
+      },
+      error: (err: Error) => {
+        this.isSubmitting.set(false);
+        alert(err.message || 'Lỗi khi phê duyệt đơn đăng ký.');
+      },
+    });
+  }
+
+  // REJECT WORKFLOW
+  openRejectModal(reg: Registration): void {
+    this.selectedReg.set(reg);
+    this.rejectForm.reset({
+      rejectionReason: 'Hồ sơ chưa đạt tiêu chuẩn tiếp nhận trong đợt này.',
+      presetReason: 'Hồ sơ chưa đạt tiêu chuẩn tiếp nhận trong đợt này.',
+    });
+    this.isRejectModalOpen.set(true);
+  }
+
+  closeRejectModal(): void {
+    this.isRejectModalOpen.set(false);
+    this.selectedReg.set(null);
+  }
+
+  onPresetReasonChange(reason: string): void {
+    if (reason) {
+      this.rejectForm.patchValue({ rejectionReason: reason });
+    }
+  }
+
+  confirmReject(): void {
+    const reg = this.selectedReg();
+    if (!reg || this.rejectForm.invalid) {
+      this.rejectForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    const reason = this.rejectForm.value.rejectionReason;
+
+    this.registrationService.rejectRegistration(reg.id, reason).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.closeRejectModal();
+        this.showSuccess(`Đã từ chối đơn đăng ký #${reg.id}!`);
+        this.loadData();
+      },
+      error: (err: Error) => {
+        this.isSubmitting.set(false);
+        alert(err.message || 'Lỗi khi từ chối đơn đăng ký.');
+      },
+    });
+  }
+
+  resetFilters(): void {
+    this.currentTab.set('PENDING');
+    this.searchTerm.set('');
+    this.selectedSemester.set('ALL');
+  }
+
+  private showSuccess(msg: string): void {
+    this.actionSuccessMsg.set(msg);
+    setTimeout(() => this.actionSuccessMsg.set(''), 5000);
+  }
+}

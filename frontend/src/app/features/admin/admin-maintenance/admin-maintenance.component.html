@@ -1,0 +1,327 @@
+<div class="admin-maintenance-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-title-row">
+        <h1 class="page-title">Quản Lý Yêu Cầu Sửa Chữa & Bảo Trì KTX</h1>
+        <span class="badge-count" *ngIf="stats">{{ stats.total }} yêu cầu</span>
+      </div>
+      <p class="page-subtitle">Theo dõi, điều phối kỹ thuật viên và cập nhật tiến độ khắc phục sự cố thiết bị tại các phòng nội trú.</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification Message -->
+  <div class="toast-alert toast-success" *ngIf="successMessage">
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <!-- KPI Metrics Grid -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-info">
+        <span class="metric-label">Tổng số sự cố đã báo</span>
+        <span class="metric-value">{{ stats?.total || 0 }}</span>
+      </div>
+      <div class="metric-icon bg-slate-100 text-slate-700">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-info">
+        <span class="metric-label">Chờ tiếp nhận</span>
+        <span class="metric-value text-amber-600">{{ stats?.pending || 0 }}</span>
+      </div>
+      <div class="metric-icon bg-amber-50 text-amber-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-info">
+        <span class="metric-label">Đang sửa chữa</span>
+        <span class="metric-value text-blue-600">{{ stats?.processing || 0 }}</span>
+      </div>
+      <div class="metric-icon bg-blue-50 text-blue-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-info">
+        <span class="metric-label">Đã khắc phục hoàn tất</span>
+        <span class="metric-value text-emerald-700">{{ stats?.resolved || 0 }}</span>
+      </div>
+      <div class="metric-icon bg-emerald-50 text-emerald-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Tab Bar -->
+  <div class="filter-wrapper">
+    <div class="tab-list">
+      <button class="tab-btn" [class.active]="activeTab === 'ALL'" (click)="switchTab('ALL')">
+        Tất cả yêu cầu
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'PENDING'" (click)="switchTab('PENDING')">
+        Chờ tiếp nhận ({{ stats?.pending || 0 }})
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'PROCESSING'" (click)="switchTab('PROCESSING')">
+        Đang sửa chữa ({{ stats?.processing || 0 }})
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'RESOLVED'" (click)="switchTab('RESOLVED')">
+        Đã khắc phục
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'REJECTED'" (click)="switchTab('REJECTED')">
+        Đã từ chối
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'HIGH'" (click)="switchTab('HIGH')">
+        🚨 Khẩn cấp
+      </button>
+    </div>
+
+    <div class="filter-controls-row">
+      <!-- Search Input -->
+      <div class="search-box">
+        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input
+          type="text"
+          class="form-input search-input"
+          placeholder="Tìm theo phòng, tên sinh viên, mã SV, nội dung..."
+          [(ngModel)]="searchKeyword"
+          (keyup.enter)="onFilterChange()"
+        />
+      </div>
+
+      <!-- Select Urgency -->
+      <select class="form-select" [(ngModel)]="selectedUrgency" (change)="onFilterChange()">
+        <option value="">Tất cả mức độ</option>
+        <option value="HIGH">Khẩn cấp</option>
+        <option value="MEDIUM">Bình thường</option>
+        <option value="LOW">Thấp</option>
+      </select>
+
+      <!-- Select Building -->
+      <select class="form-select" [(ngModel)]="selectedBuilding" (change)="onFilterChange()">
+        <option value="">Tất cả các tòa</option>
+        <option value="Tòa A">Tòa A (Nam)</option>
+        <option value="Tòa B">Tòa B (Nữ)</option>
+      </select>
+
+      <button class="btn btn-secondary" (click)="onFilterChange()">Lọc</button>
+    </div>
+  </div>
+
+  <!-- Data Table Container -->
+  <div class="table-container">
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <span class="mt-2 text-sm text-slate-500 font-medium">Đang tải danh sách yêu cầu bảo trì...</span>
+    </div>
+
+    <table class="data-table" *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th style="width: 70px;">Mã số</th>
+          <th style="width: 130px;">Vị trí phòng</th>
+          <th style="width: 170px;">Người gửi yêu cầu</th>
+          <th>Chi tiết sự cố & Hỏng hóc</th>
+          <th style="width: 110px;">Mức độ</th>
+          <th style="width: 130px;">Trạng thái</th>
+          <th>Phản hồi kỹ thuật</th>
+          <th style="width: 110px;">Ngày báo</th>
+          <th style="width: 120px;" class="text-right">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of requests" [class.urgent-row]="item.urgency === 'HIGH'">
+          <!-- ID -->
+          <td class="font-mono text-xs font-bold text-slate-600">#{{ item.id }}</td>
+
+          <!-- Room & Building -->
+          <td>
+            <div class="room-col">
+              <span class="room-number">Phòng {{ item.room?.roomNumber }}</span>
+              <span class="room-building">{{ item.room?.building }} - Tầng {{ item.room?.floor }}</span>
+            </div>
+          </td>
+
+          <!-- User Info -->
+          <td>
+            <div class="user-col">
+              <span class="user-fullname">{{ item.user?.fullName }}</span>
+              <span class="user-code">{{ item.user?.studentCode }}</span>
+              <span class="user-phone" *ngIf="item.user?.phone">📞 {{ item.user?.phone }}</span>
+            </div>
+          </td>
+
+          <!-- Title & Description -->
+          <td>
+            <div class="issue-col">
+              <span class="issue-title">{{ item.title }}</span>
+              <p class="issue-desc">{{ item.description }}</p>
+            </div>
+          </td>
+
+          <!-- Urgency Badge -->
+          <td>
+            <span class="badge" [ngClass]="getUrgencyBadgeClass(item.urgency)">
+              {{ getUrgencyLabel(item.urgency) }}
+            </span>
+          </td>
+
+          <!-- Status Badge -->
+          <td>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(item.status)">
+              {{ getStatusLabel(item.status) }}
+            </span>
+          </td>
+
+          <!-- Admin Feedback -->
+          <td>
+            <span class="feedback-text" *ngIf="item.adminFeedback">{{ item.adminFeedback }}</span>
+            <span class="no-feedback" *ngIf="!item.adminFeedback">Chưa có ghi chú</span>
+          </td>
+
+          <!-- Created Date -->
+          <td>
+            <span class="text-slate-600 text-xs">{{ item.createdAt | date:'dd/MM/yyyy' }}</span>
+            <span class="text-slate-400 text-xs block">{{ item.createdAt | date:'HH:mm' }}</span>
+          </td>
+
+          <!-- Actions -->
+          <td class="text-right">
+            <div class="table-actions">
+              <button class="btn-action-primary" (click)="openProcessModal(item)" title="Cập nhật tiến độ xử lý">
+                Xử lý
+              </button>
+              <button class="action-btn text-red-600 hover:bg-red-50" title="Xóa yêu cầu" (click)="confirmDelete(item)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Empty State -->
+        <tr *ngIf="requests.length === 0">
+          <td colspan="9" class="empty-state-cell">
+            <div class="empty-content">
+              <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="empty-title">Không có sự cố nào cần xử lý</span>
+              <p class="empty-desc">Toàn bộ trang thiết bị tại các phòng đang hoạt động bình thường hoặc không khớp với bộ lọc.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination Footer -->
+    <div class="pagination-footer" *ngIf="totalItems > 0">
+      <span class="pagination-info">
+        Hiển thị <strong>{{ (page - 1) * limit + 1 }} - {{ page * limit > totalItems ? totalItems : page * limit }}</strong> trong tổng số <strong>{{ totalItems }}</strong> yêu cầu
+      </span>
+      <div class="pagination-controls">
+        <button class="page-btn" [disabled]="page <= 1" (click)="goToPage(page - 1)">Trang trước</button>
+        <span class="page-current">{{ page }} / {{ totalPages }}</span>
+        <button class="page-btn" [disabled]="page >= totalPages" (click)="goToPage(page + 1)">Trang sau</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Cập nhật Tiến độ & Phản hồi Kỹ thuật -->
+  <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()">
+    <div class="modal-card modal-md" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Tiếp Nhận & Xử Lý Sự Cố Báo Hỏng #{{ selectedRequest?.id }}</h3>
+          <p class="modal-subtitle">Phòng {{ selectedRequest?.room?.roomNumber }} ({{ selectedRequest?.room?.building }}) - Sinh viên: {{ selectedRequest?.user?.fullName }}</p>
+        </div>
+        <button class="close-btn" (click)="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="issue-summary-box">
+          <div class="summary-line">
+            <span class="summary-k">Tiêu đề sự cố:</span>
+            <strong class="text-slate-900">{{ selectedRequest?.title }}</strong>
+          </div>
+          <div class="summary-line">
+            <span class="summary-k">Mô tả hỏng hóc:</span>
+            <span class="text-slate-700 whitespace-pre-line">{{ selectedRequest?.description }}</span>
+          </div>
+          <div class="summary-line">
+            <span class="summary-k">Mức độ ưu tiên:</span>
+            <span class="badge" [ngClass]="getUrgencyBadgeClass(selectedRequest!.urgency)">
+              {{ getUrgencyLabel(selectedRequest!.urgency) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cập nhật trạng thái xử lý <span class="text-red-500">*</span></label>
+          <select class="form-select w-full" [(ngModel)]="formStatus">
+            <option value="PROCESSING">🔧 Đang sửa chữa (Đội kỹ thuật đã tiếp nhận)</option>
+            <option value="RESOLVED">✅ Đã khắc phục hoàn tất (Đã sửa xong và nghiệm thu)</option>
+            <option value="REJECTED">❌ Từ chối xử lý (Không thuộc phạm vi bảo trì / Báo nhầm)</option>
+            <option value="PENDING">⏳ Chờ tiếp nhận</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ghi chú & Phản hồi kỹ thuật gửi đến sinh viên</label>
+          <textarea
+            class="form-textarea"
+            rows="4"
+            placeholder="VD: Kỹ thuật viên đã thay bóng đèn LED 18W và kiểm tra đường điện an toàn lúc 14h30..."
+            [(ngModel)]="formFeedback"
+          ></textarea>
+          <span class="text-xs text-slate-500">Phản hồi này sẽ hiển thị trực tiếp trên tài khoản của sinh viên để theo dõi.</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()" [disabled]="isSaving">Hủy</button>
+        <button class="btn btn-primary" (click)="saveProcess()" [disabled]="isSaving">
+          {{ isSaving ? 'Đang lưu...' : 'Lưu Cập Nhật' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xác nhận Xóa -->
+  <div class="modal-backdrop" *ngIf="isDeleteConfirmOpen" (click)="closeDeleteConfirm()">
+    <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title text-red-600">Xác Nhận Xóa Yêu Cầu</h3>
+        <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-sm text-slate-700">
+          Bạn có chắc chắn muốn xóa bản ghi yêu cầu bảo trì <strong>#{{ deletingRequest?.id }}</strong> của Phòng {{ deletingRequest?.room?.roomNumber }} không?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDeleteConfirm()">Hủy</button>
+        <button class="btn btn-danger" (click)="executeDelete()">Xóa Vĩnh Viễn</button>
+      </div>
+    </div>
+  </div>
+</div>

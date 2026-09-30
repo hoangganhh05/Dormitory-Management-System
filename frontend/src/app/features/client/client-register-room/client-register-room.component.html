@@ -1,0 +1,244 @@
+<div class="container register-page">
+  <div class="form-wrapper">
+    <div class="form-header">
+      <div class="breadcrumb">
+        <a routerLink="/client/dashboard" class="breadcrumb-link">Trang chủ</a>
+        <span class="sep">/</span>
+        <span class="current">Đăng ký lưu trú KTX</span>
+      </div>
+      <h1 class="page-title">Đăng Ký Lưu Trú Ký Túc Xá</h1>
+      <p class="page-subtitle">Sinh viên vui lòng điền đầy đủ và chính xác thông tin để Ban Quản lý KTX xét duyệt và bố trí phòng.</p>
+    </div>
+
+    <!-- Success Message Banner -->
+    <div class="success-banner" *ngIf="isSuccess()">
+      <div class="success-icon">✓</div>
+      <h2 class="success-title">Nộp hồ sơ đăng ký thành công!</h2>
+      <p class="success-desc">
+        Hồ sơ đăng ký lưu trú của bạn đã được chuyển tới Ban Quản lý KTX với mã tra cứu:
+        <strong class="code-highlight">{{ registrationCode() }}</strong>
+      </p>
+      <p class="success-note">
+        Kết quả xét duyệt sẽ được thông báo trực tiếp trên Cổng thông tin sinh viên và qua email trong vòng 24 - 48 giờ làm việc.
+      </p>
+      <div class="success-actions">
+        <a routerLink="/client/profile" class="btn-primary">Xem hồ sơ & kết quả</a>
+        <button class="btn-secondary" (click)="resetForm()">Nộp đơn khác</button>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div class="error-banner" *ngIf="submitError()">
+      <div class="error-banner-icon">⚠️</div>
+      <div class="error-banner-content">
+        <h4>Thông báo từ hệ thống</h4>
+        <p>{{ submitError() }}</p>
+      </div>
+      <button type="button" class="close-error-btn" (click)="submitError.set('')" title="Đóng">✕</button>
+    </div>
+
+    <!-- Cancel Success Alert -->
+    <div class="alert-cancel-success" *ngIf="cancelSuccessMsg()">
+      ✓ {{ cancelSuccessMsg() }}
+    </div>
+
+    <!-- Registration Form -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" *ngIf="!isSuccess()" class="register-form" novalidate>
+      <div class="form-section-title">1. Thông tin cá nhân sinh viên</div>
+
+      <div class="form-grid">
+        <!-- Full Name -->
+        <div class="form-field">
+          <label for="fullName">Họ và tên <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="fullName" 
+            formControlName="fullName" 
+            placeholder="Ví dụ: Phạm Thị Ngọc Ánh"
+            [class.invalid]="f['fullName'].touched && f['fullName'].invalid"
+          />
+          <div class="error-msg" *ngIf="f['fullName'].touched && f['fullName'].errors">
+            <span *ngIf="f['fullName'].errors['required']">Họ và tên không được để trống.</span>
+            <span *ngIf="f['fullName'].errors['minlength']">Họ tên phải có ít nhất 3 ký tự.</span>
+          </div>
+        </div>
+
+        <!-- Student Code -->
+        <div class="form-field">
+          <label for="studentCode">Mã số sinh viên (MSSV) <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="studentCode" 
+            formControlName="studentCode" 
+            placeholder="Ví dụ: DTC235200050"
+            class="font-mono"
+            [class.invalid]="f['studentCode'].touched && f['studentCode'].invalid"
+          />
+          <div class="error-msg" *ngIf="f['studentCode'].touched && f['studentCode'].errors">
+            <span *ngIf="f['studentCode'].errors['required']">Mã số sinh viên là bắt buộc.</span>
+            <span *ngIf="f['studentCode'].errors['pattern']">MSSV chỉ gồm chữ cái và số (8 - 15 ký tự).</span>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-field">
+          <label for="email">Email sinh viên (trường cấp) <span class="required">*</span></label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            placeholder="Ví dụ: ngocanh.cntt@ictu.edu.vn"
+            [class.invalid]="f['email'].touched && f['email'].invalid"
+          />
+          <div class="error-msg" *ngIf="f['email'].touched && f['email'].errors">
+            <span *ngIf="f['email'].errors['required']">Email là bắt buộc để nhận kết quả duyệt.</span>
+            <span *ngIf="f['email'].errors['email']">Email không đúng định dạng hợp lệ.</span>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-field">
+          <label for="phone">Số điện thoại liên hệ <span class="required">*</span></label>
+          <input 
+            type="tel" 
+            id="phone" 
+            formControlName="phone" 
+            placeholder="Ví dụ: 0967862569"
+            class="font-mono"
+            [class.invalid]="f['phone'].touched && f['phone'].invalid"
+          />
+          <div class="error-msg" *ngIf="f['phone'].touched && f['phone'].errors">
+            <span *ngIf="f['phone'].errors['required']">Số điện thoại là bắt buộc.</span>
+            <span *ngIf="f['phone'].errors['pattern']">Số điện thoại phải gồm đúng 10 chữ số.</span>
+          </div>
+        </div>
+
+        <!-- Gender -->
+        <div class="form-field">
+          <label for="gender">Giới tính <span class="required">*</span></label>
+          <select id="gender" formControlName="gender">
+            <option value="MALE">Nam (Bố trí ở Tòa A)</option>
+            <option value="FEMALE">Nữ (Bố trí ở Tòa B)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section-title mt-4">2. Nguyện vọng đăng ký lưu trú</div>
+
+      <div class="form-grid">
+        <!-- Preferred Room -->
+        <div class="form-field full-width">
+          <label for="preferredRoomId">Chọn phòng nguyện vọng <span class="required">*</span></label>
+          <select 
+            id="preferredRoomId" 
+            formControlName="preferredRoomId"
+            [class.invalid]="f['preferredRoomId'].touched && f['preferredRoomId'].invalid"
+          >
+            <option value="" disabled>-- Vui lòng chọn phòng KTX mong muốn --</option>
+            <option *ngFor="let room of availableRooms" [value]="room.id">{{ room.name }}</option>
+          </select>
+          <div class="error-msg" *ngIf="f['preferredRoomId'].touched && f['preferredRoomId'].errors">
+            <span>Bạn vui lòng chọn một phòng nguyện vọng.</span>
+          </div>
+        </div>
+
+        <!-- Semester -->
+        <div class="form-field">
+          <label for="semester">Học kỳ đăng ký</label>
+          <select id="semester" formControlName="semester">
+            <option value="Học kỳ 1 (2026 - 2027)">Học kỳ 1 (Tháng 9 - Tháng 1)</option>
+            <option value="Học kỳ 2 (2026 - 2027)">Học kỳ 2 (Tháng 2 - Tháng 6)</option>
+            <option value="Cả năm học (2026 - 2027)">Cả năm học (10 tháng)</option>
+          </select>
+        </div>
+
+        <!-- Academic Year -->
+        <div class="form-field">
+          <label for="academicYear">Năm học</label>
+          <input type="text" id="academicYear" formControlName="academicYear" readonly />
+        </div>
+
+        <!-- Note -->
+        <div class="form-field full-width">
+          <label for="note">Ghi chú hoặc hoàn cảnh ưu tiên (nếu có)</label>
+          <textarea 
+            id="note" 
+            formControlName="note" 
+            rows="3" 
+            placeholder="Ví dụ: Sinh viên diện chính sách / Con thương binh / Mong muốn ở cùng bạn..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Submit Section -->
+      <div class="form-submit-footer">
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+          <span *ngIf="!isSubmitting()">Gửi đơn đăng ký lưu trú</span>
+          <span *ngIf="isSubmitting()">Đang xử lý hồ sơ...</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- My Existing Applications History (Client Portal) -->
+    <div class="history-card" *ngIf="isLoggedIn() && myRegistrations().length > 0">
+      <div class="history-header">
+        <h3 class="history-title">Lịch sử đơn đăng ký lưu trú của bạn</h3>
+        <span class="history-sub">Theo dõi trạng thái xét duyệt và quản lý đơn</span>
+      </div>
+
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Mã đơn</th>
+              <th>Học kỳ</th>
+              <th>Phòng nguyện vọng</th>
+              <th>Thời gian nộp</th>
+              <th>Trạng thái</th>
+              <th class="text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reg of myRegistrations()">
+              <td class="font-mono font-bold">#REG-{{ reg.id }}</td>
+              <td>{{ reg.semester }}</td>
+              <td>
+                <span *ngIf="reg.preferredRoom">Phòng {{ reg.preferredRoom.roomNumber }} ({{ reg.preferredRoom.building }})</span>
+                <span *ngIf="!reg.preferredRoom" class="text-slate-400">Chưa xếp</span>
+              </td>
+              <td class="text-xs text-slate-500 font-mono">{{ reg.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-amber': reg.status === 'PENDING',
+                  'badge-emerald': reg.status === 'APPROVED',
+                  'badge-red': reg.status === 'REJECTED',
+                  'badge-slate': reg.status === 'CANCELLED'
+                }">
+                  {{ reg.status === 'PENDING' ? 'Chờ duyệt' : reg.status === 'APPROVED' ? 'Đã duyệt' : reg.status === 'REJECTED' ? 'Từ chối' : 'Đã hủy' }}
+                </span>
+                <div *ngIf="reg.status === 'APPROVED' && reg.allocatedBed" class="text-xs text-emerald-700 mt-0.5">
+                  Được cấp: Giường {{ reg.allocatedBed.bedNumber }}
+                </div>
+                <div *ngIf="reg.status === 'REJECTED' && reg.rejectionReason" class="text-xs text-rose-600 mt-0.5">
+                  Lý do: {{ reg.rejectionReason }}
+                </div>
+              </td>
+              <td class="text-right">
+                <button
+                  type="button"
+                  class="btn-cancel-reg"
+                  *ngIf="reg.status === 'PENDING'"
+                  (click)="cancelRegistration(reg.id)"
+                  title="Rút lại đơn đăng ký này"
+                >
+                  Hủy đơn
+                </button>
+                <span *ngIf="reg.status !== 'PENDING'" class="text-slate-400 text-xs">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
