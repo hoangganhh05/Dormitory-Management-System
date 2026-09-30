@@ -6,6 +6,7 @@ import maintenanceRoutes from './maintenance.routes';
 import dashboardRoutes from './dashboard.routes';
 import authRoutes from './auth.routes';
 import studentRoutes from './student.routes';
+import allocationRoutes from './allocation.routes';
 
 const router = Router();
 
@@ -19,6 +20,7 @@ router.use('/auth', authRoutes);
 router.use('/students', studentRoutes);
 router.use('/rooms', roomRoutes);
 router.use('/registrations', registrationRoutes);
+router.use('/allocations', allocationRoutes);
 router.use('/maintenance', maintenanceRoutes);
 router.use('/dashboard', dashboardRoutes);
 
