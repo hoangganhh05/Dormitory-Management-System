@@ -1,0 +1,120 @@
+<div class="container maintenance-page">
+  <div class="page-header">
+    <h1 class="page-title">Báo Hỏng Cơ Sở Vật Chất KTX</h1>
+    <p class="page-subtitle">Sinh viên phản ánh sự cố kỹ thuật, hỏng hóc thiết bị điện nước tại phòng để Ban Quản lý điều phối sửa chữa.</p>
+  </div>
+
+  <div class="maintenance-grid">
+    <!-- Form gửi phiếu báo hỏng -->
+    <div class="maint-card">
+      <h2 class="card-title">Tạo phiếu báo hỏng mới</h2>
+
+      <div class="alert-success" *ngIf="submitSuccess()">
+        ✓ Gửi phiếu báo hỏng thành công! Kỹ thuật viên sẽ tiếp nhận và xử lý sớm nhất.
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="maint-form">
+        <div class="form-group">
+          <label>Vị trí phòng</label>
+          <input type="text" [value]="roomNumber" readonly class="input-readonly" />
+        </div>
+
+        <div class="form-group">
+          <label>Loại cơ sở vật chất <span class="req">*</span></label>
+          <select [(ngModel)]="category" name="category">
+            <option value="Điện & Quạt">Điện, quạt, bóng đèn</option>
+            <option value="Cấp thoát nước">Hệ thống cấp thoát nước, vòi nước</option>
+            <option value="Giường tủ">Giường tầng, tủ khóa cá nhân, bàn học</option>
+            <option value="Cửa & Khóa">Cửa phòng, ổ khóa, chìa khóa</option>
+            <option value="Khác">Sự cố thiết bị khác</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Mức độ khẩn cấp <span class="req">*</span></label>
+          <div class="urgency-selector">
+            <label class="urgency-option" [class.selected]="urgency === 'LOW'">
+              <input type="radio" [(ngModel)]="urgency" name="urgency" value="LOW" />
+              <span>Thấp (Bình thường)</span>
+            </label>
+            <label class="urgency-option" [class.selected]="urgency === 'MEDIUM'">
+              <input type="radio" [(ngModel)]="urgency" name="urgency" value="MEDIUM" />
+              <span>Trung bình</span>
+            </label>
+            <label class="urgency-option high" [class.selected]="urgency === 'HIGH'">
+              <input type="radio" [(ngModel)]="urgency" name="urgency" value="HIGH" />
+              <span>Cao (Khẩn cấp)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tiêu đề sự cố <span class="req">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="title" 
+            name="title" 
+            placeholder="Ví dụ: Bóng đèn bàn học bị chập cháy" 
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Mô tả chi tiết vị trí và biểu hiện sự cố <span class="req">*</span></label>
+          <textarea 
+            [(ngModel)]="description" 
+            name="description" 
+            rows="4" 
+            placeholder="Mô tả cụ thể để thợ kỹ thuật mang đúng dụng cụ và linh kiện thay thế..." 
+            required
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
+          <span *ngIf="!isSubmitting()">🛠️ Gửi phiếu báo hỏng</span>
+          <span *ngIf="isSubmitting()">⏳ Đang gửi...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Lịch sử các phiếu báo hỏng -->
+    <div class="maint-card">
+      <div class="history-header">
+        <h2 class="card-title">Lịch sử yêu cầu đã gửi ({{ myRequests().length }})</h2>
+      </div>
+
+      <div class="request-list" *ngIf="myRequests().length > 0">
+        <div *ngFor="let req of myRequests()" class="request-item">
+          <div class="req-header">
+            <div class="req-title-grp">
+              <span class="req-cat-pill">{{ req.category }}</span>
+              <strong class="req-title">{{ req.title }}</strong>
+            </div>
+            <span class="req-status-pill" [ngClass]="req.status.toLowerCase()">
+              {{ req.status === 'PENDING' ? 'Chờ duyệt' : req.status === 'PROCESSING' ? 'Đang sửa' : 'Đã xong' }}
+            </span>
+          </div>
+
+          <div class="req-meta">
+            <span>Phòng {{ req.roomNumber }}</span>
+            <span>●</span>
+            <span class="urgency-text" [ngClass]="req.urgency.toLowerCase()">Mức độ: {{ req.urgency }}</span>
+            <span>●</span>
+            <span>{{ req.createdAt }}</span>
+          </div>
+
+          <div class="feedback-box" *ngIf="req.feedback">
+            <span class="fb-icon">💬</span>
+            <div class="fb-text">
+              <strong>Phản hồi BQL:</strong> {{ req.feedback }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-requests" *ngIf="myRequests().length === 0">
+        <p>Bạn chưa gửi yêu cầu báo hỏng nào.</p>
+      </div>
+    </div>
+  </div>
+</div>
