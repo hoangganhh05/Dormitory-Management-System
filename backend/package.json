@@ -11,7 +11,8 @@
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node-dev prisma/seed.ts",
-    "test:e2e": "ts-node-dev src/scripts/run-e2e-tests.ts"
+    "test:e2e": "ts-node-dev src/scripts/run-e2e-tests.ts",
+    "test:security": "ts-node-dev src/scripts/run-security-audit-tests.ts"
   },
   "keywords": [
     "express",

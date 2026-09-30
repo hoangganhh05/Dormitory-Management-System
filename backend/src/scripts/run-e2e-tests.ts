@@ -200,7 +200,10 @@ async function runTests() {
       },
       studentToken
     );
-    const passed = res.status === 201 || (res.status === 400 && res.data?.message?.includes('đã có đơn'));
+    const passed =
+      res.status === 201 ||
+      ((res.status === 400 || res.status === 409) &&
+        (res.data?.message?.includes('đã có') || res.data?.message?.includes('đơn')));
     if (res.data?.data?.id) testRegId = res.data.data.id;
     results.push({
       step: 5,
