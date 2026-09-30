@@ -26,6 +26,9 @@
         <a routerLink="/client/maintenance" routerLinkActive="active" class="nav-item">
           <span class="nav-icon">🛠️</span> Báo hỏng thiết bị
         </a>
+        <a routerLink="/client/profile" routerLinkActive="active" class="nav-item" *ngIf="isLoggedIn()">
+          <span class="nav-icon">👤</span> Hồ sơ lưu trú
+        </a>
       </nav>
 
       <!-- User Profile & Action -->
@@ -70,6 +73,9 @@
         </a>
         <a routerLink="/client/maintenance" (click)="closeMobileMenu()" class="mobile-nav-item">
           <span>🛠️</span> Báo hỏng cơ sở vật chất
+        </a>
+        <a routerLink="/client/profile" (click)="closeMobileMenu()" class="mobile-nav-item" *ngIf="isLoggedIn()">
+          <span>👤</span> Hồ sơ lưu trú cá nhân
         </a>
       </nav>
     </div>
