@@ -15,6 +15,7 @@ import { AdminStudentsComponent } from './features/admin/admin-students/admin-st
 import { AdminRegistrationsComponent } from './features/admin/admin-registrations/admin-registrations.component';
 import { AdminMaintenanceComponent } from './features/admin/admin-maintenance/admin-maintenance.component';
 import { AdminNotificationsComponent } from './features/admin/admin-notifications/admin-notifications.component';
+import { AdminAiLogsComponent } from './features/admin/admin-ai-logs/admin-ai-logs.component';
 import { adminGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -55,6 +56,7 @@ export const routes: Routes = [
       { path: 'registrations', component: AdminRegistrationsComponent },
       { path: 'maintenance', component: AdminMaintenanceComponent },
       { path: 'notifications', component: AdminNotificationsComponent },
+      { path: 'ai-logs', component: AdminAiLogsComponent },
     ],
   },
   {

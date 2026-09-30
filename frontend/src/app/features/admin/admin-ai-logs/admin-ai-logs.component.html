@@ -1,0 +1,247 @@
+<div class="ai-monitor-container">
+  <!-- Header Page -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">🤖 Giám sát Trợ lý AI Gemini</h1>
+      <p class="page-subtitle">Nhật ký hỏi đáp thời gian thực, đánh giá chất lượng phản hồi và phân tích hành vi sinh viên</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="loadStats(); loadLogs()" [disabled]="isLoading()">
+        <span>↺</span> Làm mới
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon icon-blue">💬</div>
+      <div class="kpi-content">
+        <div class="kpi-value">{{ stats()?.totalQueries ?? 0 }}</div>
+        <div class="kpi-label">Tổng lượt tương tác AI</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon icon-emerald">📅</div>
+      <div class="kpi-content">
+        <div class="kpi-value">{{ stats()?.todayQueries ?? 0 }}</div>
+        <div class="kpi-label">Lượt hỏi trong ngày</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon icon-indigo">✨</div>
+      <div class="kpi-content">
+        <div class="kpi-value">
+          {{ stats()?.bySource?.geminiLive ?? 0 }}
+          <span class="kpi-subtext">/ {{ stats()?.bySource?.fallbackKnowledge ?? 0 }} fallback</span>
+        </div>
+        <div class="kpi-label">Gemini Live vs Fallback</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon icon-amber">👥</div>
+      <div class="kpi-content">
+        <div class="kpi-value">
+          {{ stats()?.byUserType?.authenticated ?? 0 }}
+          <span class="kpi-subtext">sinh viên / {{ stats()?.byUserType?.guest ?? 0 }} khách</span>
+        </div>
+        <div class="kpi-label">Phân loại đối tượng hỏi</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="toolbar-card">
+    <div class="toolbar-left">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Tìm theo nội dung câu hỏi, họ tên, mã SV..."
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()"
+        />
+        @if (searchTerm()) {
+          <button class="clear-search" (click)="searchTerm.set(''); onSearch()">✕</button>
+        }
+      </div>
+      <button class="btn btn-primary" (click)="onSearch()">Tìm kiếm</button>
+    </div>
+
+    <div class="toolbar-right">
+      <span class="filter-label">Nguồn phản hồi:</span>
+      <select class="filter-select" [ngModel]="selectedSource()" (ngModelChange)="onSourceChange($event)">
+        <option value="ALL">Tất cả nguồn</option>
+        <option value="GEMINI_LIVE">Gemini Live API</option>
+        <option value="KNOWLEDGE_BASE_FALLBACK">Tri thức dự phòng (Fallback)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Logs Table -->
+  <div class="table-card">
+    @if (isLoading()) {
+      <div class="table-loading">
+        <div class="spinner"></div>
+        <span>Đang tải nhật ký hội thoại AI...</span>
+      </div>
+    } @else if (logs().length === 0) {
+      <div class="table-empty">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">Không tìm thấy nhật ký hỏi đáp nào</div>
+        <p class="empty-desc">Chưa có sinh viên nào đặt câu hỏi hoặc bộ lọc hiện tại không khớp dữ liệu.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 70px;">ID</th>
+              <th style="width: 140px;">Thời gian</th>
+              <th style="width: 200px;">Người hỏi</th>
+              <th>Câu hỏi của người dùng</th>
+              <th>Câu trả lời của AI</th>
+              <th style="width: 150px;">Nguồn phản hồi</th>
+              <th style="width: 80px; text-align: center;">Chi tiết</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of logs(); track log.id) {
+              <tr class="table-row">
+                <td class="font-mono text-muted">#{{ log.id }}</td>
+                <td class="text-sm">
+                  <div>{{ log.createdAt | date:'HH:mm:ss' }}</div>
+                  <div class="text-muted text-xs">{{ log.createdAt | date:'dd/MM/yyyy' }}</div>
+                </td>
+                <td>
+                  @if (log.user) {
+                    <div class="user-cell">
+                      <div class="user-avatar">{{ log.user.fullName[0] }}</div>
+                      <div>
+                        <div class="user-name">{{ log.user.fullName }}</div>
+                        <div class="user-sub">{{ log.user.studentCode || 'Sinh viên' }}</div>
+                      </div>
+                    </div>
+                  } @else {
+                    <span class="badge badge-guest">Khách vãng lai</span>
+                  }
+                </td>
+                <td>
+                  <div class="msg-prompt" [title]="log.userMessage">{{ log.userMessage }}</div>
+                </td>
+                <td>
+                  <div class="msg-answer">{{ formatAnswerPreview(log.botReply) }}</div>
+                </td>
+                <td>
+                  @if (log.source === 'GEMINI_LIVE') {
+                    <span class="badge badge-gemini" title="Trả lời trực tiếp qua Google Gemini Live API">
+                      ✨ Gemini Live
+                    </span>
+                  } @else {
+                    <span class="badge badge-fallback" title="Trả lời qua Rule-based Knowledge Base Fallback">
+                      🛡️ Fallback KB
+                    </span>
+                  }
+                </td>
+                <td style="text-align: center;">
+                  <button class="btn-icon-action" (click)="openDetail(log)" title="Xem chi tiết hội thoại">
+                    👁️
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-bar">
+        <div class="pagination-info">
+          Hiển thị <strong>{{ logs().length }}</strong> / <strong>{{ totalLogs() }}</strong> bản ghi
+          (Trang {{ currentPage() }} / {{ totalPages() }})
+        </div>
+        <div class="pagination-controls">
+          <button
+            class="btn-page"
+            [disabled]="currentPage() <= 1"
+            (click)="goToPage(currentPage() - 1)"
+          >
+            ← Trước
+          </button>
+          <span class="page-current">{{ currentPage() }}</span>
+          <button
+            class="btn-page"
+            [disabled]="currentPage() >= totalPages()"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            Sau →
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Detail Modal -->
+  @if (selectedLog()) {
+    <div class="modal-backdrop" (click)="closeDetail()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title">
+            <span>🔍 Chi tiết hội thoại AI #{{ selectedLog()!.id }}</span>
+          </div>
+          <button class="modal-close" (click)="closeDetail()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Metadata strip -->
+          <div class="meta-strip">
+            <div class="meta-item">
+              <span class="meta-label">Thời gian:</span>
+              <span class="meta-val">{{ selectedLog()!.createdAt | date:'HH:mm:ss dd/MM/yyyy' }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Người dùng:</span>
+              <span class="meta-val">
+                {{ selectedLog()!.user ? selectedLog()!.user!.fullName + ' (' + (selectedLog()!.user!.studentCode || 'N/A') + ')' : 'Khách vãng lai' }}
+              </span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Mô hình:</span>
+              <span class="meta-val">{{ selectedLog()!.model }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Nguồn:</span>
+              <span class="badge" [class.badge-gemini]="selectedLog()!.source === 'GEMINI_LIVE'" [class.badge-fallback]="selectedLog()!.source !== 'GEMINI_LIVE'">
+                {{ selectedLog()!.source === 'GEMINI_LIVE' ? '✨ Gemini Live' : '🛡️ Fallback KB' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Prompt section -->
+          <div class="detail-section">
+            <div class="section-title">Câu hỏi của sinh viên:</div>
+            <div class="prompt-box">
+              {{ selectedLog()!.userMessage }}
+            </div>
+          </div>
+
+          <!-- Answer section -->
+          <div class="detail-section">
+            <div class="section-title">Câu trả lời từ Trợ lý AI:</div>
+            <div class="answer-box">
+              {{ selectedLog()!.botReply }}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeDetail()">Đóng</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
