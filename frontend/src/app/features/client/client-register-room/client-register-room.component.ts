@@ -4,7 +4,9 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RoomService } from '../../../core/services/room.service';
 import { RegistrationService } from '../../../core/services/registration.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Room } from '../../../core/models/room.model';
+import { Registration } from '../../../core/models/registration.model';
 
 export interface RoomOption {
   id: number;
@@ -22,6 +24,7 @@ export class ClientRegisterRoomComponent implements OnInit {
   private fb = inject(FormBuilder);
   private roomService = inject(RoomService);
   private registrationService = inject(RegistrationService);
+  private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
 
   registerForm: FormGroup;
@@ -31,6 +34,13 @@ export class ClientRegisterRoomComponent implements OnInit {
   submitError = signal('');
   isLoadingRooms = signal(false);
   availableRooms: RoomOption[] = [];
+
+  // My existing registrations list
+  myRegistrations = signal<Registration[]>([]);
+  isLoadingMyRegistrations = signal(false);
+  cancelSuccessMsg = signal('');
+  isLoggedIn = this.authService.isLoggedIn;
+  currentUser = this.authService.currentUser;
 
   constructor() {
     this.registerForm = this.fb.group({
@@ -47,7 +57,53 @@ export class ClientRegisterRoomComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.autoFillUserData();
     this.loadAvailableRooms();
+    if (this.isLoggedIn()) {
+      this.loadMyRegistrations();
+    }
+  }
+
+  private autoFillUserData(): void {
+    const user = this.currentUser();
+    if (user) {
+      this.registerForm.patchValue({
+        fullName: user.fullName || '',
+        studentCode: user.studentCode || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        gender: user.gender || 'FEMALE',
+      });
+    }
+  }
+
+  loadMyRegistrations(): void {
+    this.isLoadingMyRegistrations.set(true);
+    this.registrationService.getMyRegistrations().subscribe({
+      next: (list) => {
+        this.myRegistrations.set(list);
+        this.isLoadingMyRegistrations.set(false);
+      },
+      error: (err: Error) => {
+        console.error('[loadMyRegistrations Error]', err);
+        this.isLoadingMyRegistrations.set(false);
+      },
+    });
+  }
+
+  cancelRegistration(id: number): void {
+    if (!confirm(`Bạn có chắc chắn muốn hủy đơn đăng ký #REG-${id}?`)) {
+      return;
+    }
+
+    this.registrationService.cancelMyRegistration(id).subscribe({
+      next: () => {
+        this.cancelSuccessMsg.set(`Đã hủy đơn đăng ký #REG-${id} thành công!`);
+        this.loadMyRegistrations();
+        setTimeout(() => this.cancelSuccessMsg.set(''), 4000);
+      },
+      error: (err: Error) => alert(err.message || 'Lỗi khi hủy đơn đăng ký.'),
+    });
   }
 
   private loadAvailableRooms(): void {
@@ -82,7 +138,6 @@ export class ClientRegisterRoomComponent implements OnInit {
     });
   }
 
-  // Getters for form validation checks
   get f() {
     return this.registerForm.controls;
   }
@@ -114,6 +169,9 @@ export class ClientRegisterRoomComponent implements OnInit {
         this.isSuccess.set(true);
         const code = res?.data?.registrationCode || `REG-2026-${String(res?.data?.id || '0001').padStart(4, '0')}`;
         this.registrationCode.set(code);
+        if (this.isLoggedIn()) {
+          this.loadMyRegistrations();
+        }
       },
       error: (err: Error) => {
         console.error('[Registration Submit Error]', err);
@@ -127,9 +185,9 @@ export class ClientRegisterRoomComponent implements OnInit {
     this.isSuccess.set(false);
     this.submitError.set('');
     this.registerForm.reset({
-      gender: 'FEMALE',
       semester: 'Học kỳ 1 (2026 - 2027)',
       academicYear: '2026-2027'
     });
+    this.autoFillUserData();
   }
 }
