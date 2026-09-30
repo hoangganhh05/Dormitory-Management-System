@@ -13,6 +13,10 @@
         ✓ Gửi phiếu báo hỏng thành công! Kỹ thuật viên sẽ tiếp nhận và xử lý sớm nhất.
       </div>
 
+      <div class="alert-error" *ngIf="errorMessage()">
+        ⚠️ {{ errorMessage() }}
+      </div>
+
       <form (ngSubmit)="onSubmit()" class="maint-form">
         <div class="form-group">
           <label>Vị trí phòng</label>
@@ -83,7 +87,15 @@
         <h2 class="card-title">Lịch sử yêu cầu đã gửi ({{ myRequests().length }})</h2>
       </div>
 
-      <div class="request-list" *ngIf="myRequests().length > 0">
+      <div class="maint-loading" *ngIf="isLoading()">
+        <p>Đang tải danh sách báo hỏng từ hệ thống...</p>
+      </div>
+
+      <div class="alert-error" *ngIf="loadError() && !isLoading()">
+        ⚠️ {{ loadError() }}
+      </div>
+
+      <div class="request-list" *ngIf="!isLoading() && myRequests().length > 0">
         <div *ngFor="let req of myRequests()" class="request-item">
           <div class="req-header">
             <div class="req-title-grp">
@@ -112,7 +124,7 @@
         </div>
       </div>
 
-      <div class="empty-requests" *ngIf="myRequests().length === 0">
+      <div class="empty-requests" *ngIf="!isLoading() && !loadError() && myRequests().length === 0">
         <p>Bạn chưa gửi yêu cầu báo hỏng nào.</p>
       </div>
     </div>

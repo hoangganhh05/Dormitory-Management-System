@@ -22,6 +22,16 @@
       </div>
     </div>
 
+    <!-- Error Banner -->
+    <div class="error-banner" *ngIf="submitError()">
+      <div class="error-banner-icon">⚠️</div>
+      <div class="error-banner-content">
+        <h4>Thông báo lỗi hệ thống / API</h4>
+        <p>{{ submitError() }}</p>
+      </div>
+      <button type="button" class="close-error-btn" (click)="submitError.set('')" title="Đóng">✕</button>
+    </div>
+
     <!-- Registration Form -->
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" *ngIf="!isSuccess()" class="register-form" novalidate>
       <div class="form-section-title">1. Thông tin cá nhân sinh viên</div>

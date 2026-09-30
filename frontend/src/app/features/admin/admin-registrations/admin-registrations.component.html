@@ -6,24 +6,39 @@
     </div>
   </div>
 
+  <!-- Action Feedback Banners -->
+  <div class="action-alert-success" *ngIf="actionSuccessMsg()">
+    ✓ {{ actionSuccessMsg() }}
+  </div>
+  <div class="action-alert-error" *ngIf="errorMessage() && !isLoading()">
+    <span>⚠️ {{ errorMessage() }}</span>
+    <button class="retry-btn-sm" (click)="loadRegistrations()">Thử lại</button>
+  </div>
+
   <!-- Status Tabs -->
   <div class="tabs-bar">
     <button class="tab-item" [class.active]="currentTab() === 'PENDING'" (click)="currentTab.set('PENDING')">
-      ⏳ Chờ xét duyệt (3)
+      ⏳ Chờ xét duyệt ({{ pendingCount() }})
     </button>
     <button class="tab-item" [class.active]="currentTab() === 'APPROVED'" (click)="currentTab.set('APPROVED')">
-      ✓ Đã phê duyệt (1)
+      ✓ Đã phê duyệt ({{ approvedCount() }})
     </button>
     <button class="tab-item" [class.active]="currentTab() === 'REJECTED'" (click)="currentTab.set('REJECTED')">
-      ✕ Đã từ chối
+      ✕ Đã từ chối ({{ rejectedCount() }})
     </button>
     <button class="tab-item" [class.active]="currentTab() === 'ALL'" (click)="currentTab.set('ALL')">
       Tất cả hồ sơ ({{ registrations().length }})
     </button>
   </div>
 
+  <!-- Loading State -->
+  <div class="state-container loading-state" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <p>Đang tải danh sách đơn đăng ký từ máy chủ API...</p>
+  </div>
+
   <!-- Table Container -->
-  <div class="table-card">
+  <div class="table-card" *ngIf="!isLoading()">
     <div class="table-responsive" *ngIf="filteredList().length > 0">
       <table class="admin-data-table">
         <thead>
@@ -94,8 +109,8 @@
 
         <div class="form-group">
           <label>Chọn giường còn trống trong phòng để gán:</label>
-          <select [ngModel]="selectedBed()" (ngModelChange)="selectedBed.set($event)">
-            <option *ngFor="let bed of availableBeds" [value]="bed">{{ bed }} - Đang trống</option>
+          <select [ngModel]="selectedBedId()" (ngModelChange)="selectedBedId.set($event)">
+            <option *ngFor="let bed of availableBeds()" [value]="bed.id">{{ bed.name }} - Đang trống</option>
           </select>
         </div>
       </div>
