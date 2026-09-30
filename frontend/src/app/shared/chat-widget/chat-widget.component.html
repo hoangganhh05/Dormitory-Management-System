@@ -8,7 +8,19 @@
         <div class="chat-subtitle">Powered by Google Gemini</div>
       </div>
     </div>
-    <button class="close-btn" (click)="onClose()" title="Đóng cửa sổ chat">✕</button>
+    <div class="chat-header-actions">
+      @if (hasConversationHistory()) {
+        <button
+          class="header-btn clear-btn"
+          (click)="clearHistory()"
+          title="Xóa lịch sử và bắt đầu cuộc trò chuyện mới"
+        >
+          <span class="btn-icon">↺</span>
+          <span class="btn-text">Mới</span>
+        </button>
+      }
+      <button class="header-btn close-btn" (click)="onClose()" title="Đóng cửa sổ chat">✕</button>
+    </div>
   </div>
 
   <!-- Messages -->

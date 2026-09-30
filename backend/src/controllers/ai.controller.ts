@@ -25,10 +25,10 @@ export class AIController {
   /**
    * POST /api/ai/ask
    * Nhận câu hỏi từ client, gọi GeminiService và trả về câu trả lời.
-   * Body: { prompt: string }
+   * Body: { prompt: string, history?: Array<{ role: string, content: string }> }
    */
   static async ask(req: Request, res: Response): Promise<void> {
-    const { prompt } = req.body;
+    const { prompt, history } = req.body;
 
     // Validate input
     if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
@@ -48,8 +48,11 @@ export class AIController {
       return;
     }
 
+    // Validate history nếu có truyền lên
+    const validHistory = Array.isArray(history) ? history : undefined;
+
     try {
-      const aiResponse = await GeminiService.askAI(prompt);
+      const aiResponse = await GeminiService.askAI(prompt, validHistory);
       res.status(200).json({
         success: true,
         data: aiResponse,

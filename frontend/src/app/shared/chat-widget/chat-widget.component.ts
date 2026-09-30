@@ -7,10 +7,13 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
+  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AiService, AIAskResponse, ChatMessage } from '../../core/services/ai.service';
+import { AiService, AIAskResponse, ChatMessage, ChatHistoryPayload } from '../../core/services/ai.service';
+
+const STORAGE_KEY = 'ktx_ai_chat_history';
 
 @Component({
   selector: 'app-chat-widget',
@@ -19,7 +22,7 @@ import { AiService, AIAskResponse, ChatMessage } from '../../core/services/ai.se
   templateUrl: './chat-widget.component.html',
   styleUrl: './chat-widget.component.css',
 })
-export class ChatWidgetComponent implements AfterViewChecked {
+export class ChatWidgetComponent implements OnInit, AfterViewChecked {
   private aiService = inject(AiService);
 
   // Output event để báo parent đóng widget
@@ -27,18 +30,18 @@ export class ChatWidgetComponent implements AfterViewChecked {
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
 
+  private readonly DEFAULT_WELCOME_MESSAGE: ChatMessage = {
+    id: 'welcome',
+    role: 'bot',
+    content:
+      'Xin chào! Mình là **Trợ lý AI Ký túc xá ICTU** 🤖\n\nMình có thể giúp bạn:\n- 🕒 Giờ mở/đóng cửa KTX\n- 💰 Biểu phí phòng Standard & VIP\n- 📝 Thủ tục đăng ký lưu trú\n- 🛠️ Quy trình báo hỏng thiết bị\n- 📞 Thông tin liên hệ Ban Quản lý\n\nBạn cần hỗ trợ gì hôm nay?',
+    timestamp: new Date(),
+  };
+
   // State
   userInput = signal('');
   isLoading = signal(false);
-  messages = signal<ChatMessage[]>([
-    {
-      id: 'welcome',
-      role: 'bot',
-      content:
-        'Xin chào! Mình là **Trợ lý AI Ký túc xá ICTU** 🤖\n\nMình có thể giúp bạn:\n- 🕒 Giờ mở/đóng cửa KTX\n- 💰 Biểu phí phòng Standard & VIP\n- 📝 Thủ tục đăng ký lưu trú\n- 🛠️ Quy trình báo hỏng thiết bị\n- 📞 Thông tin liên hệ Ban Quản lý\n\nBạn cần hỗ trợ gì hôm nay?',
-      timestamp: new Date(),
-    },
-  ]);
+  messages = signal<ChatMessage[]>([this.DEFAULT_WELCOME_MESSAGE]);
 
   // Quick suggestions
   suggestions = [
@@ -49,8 +52,13 @@ export class ChatWidgetComponent implements AfterViewChecked {
   ];
 
   isInputEmpty = computed(() => this.userInput().trim().length === 0);
+  hasConversationHistory = computed(() => this.messages().length > 1);
 
   private shouldScrollToBottom = false;
+
+  ngOnInit(): void {
+    this.restoreChatHistory();
+  }
 
   ngAfterViewChecked(): void {
     if (this.shouldScrollToBottom) {
@@ -66,9 +74,75 @@ export class ChatWidgetComponent implements AfterViewChecked {
     } catch {}
   }
 
+  /**
+   * Khôi phục lịch sử chat từ localStorage nếu có
+   */
+  private restoreChatHistory(): void {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed: any[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const restoredMessages: ChatMessage[] = parsed.map(item => ({
+            id: item.id || `msg-${Date.now()}-${Math.random()}`,
+            role: item.role,
+            content: item.content,
+            timestamp: item.timestamp ? new Date(item.timestamp) : new Date(),
+          }));
+          this.messages.set(restoredMessages);
+          this.shouldScrollToBottom = true;
+        }
+      }
+    } catch (e) {
+      console.warn('[ChatWidget] Không thể đọc lịch sử chat từ localStorage:', e);
+    }
+  }
+
+  /**
+   * Lưu tin nhắn hiện tại vào localStorage
+   */
+  private saveChatHistory(): void {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+
+    try {
+      const cleanMessages = this.messages().filter(m => !m.isLoading);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanMessages));
+    } catch (e) {
+      console.warn('[ChatWidget] Không thể lưu lịch sử chat vào localStorage:', e);
+    }
+  }
+
+  /**
+   * Xóa toàn bộ lịch sử và bắt đầu phiên mới
+   */
+  clearHistory(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    this.messages.set([
+      {
+        ...this.DEFAULT_WELCOME_MESSAGE,
+        timestamp: new Date(),
+      },
+    ]);
+    this.userInput.set('');
+    this.shouldScrollToBottom = true;
+  }
+
   sendMessage(): void {
     const prompt = this.userInput().trim();
     if (!prompt || this.isLoading()) return;
+
+    // Chuẩn bị context lịch sử gửi lên backend (tối đa 6 tin gần nhất)
+    const contextHistory: ChatHistoryPayload[] = this.messages()
+      .filter(m => !m.isLoading && m.content && m.content.trim().length > 0 && m.id !== 'welcome')
+      .slice(-6)
+      .map(m => ({
+        role: m.role,
+        content: m.content,
+      }));
 
     // Thêm tin nhắn người dùng
     const userMsg: ChatMessage = {
@@ -94,7 +168,7 @@ export class ChatWidgetComponent implements AfterViewChecked {
     this.isLoading.set(true);
     this.shouldScrollToBottom = true;
 
-    this.aiService.ask(prompt).subscribe({
+    this.aiService.ask(prompt, contextHistory).subscribe({
       next: (res: AIAskResponse) => {
         // Xóa typing indicator và thêm câu trả lời thật
         this.messages.update(msgs =>
@@ -109,6 +183,7 @@ export class ChatWidgetComponent implements AfterViewChecked {
         );
         this.isLoading.set(false);
         this.shouldScrollToBottom = true;
+        this.saveChatHistory();
       },
       error: () => {
         this.messages.update(msgs =>
@@ -124,6 +199,7 @@ export class ChatWidgetComponent implements AfterViewChecked {
         );
         this.isLoading.set(false);
         this.shouldScrollToBottom = true;
+        this.saveChatHistory();
       },
     });
   }

@@ -59,21 +59,58 @@
   line-height: 1.2;
 }
 
-.close-btn {
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-btn {
   background: none;
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  font-size: 16px;
-  padding: 4px 6px;
-  border-radius: 4px;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  font-family: inherit;
   line-height: 1;
-  transition: color 0.15s, background 0.15s;
 }
 
-.close-btn:hover {
+.header-btn:hover {
   color: #ffffff;
   background: #334155;
+}
+
+.clear-btn {
+  font-size: 11px;
+  border: 1px solid #475569;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.clear-btn:hover {
+  border-color: #64748b;
+  background: #334155;
+}
+
+.btn-icon {
+  font-size: 12px;
+}
+
+.btn-text {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.close-btn {
+  font-size: 15px;
+  padding: 4px 7px;
+  border-radius: 4px;
 }
 
 /* --- MESSAGES AREA --- */
