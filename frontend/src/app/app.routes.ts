@@ -6,6 +6,7 @@ import { ClientRoomsComponent } from './features/client/client-rooms/client-room
 import { ClientRegisterRoomComponent } from './features/client/client-register-room/client-register-room.component';
 import { ClientMaintenanceComponent } from './features/client/client-maintenance/client-maintenance.component';
 import { ClientProfileComponent } from './features/client/client-profile/client-profile.component';
+import { ClientNotificationsComponent } from './features/client/client-notifications/client-notifications.component';
 
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
@@ -37,6 +38,7 @@ export const routes: Routes = [
       { path: 'rooms', component: ClientRoomsComponent },
       { path: 'register-room', component: ClientRegisterRoomComponent },
       { path: 'maintenance', component: ClientMaintenanceComponent },
+      { path: 'notifications', component: ClientNotificationsComponent },
       { path: 'profile', component: ClientProfileComponent },
     ],
   },

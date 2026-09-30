@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { NotificationService } from '../../../core/services/notification.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { NotificationItem, NotificationCategory } from '../../../core/models/notification.model';
 
 @Component({
   selector: 'app-client-home',
@@ -9,7 +12,10 @@ import { RouterLink } from '@angular/router';
   templateUrl: './client-home.component.html',
   styleUrl: './client-home.component.css'
 })
-export class ClientHomeComponent {
+export class ClientHomeComponent implements OnInit {
+  private notifService = inject(NotificationService);
+  authService = inject(AuthService);
+
   studentName = 'Phạm Thị Ngọc Ánh';
   studentCode = 'DTC235200050';
   currentRoom = 'Phòng A101';
@@ -32,33 +38,92 @@ export class ClientHomeComponent {
       badge: 'Đang mở'
     },
     {
+      title: 'Bảng tin thông báo',
+      desc: 'Tra cứu nội quy KTX, thông báo lệ phí và lịch bảo trì.',
+      icon: '📢',
+      link: '/client/notifications',
+      badge: 'Chính thức'
+    },
+    {
       title: 'Báo hỏng cơ sở vật chất',
       desc: 'Gửi yêu cầu sửa chữa bóng đèn, quạt, đường nước, giường tủ.',
       icon: '🛠️',
       link: '/client/maintenance',
       badge: 'Hỗ trợ 24/7'
-    },
-    {
-      title: 'Trợ lý AI Gemini',
-      desc: 'Hỏi đáp tức thì về nội quy, giờ đóng cửa, quy định tạm trú.',
-      icon: '🤖',
-      link: '/client/dashboard',
-      badge: 'AI 24/7'
     }
   ];
 
-  announcements = [
-    {
-      title: 'Quy chế giờ giấc mở cửa Ký túc xá',
-      date: 'Hôm nay',
-      content: 'Ký túc xá mở cửa từ 05h30 và đóng cửa lúc 23h00 hàng ngày. Sinh viên có việc gấp cần báo trước cán bộ trực.',
-      pinned: true
-    },
-    {
-      title: 'Lịch bảo trì hệ thống cấp nước tầng 1 Tòa A',
-      date: 'Hôm qua',
-      content: 'Ban quản lý thông báo tạm ngừng cấp nước từ 13h30 đến 15h30 ngày thứ Năm để sửa chữa đường ống chính.',
-      pinned: false
+  announcements: NotificationItem[] = [];
+  isLoadingAnnouncements = false;
+
+  // Modal chi tiết thông báo
+  isDetailOpen = false;
+  selectedNotification: NotificationItem | null = null;
+
+  ngOnInit(): void {
+    const user = this.authService.currentUser();
+    if (user) {
+      this.studentName = user.fullName;
+      this.studentCode = user.studentCode || 'DTC235200050';
     }
-  ];
+    this.loadAnnouncements();
+  }
+
+  loadAnnouncements(): void {
+    this.isLoadingAnnouncements = true;
+    this.notifService.getNotifications({ limit: 4 }).subscribe({
+      next: (res) => {
+        this.isLoadingAnnouncements = false;
+        if (res.success) {
+          this.announcements = res.data;
+        }
+      },
+      error: (err) => {
+        this.isLoadingAnnouncements = false;
+        console.error('Lỗi khi tải thông báo trang chủ:', err);
+      },
+    });
+  }
+
+  openDetail(item: NotificationItem): void {
+    this.selectedNotification = item;
+    this.isDetailOpen = true;
+
+    this.notifService.getNotificationById(item.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.selectedNotification = res.data;
+          item.isRead = true;
+          item.viewCount = res.data.viewCount;
+        }
+      },
+    });
+  }
+
+  closeDetail(): void {
+    this.isDetailOpen = false;
+    this.selectedNotification = null;
+  }
+
+  getCategoryBadgeClass(category: NotificationCategory): string {
+    switch (category) {
+      case 'URGENT': return 'badge-urgent';
+      case 'REGULATION': return 'badge-regulation';
+      case 'FINANCE': return 'badge-finance';
+      case 'MAINTENANCE': return 'badge-maintenance';
+      case 'EVENT': return 'badge-event';
+      default: return 'badge-general';
+    }
+  }
+
+  getCategoryLabel(category: NotificationCategory): string {
+    switch (category) {
+      case 'URGENT': return 'Khẩn cấp';
+      case 'REGULATION': return 'Nội quy';
+      case 'FINANCE': return 'Tài chính';
+      case 'MAINTENANCE': return 'Bảo trì';
+      case 'EVENT': return 'Sự kiện';
+      default: return 'Chung';
+    }
+  }
 }

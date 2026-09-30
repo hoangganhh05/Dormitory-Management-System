@@ -67,19 +67,55 @@
   <section class="section-block">
     <div class="section-header-flex">
       <h2 class="section-title">Thông báo Ký túc xá mới nhất</h2>
-      <a routerLink="/client/dashboard" class="view-all-link">Xem tất cả thông báo</a>
+      <a routerLink="/client/notifications" class="view-all-link">Xem tất cả thông báo →</a>
     </div>
-    <div class="announcement-list">
-      <div *ngFor="let item of announcements" class="announcement-item" [class.pinned]="item.pinned">
+
+    <div class="announcement-list" *ngIf="!isLoadingAnnouncements && announcements.length > 0">
+      <div
+        *ngFor="let item of announcements"
+        class="announcement-item cursor-pointer"
+        [class.pinned]="item.isPinned"
+        (click)="openDetail(item)"
+      >
         <div class="item-header">
           <div class="item-title-group">
-            <span *ngIf="item.pinned" class="pin-badge">📌 Ghim</span>
+            <span *ngIf="item.isPinned" class="pin-badge">📌 Ghim</span>
+            <span class="category-pill-mini" [ngClass]="getCategoryBadgeClass(item.category)">
+              {{ getCategoryLabel(item.category) }}
+            </span>
             <h4 class="item-title">{{ item.title }}</h4>
           </div>
-          <span class="item-date">{{ item.date }}</span>
+          <span class="item-date">{{ item.createdAt | date:'dd/MM/yyyy' }}</span>
         </div>
-        <p class="item-content">{{ item.content }}</p>
+        <p class="item-content">{{ item.summary || item.content }}</p>
       </div>
     </div>
+
+    <div class="empty-announcements" *ngIf="!isLoadingAnnouncements && announcements.length === 0">
+      <p class="text-sm text-slate-500 text-center py-4">Hiện tại chưa có thông báo mới nào.</p>
+    </div>
   </section>
+
+  <!-- Modal Chi tiết thông báo trang chủ -->
+  <div class="home-modal-backdrop" *ngIf="isDetailOpen" (click)="closeDetail()">
+    <div class="home-modal-card" (click)="$event.stopPropagation()">
+      <div class="home-modal-header">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="category-pill-mini" [ngClass]="getCategoryBadgeClass(selectedNotification!.category)">
+            {{ getCategoryLabel(selectedNotification!.category) }}
+          </span>
+          <span *ngIf="selectedNotification!.isPinned" class="pin-badge">📌 Ghim</span>
+          <span class="text-xs text-slate-500">{{ selectedNotification?.createdAt | date:'HH:mm - dd/MM/yyyy' }}</span>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 leading-snug">{{ selectedNotification?.title }}</h3>
+        <button class="modal-close-x" (click)="closeDetail()">✕</button>
+      </div>
+      <div class="home-modal-body">
+        <p class="whitespace-pre-line text-sm text-slate-700 leading-relaxed">{{ selectedNotification?.content }}</p>
+      </div>
+      <div class="home-modal-footer">
+        <button class="btn-close-clean" (click)="closeDetail()">Đóng</button>
+      </div>
+    </div>
+  </div>
 </div>
