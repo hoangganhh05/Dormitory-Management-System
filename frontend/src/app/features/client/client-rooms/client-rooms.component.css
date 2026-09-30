@@ -249,6 +249,7 @@
 
 .occ-tag.available { color: #059669; }
 .occ-tag.full { color: #dc2626; }
+.occ-tag.maintenance { color: #d97706; }
 
 /* Price */
 .price-box {
@@ -317,4 +318,9 @@
   font-size: 13px;
   font-weight: 600;
   cursor: not-allowed;
+}
+
+.btn-disabled.maintenance {
+  background-color: #fef3c7;
+  color: #b45309;
 }

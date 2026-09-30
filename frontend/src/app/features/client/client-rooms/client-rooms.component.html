@@ -36,6 +36,7 @@
         <option value="ALL">Tất cả trạng thái</option>
         <option value="AVAILABLE">Còn giường trống</option>
         <option value="FULL">Đã kín phòng</option>
+        <option value="MAINTENANCE">Đang bảo trì</option>
       </select>
     </div>
 
@@ -89,7 +90,7 @@
           <div class="occ-bar-fill" [style.width.%]="(room.currentOccupancy / room.capacity) * 100"></div>
         </div>
         <span class="occ-tag" [ngClass]="room.status.toLowerCase()">
-          {{ room.status === 'AVAILABLE' ? 'Còn ' + (room.capacity - room.currentOccupancy) + ' giường trống' : 'Phòng đã kín' }}
+          {{ room.status === 'AVAILABLE' ? 'Còn ' + (room.capacity - room.currentOccupancy) + ' giường trống' : (room.status === 'FULL' ? 'Phòng đã kín' : 'Đang bảo trì') }}
         </span>
       </div>
 
@@ -111,6 +112,9 @@
         </a>
         <button *ngIf="room.status === 'FULL'" class="btn-disabled" disabled>
           Đã hết chỗ
+        </button>
+        <button *ngIf="room.status === 'MAINTENANCE'" class="btn-disabled maintenance" disabled>
+          Đang tạm dừng bảo trì
         </button>
       </div>
     </div>
