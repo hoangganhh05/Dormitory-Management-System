@@ -1,19 +1,22 @@
 import { Router } from 'express';
 import { RoomController } from '../controllers/room.controller';
+import { authenticateToken, requireAdmin, optionalAuth } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Stats summary route (must be before /:id)
-router.get('/stats/summary', RoomController.getRoomStats);
+// Stats summary route (Chỉ Quản trị viên KTX)
+router.get('/stats/summary', authenticateToken, requireAdmin, RoomController.getRoomStats);
 
-// Rooms CRUD routes
-router.get('/', RoomController.getRooms);
-router.get('/:id', RoomController.getRoomById);
-router.post('/', RoomController.createRoom);
-router.put('/:id', RoomController.updateRoom);
-router.delete('/:id', RoomController.deleteRoom);
+// Tra cứu danh sách và chi tiết phòng (Public / Khách / Sinh viên có thể xem phòng để đăng ký)
+router.get('/', optionalAuth, RoomController.getRooms);
+router.get('/:id', optionalAuth, RoomController.getRoomById);
 
-// Bed management route
-router.put('/:roomId/beds/:bedId', RoomController.updateBedStatus);
+// Thao tác quản trị cấu hình phòng & giường (Chỉ Quản trị viên)
+router.post('/', authenticateToken, requireAdmin, RoomController.createRoom);
+router.put('/:id', authenticateToken, requireAdmin, RoomController.updateRoom);
+router.delete('/:id', authenticateToken, requireAdmin, RoomController.deleteRoom);
+
+// Cập nhật trạng thái giường trong phòng (Chỉ Quản trị viên)
+router.put('/:roomId/beds/:bedId', authenticateToken, requireAdmin, RoomController.updateBedStatus);
 
 export default router;

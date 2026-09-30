@@ -1,27 +1,28 @@
 import { Router } from 'express';
 import { MaintenanceController } from '../controllers/maintenance.controller';
+import { authenticateToken, requireAdmin } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Thống kê KPIs yêu cầu bảo trì
-router.get('/stats', MaintenanceController.getMaintenanceStats);
+// Thống kê KPIs yêu cầu bảo trì (Chỉ Quản trị viên)
+router.get('/stats', authenticateToken, requireAdmin, MaintenanceController.getMaintenanceStats);
 
 // Lịch sử báo hỏng của sinh viên đăng nhập
-router.get('/my', MaintenanceController.getMyRequests);
+router.get('/my', authenticateToken, MaintenanceController.getMyRequests);
 
-// Danh sách tất cả yêu cầu (Admin Portal)
-router.get('/', MaintenanceController.getRequests);
+// Danh sách tất cả yêu cầu (Chỉ Quản trị viên)
+router.get('/', authenticateToken, requireAdmin, MaintenanceController.getRequests);
 
-// Chi tiết một yêu cầu
-router.get('/:id', MaintenanceController.getRequestById);
+// Chi tiết một yêu cầu (Yêu cầu đăng nhập)
+router.get('/:id', authenticateToken, MaintenanceController.getRequestById);
 
-// Gửi yêu cầu báo hỏng mới
-router.post('/', MaintenanceController.createRequest);
+// Gửi yêu cầu báo hỏng mới (Sinh viên đăng nhập)
+router.post('/', authenticateToken, MaintenanceController.createRequest);
 
-// Cập nhật trạng thái xử lý & phản hồi kỹ thuật (Admin)
-router.patch('/:id/status', MaintenanceController.updateStatus);
+// Cập nhật trạng thái xử lý & phản hồi kỹ thuật (Chỉ Quản trị viên)
+router.patch('/:id/status', authenticateToken, requireAdmin, MaintenanceController.updateStatus);
 
-// Xóa yêu cầu (Admin)
-router.delete('/:id', MaintenanceController.deleteRequest);
+// Xóa yêu cầu (Chỉ Quản trị viên)
+router.delete('/:id', authenticateToken, requireAdmin, MaintenanceController.deleteRequest);
 
 export default router;
