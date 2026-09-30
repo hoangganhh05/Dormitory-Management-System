@@ -92,34 +92,25 @@
     <router-outlet></router-outlet>
   </main>
 
-  <!-- Floating AI Assistant Bubble -->
+  <!-- Floating AI Assistant Widget -->
   <div class="floating-ai-widget">
-    <button class="ai-bubble-btn" (click)="toggleChat()" title="Hỏi đáp nội quy với AI Gemini">
-      <span class="bubble-icon">🤖</span>
-      <span class="bubble-label">Hỏi AI</span>
+    <!-- Bubble toggle button -->
+    <button
+      class="ai-bubble-btn"
+      (click)="toggleChat()"
+      [class.active]="isChatOpen()"
+      title="Hỏi đáp nội quy với Trợ lý AI Gemini"
+    >
+      <span class="bubble-icon">{{ isChatOpen() ? '✕' : '🤖' }}</span>
+      <span class="bubble-label">{{ isChatOpen() ? 'Đóng' : 'Hỏi AI' }}</span>
     </button>
 
-    <!-- Mini Chat Modal Preview (for KTX-011 layout placeholder) -->
-    <div class="ai-chat-preview" *ngIf="isChatOpen()">
-      <div class="chat-header">
-        <div class="chat-title">
-          <span>✨</span> Trợ lý KTX Gemini
-        </div>
-        <button class="close-chat" (click)="toggleChat()">✕</button>
+    <!-- Chat Panel -->
+    @if (isChatOpen()) {
+      <div class="chat-panel-wrapper">
+        <app-chat-widget (closeChat)="isChatOpen.set(false)" />
       </div>
-      <div class="chat-body">
-        <div class="chat-msg bot">
-          <div class="bot-avatar">🤖</div>
-          <div class="msg-bubble">
-            Xin chào bạn! Mình là Trợ lý AI Ký túc xá. Bạn có thể hỏi mình về giờ giấc, nội quy, hoặc thủ tục đăng ký phòng nhé!
-          </div>
-        </div>
-      </div>
-      <div class="chat-footer">
-        <input type="text" placeholder="Nhập câu hỏi về nội quy KTX..." disabled />
-        <button disabled>Gửi</button>
-      </div>
-    </div>
+    }
   </div>
 
   <!-- Footer -->
