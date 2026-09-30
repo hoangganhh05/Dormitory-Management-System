@@ -103,7 +103,7 @@
               <strong class="req-title">{{ req.title }}</strong>
             </div>
             <span class="req-status-pill" [ngClass]="req.status.toLowerCase()">
-              {{ req.status === 'PENDING' ? 'Chờ duyệt' : req.status === 'PROCESSING' ? 'Đang sửa' : 'Đã xong' }}
+              {{ req.status === 'PENDING' ? 'Chờ tiếp nhận' : req.status === 'PROCESSING' ? 'Đang sửa chữa' : req.status === 'RESOLVED' ? 'Đã khắc phục' : 'Đã từ chối' }}
             </span>
           </div>
 

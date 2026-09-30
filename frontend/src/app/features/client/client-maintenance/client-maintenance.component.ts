@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaintenanceService } from '../../../core/services/maintenance.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { MaintenanceRequest } from '../../../core/models/maintenance.model';
 
 export interface MaintenanceItem {
@@ -24,6 +25,7 @@ export interface MaintenanceItem {
 })
 export class ClientMaintenanceComponent implements OnInit {
   private maintenanceService = inject(MaintenanceService);
+  authService = inject(AuthService);
 
   // Form fields
   roomNumber = 'B101';
@@ -42,15 +44,28 @@ export class ClientMaintenanceComponent implements OnInit {
   myRequests = signal<MaintenanceItem[]>([]);
 
   ngOnInit(): void {
+    const user = this.authService.currentUser();
+    if (user && user.studentCode) {
+      // Tự động gán phòng nếu sinh viên đang ở
+      if (user.studentCode === 'DTC235200050') {
+        this.roomNumber = 'B101';
+      }
+    }
     this.loadRequests();
   }
 
   loadRequests(): void {
     this.isLoading.set(true);
     this.loadError.set('');
-    this.maintenanceService.getRequests().subscribe({
-      next: (requests: MaintenanceRequest[]) => {
-        const mapped: MaintenanceItem[] = requests.map((r) => ({
+
+    const request$ = this.authService.currentUser()
+      ? this.maintenanceService.getMyRequests()
+      : this.maintenanceService.getRequests();
+
+    request$.subscribe({
+      next: (res) => {
+        const list = res.data || [];
+        const mapped: MaintenanceItem[] = list.map((r) => ({
           id: r.id,
           roomNumber: r.room?.roomNumber || 'KTX',
           title: r.title,
@@ -63,9 +78,9 @@ export class ClientMaintenanceComponent implements OnInit {
         this.myRequests.set(mapped);
         this.isLoading.set(false);
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         console.error('[ClientMaintenanceComponent loadRequests Error]', err);
-        this.loadError.set('Không thể tải lịch sử báo hỏng từ máy chủ API. Vui lòng kiểm tra kết nối mạng.');
+        this.loadError.set('Không thể tải lịch sử báo hỏng từ máy chủ API.');
         this.isLoading.set(false);
       }
     });
@@ -89,12 +104,13 @@ export class ClientMaintenanceComponent implements OnInit {
     this.errorMessage.set('');
     this.submitSuccess.set(false);
 
+    const user = this.authService.currentUser();
     const payload = {
-      roomNumber: this.roomNumber,
+      roomNumber: this.roomNumber.trim(),
       title: `[${this.category}] ${this.title.trim()}`,
       description: this.description.trim(),
       urgency: this.urgency,
-      studentCode: 'DTC235200050',
+      studentCode: user?.studentCode || 'DTC235200050',
     };
 
     this.maintenanceService.createRequest(payload).subscribe({
@@ -106,10 +122,10 @@ export class ClientMaintenanceComponent implements OnInit {
         this.loadRequests();
         setTimeout(() => this.submitSuccess.set(false), 5000);
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         console.error('[ClientMaintenanceComponent onSubmit Error]', err);
         this.isSubmitting.set(false);
-        this.errorMessage.set(err.message || 'Lỗi khi gửi yêu cầu báo hỏng tới máy chủ API.');
+        this.errorMessage.set(err.error?.message || err.message || 'Lỗi khi gửi yêu cầu báo hỏng tới máy chủ API.');
       }
     });
   }
