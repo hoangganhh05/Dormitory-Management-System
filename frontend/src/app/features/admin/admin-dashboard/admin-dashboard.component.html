@@ -7,14 +7,20 @@
     </div>
     <div class="header-actions">
       <a routerLink="/admin/registrations" class="btn-primary">
-        <span>📝</span> Duyệt đơn đăng ký (3)
+        <span>📝</span> Duyệt đơn đăng ký ({{ stats()[2]?.value || '0 Đơn' }})
       </a>
     </div>
   </div>
 
+  <!-- API Error Banner -->
+  <div class="dashboard-error-banner" *ngIf="hasError()">
+    <span>⚠️ {{ errorMessage() }}</span>
+    <button class="retry-btn-sm" (click)="loadDashboardData()">Thử lại</button>
+  </div>
+
   <!-- KPI Metrics Grid -->
   <div class="kpi-grid">
-    <div *ngFor="let item of stats" class="kpi-card">
+    <div *ngFor="let item of stats()" class="kpi-card">
       <div class="kpi-icon-box" [ngClass]="item.color">{{ item.icon }}</div>
       <div class="kpi-info">
         <span class="kpi-label">{{ item.label }}</span>
@@ -33,12 +39,12 @@
         <div class="dash-card-header">
           <div class="card-title-group">
             <h3 class="card-title">Đơn đăng ký lưu trú mới nộp</h3>
-            <span class="card-badge-amber">3 đơn chờ duyệt</span>
+            <span class="card-badge-amber">{{ recentRegistrations().length }} đơn mới</span>
           </div>
           <a routerLink="/admin/registrations" class="card-action-link">Xem tất cả</a>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" *ngIf="recentRegistrations().length > 0">
           <table class="data-table">
             <thead>
               <tr>
@@ -51,18 +57,26 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let reg of recentRegistrations">
+              <tr *ngFor="let reg of recentRegistrations()">
                 <td class="fw-bold">{{ reg.student }}</td>
                 <td><span class="code-pill">{{ reg.code }}</span></td>
                 <td>{{ reg.room }}</td>
                 <td class="text-muted">{{ reg.date }}</td>
-                <td><span class="status-pill pending">Chờ duyệt</span></td>
+                <td>
+                  <span class="status-pill" [ngClass]="reg.status.toLowerCase()">
+                    {{ reg.status === 'PENDING' ? 'Chờ duyệt' : reg.status === 'APPROVED' ? 'Đã duyệt' : 'Từ chối' }}
+                  </span>
+                </td>
                 <td>
                   <a routerLink="/admin/registrations" class="action-btn-sm">Xét duyệt</a>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="empty-mini" *ngIf="recentRegistrations().length === 0">
+          <p>Chưa có đơn đăng ký lưu trú nào trong hệ thống.</p>
         </div>
       </div>
 
@@ -71,12 +85,12 @@
         <div class="dash-card-header">
           <div class="card-title-group">
             <h3 class="card-title">Báo hỏng cơ sở vật chất gần đây</h3>
-            <span class="card-badge-danger">1 sự cố khẩn cấp</span>
+            <span class="card-badge-danger">{{ recentIssues().length }} sự cố</span>
           </div>
           <a routerLink="/admin/maintenance" class="card-action-link">Xem tất cả</a>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" *ngIf="recentIssues().length > 0">
           <table class="data-table">
             <thead>
               <tr>
@@ -88,15 +102,27 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let issue of recentIssues">
+              <tr *ngFor="let issue of recentIssues()">
                 <td class="fw-bold">{{ issue.room }}</td>
                 <td>{{ issue.title }}</td>
-                <td><span class="status-pill high">Khẩn cấp</span></td>
-                <td><span class="status-pill processing">Đang xử lý</span></td>
+                <td>
+                  <span class="status-pill" [ngClass]="issue.urgency.toLowerCase()">
+                    {{ issue.urgency === 'HIGH' ? 'Khẩn cấp' : issue.urgency === 'MEDIUM' ? 'Bình thường' : 'Thấp' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-pill" [ngClass]="issue.status.toLowerCase()">
+                    {{ issue.status === 'PENDING' ? 'Chờ xử lý' : issue.status === 'PROCESSING' ? 'Đang sửa' : 'Đã sửa' }}
+                  </span>
+                </td>
                 <td class="text-muted">{{ issue.date }}</td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="empty-mini" *ngIf="recentIssues().length === 0">
+          <p>Không có sự cố báo hỏng thiết bị nào gần đây.</p>
         </div>
       </div>
     </div>
@@ -109,8 +135,8 @@
           <h3 class="card-title">Tỷ lệ lấp đầy theo Tòa nhà</h3>
         </div>
 
-        <div class="occupancy-list">
-          <div *ngFor="let b of buildingStats" class="building-item">
+        <div class="occupancy-list" *ngIf="buildingStats().length > 0">
+          <div *ngFor="let b of buildingStats()" class="building-item">
             <div class="b-info">
               <span class="b-name">{{ b.name }}</span>
               <span class="b-count">{{ b.occupied }} / {{ b.capacity }} Giường</span>
@@ -120,6 +146,10 @@
             </div>
             <span class="b-percent">{{ b.percent }}% công suất</span>
           </div>
+        </div>
+
+        <div class="empty-mini" *ngIf="buildingStats().length === 0">
+          <p>Chưa có dữ liệu tòa nhà.</p>
         </div>
       </div>
 

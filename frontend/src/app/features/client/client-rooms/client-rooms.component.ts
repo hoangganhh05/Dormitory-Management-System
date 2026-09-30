@@ -1,7 +1,9 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { RoomService } from '../../../core/services/room.service';
+import { Room } from '../../../core/models/room.model';
 
 export interface RoomItem {
   id: number;
@@ -23,66 +25,20 @@ export interface RoomItem {
   templateUrl: './client-rooms.component.html',
   styleUrl: './client-rooms.component.css'
 })
-export class ClientRoomsComponent {
-  isLoading = signal(false);
+export class ClientRoomsComponent implements OnInit {
+  private roomService = inject(RoomService);
+
+  isLoading = signal(true);
   hasError = signal(false);
+  errorMessage = signal('');
 
   // Filters
   selectedBuilding = signal('ALL');
   selectedType = signal('ALL');
   selectedStatus = signal('ALL');
 
-  // Mock data aligned with database seed
-  rooms = signal<RoomItem[]>([
-    {
-      id: 1,
-      roomNumber: 'A101',
-      building: 'Tòa A (Nam)',
-      floor: 1,
-      roomType: 'STANDARD',
-      pricePerMonth: 450000,
-      capacity: 4,
-      currentOccupancy: 1,
-      status: 'AVAILABLE',
-      amenities: ['Bình nóng lạnh', 'Quạt trần', 'Bàn học cá nhân', 'Wifi tốc độ cao']
-    },
-    {
-      id: 2,
-      roomNumber: 'A102',
-      building: 'Tòa A (Nam)',
-      floor: 1,
-      roomType: 'VIP',
-      pricePerMonth: 750000,
-      capacity: 2,
-      currentOccupancy: 0,
-      status: 'AVAILABLE',
-      amenities: ['Điều hòa 2 chiều', 'Bình nóng lạnh', 'Tủ lạnh mini', 'Vệ sinh khép kín']
-    },
-    {
-      id: 3,
-      roomNumber: 'B101',
-      building: 'Tòa B (Nữ)',
-      floor: 1,
-      roomType: 'STANDARD',
-      pricePerMonth: 450000,
-      capacity: 4,
-      currentOccupancy: 1,
-      status: 'AVAILABLE',
-      amenities: ['Bình nóng lạnh', 'Quạt trần', 'Bàn học cá nhân', 'Ban công thoáng mát']
-    },
-    {
-      id: 4,
-      roomNumber: 'B102',
-      building: 'Tòa B (Nữ)',
-      floor: 1,
-      roomType: 'VIP',
-      pricePerMonth: 750000,
-      capacity: 2,
-      currentOccupancy: 2,
-      status: 'FULL',
-      amenities: ['Điều hòa 2 chiều', 'Bình nóng lạnh', 'Tủ lạnh mini', 'Vệ sinh khép kín']
-    }
-  ]);
+  // Real data from API
+  rooms = signal<RoomItem[]>([]);
 
   filteredRooms = computed(() => {
     return this.rooms().filter(r => {
@@ -93,12 +49,48 @@ export class ClientRoomsComponent {
     });
   });
 
-  reload(): void {
+  ngOnInit(): void {
+    this.loadRooms();
+  }
+
+  loadRooms(): void {
     this.isLoading.set(true);
     this.hasError.set(false);
-    setTimeout(() => {
-      this.isLoading.set(false);
-    }, 600);
+    this.errorMessage.set('');
+
+    this.roomService.getRooms().subscribe({
+      next: (apiRooms: Room[]) => {
+        const mappedRooms: RoomItem[] = apiRooms.map((r) => {
+          const standardAmenities = ['Bình nóng lạnh', 'Quạt trần', 'Bàn học cá nhân', 'Wifi tốc độ cao'];
+          const vipAmenities = ['Điều hòa 2 chiều', 'Bình nóng lạnh', 'Tủ lạnh mini', 'Vệ sinh khép kín'];
+          return {
+            id: r.id,
+            roomNumber: r.roomNumber,
+            building: r.building,
+            floor: r.floor,
+            roomType: r.roomType,
+            pricePerMonth: Number(r.pricePerMonth),
+            capacity: r.capacity,
+            currentOccupancy: r.currentOccupancy,
+            status: r.status,
+            amenities: r.roomType === 'VIP' ? vipAmenities : standardAmenities,
+          };
+        });
+
+        this.rooms.set(mappedRooms);
+        this.isLoading.set(false);
+      },
+      error: (err: Error) => {
+        console.error('[ClientRoomsComponent Error]', err);
+        this.hasError.set(true);
+        this.errorMessage.set(err.message || 'Lỗi mạng: Không thể kết nối tới máy chủ API KTX.');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  reload(): void {
+    this.loadRooms();
   }
 
   resetFilters(): void {

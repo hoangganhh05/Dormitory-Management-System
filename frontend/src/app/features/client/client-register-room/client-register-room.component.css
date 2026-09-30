@@ -195,3 +195,21 @@ input.invalid, select.invalid, textarea.invalid {
   .form-wrapper { padding: 24px 20px; }
   .form-grid { grid-template-columns: 1fr; }
 }
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 24px;
+}
+
+.error-banner-icon { font-size: 20px; }
+.error-banner-content h4 { margin: 0 0 2px 0; font-size: 14px; font-weight: 600; color: #991b1b; }
+.error-banner-content p { margin: 0; font-size: 13px; color: #b91c1c; }
+.close-error-btn { margin-left: auto; background: none; border: none; font-size: 16px; color: #991b1b; cursor: pointer; }
+

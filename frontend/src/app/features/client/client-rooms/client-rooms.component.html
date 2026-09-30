@@ -54,7 +54,7 @@
   <div class="state-container error-state" *ngIf="hasError() && !isLoading()">
     <div class="state-icon">⚠️</div>
     <h3>Không thể kết nối đến máy chủ</h3>
-    <p>Đã xảy ra lỗi khi tải dữ liệu phòng. Vui lòng thử lại sau.</p>
+    <p>{{ errorMessage() || 'Đã xảy ra lỗi khi tải dữ liệu phòng. Vui lòng thử lại sau.' }}</p>
     <button class="retry-btn" (click)="reload()">Thử lại</button>
   </div>
 
