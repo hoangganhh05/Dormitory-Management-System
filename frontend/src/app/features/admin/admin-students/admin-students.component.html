@@ -1,0 +1,312 @@
+<div class="students-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản Lý Hồ Sơ Sinh Viên Lưu Trú</h1>
+      <p class="page-subtitle">Danh bạ lưu trú, tra cứu thông tin định danh và phân bổ vị trí phòng ở ký túc xá.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-create-student" (click)="openCreateModal()">
+        <span>+</span> Tạo hồ sơ sinh viên mới
+      </button>
+    </div>
+  </div>
+
+  <!-- Action Alerts -->
+  <div class="alert-banner-success" *ngIf="actionSuccessMsg()">
+    ✓ {{ actionSuccessMsg() }}
+  </div>
+
+  <div class="alert-banner-error" *ngIf="errorMessage() && !isLoading()">
+    <span>⚠️ {{ errorMessage() }}</span>
+    <button class="retry-btn-sm" (click)="loadStudents()">Thử lại</button>
+  </div>
+
+  <!-- Metric Overview Chips -->
+  <div class="metric-chips-bar">
+    <div class="chip-item">
+      <span class="chip-label">Tổng sinh viên</span>
+      <span class="chip-val">{{ students().length }} hồ sơ</span>
+    </div>
+    <div class="chip-item">
+      <span class="chip-label">Đang ở nội trú</span>
+      <span class="chip-val text-emerald">{{ housedCount() }} sinh viên</span>
+    </div>
+    <div class="chip-item">
+      <span class="chip-label">Chưa xếp phòng</span>
+      <span class="chip-val text-amber">{{ unassignedCount() }} sinh viên</span>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="filter-card">
+    <div class="search-input-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        placeholder="Tìm kiếm theo Họ tên, Mã sinh viên, Email hoặc SĐT..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="filter-selects">
+      <div class="select-group">
+        <label>Giới tính</label>
+        <select [ngModel]="selectedGender()" (ngModelChange)="selectedGender.set($event)">
+          <option value="ALL">Tất cả giới tính</option>
+          <option value="MALE">Nam (Tòa A)</option>
+          <option value="FEMALE">Nữ (Tòa B)</option>
+        </select>
+      </div>
+
+      <div class="select-group">
+        <label>Tình trạng chỗ ở</label>
+        <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="HOUSED">Đã có phòng ở</option>
+          <option value="UNASSIGNED">Chưa xếp chỗ</option>
+        </select>
+      </div>
+
+      <button class="btn-reset-filters" (click)="resetFilters()">Đặt lại</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="state-container loading-state" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <p>Đang tải danh sách hồ sơ sinh viên từ hệ thống...</p>
+  </div>
+
+  <!-- Data Table -->
+  <div class="table-card" *ngIf="!isLoading()">
+    <div class="table-responsive" *ngIf="filteredStudents().length > 0">
+      <table class="students-data-table">
+        <thead>
+          <tr>
+            <th>Mã sinh viên</th>
+            <th>Họ và tên</th>
+            <th>Giới tính</th>
+            <th>Vị trí KTX hiện tại</th>
+            <th>Số điện thoại</th>
+            <th>Email tài khoản</th>
+            <th>Trạng thái</th>
+            <th class="text-right">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of filteredStudents()">
+            <td><span class="code-pill">{{ s.studentCode }}</span></td>
+            <td class="fw-bold">{{ s.fullName }}</td>
+            <td>
+              <span class="gender-pill" [class.female]="s.gender === 'FEMALE'">
+                {{ s.gender === 'FEMALE' ? 'Nữ' : 'Nam' }}
+              </span>
+            </td>
+            <td>
+              <div *ngIf="s.occupiedBed as bed" class="bed-allocated">
+                <span class="room-tag">{{ bed.room?.roomNumber }}</span>
+                <span class="bed-tag">Giường {{ bed.bedNumber }}</span>
+                <span class="building-sub">{{ bed.room?.building }}</span>
+              </div>
+              <span *ngIf="!s.occupiedBed" class="text-unassigned">Chưa xếp phòng</span>
+            </td>
+            <td>{{ s.phone || 'Chưa cập nhật' }}</td>
+            <td class="text-muted text-sm">{{ s.email }}</td>
+            <td>
+              <span class="status-indicator" [class.active]="!!s.occupiedBed">
+                {{ !!s.occupiedBed ? 'Đang ở nội trú' : 'Chờ phân bổ' }}
+              </span>
+            </td>
+            <td class="text-right">
+              <div class="action-btn-grp">
+                <button class="btn-action view" (click)="openDetailModal(s)">Xem</button>
+                <button class="btn-action edit" (click)="openEditModal(s)">Sửa</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredStudents().length === 0">
+      <div class="empty-icon">👥</div>
+      <h3>Không tìm thấy hồ sơ sinh viên</h3>
+      <p>Không có kết quả nào thỏa mãn điều kiện tìm kiếm hoặc bộ lọc.</p>
+    </div>
+  </div>
+
+  <!-- MODAL 1: TẠO HỒ SƠ MỚI -->
+  <div class="modal-backdrop" *ngIf="isCreateModalOpen()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Tạo hồ sơ sinh viên lưu trú mới</h3>
+        <button class="close-modal-btn" (click)="closeCreateModal()">✕</button>
+      </div>
+
+      <form [formGroup]="createForm" (ngSubmit)="submitCreateStudent()" class="modal-form" novalidate>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Họ và tên sinh viên <span class="req">*</span></label>
+              <input type="text" formControlName="fullName" placeholder="Ví dụ: Nguyễn Văn Nam" class="input-control" />
+              <div class="error-msg" *ngIf="createForm.get('fullName')?.touched && createForm.get('fullName')?.invalid">
+                Họ tên là bắt buộc (tối thiểu 3 ký tự).
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Mã số sinh viên (MSSV) <span class="req">*</span></label>
+              <input type="text" formControlName="studentCode" placeholder="Ví dụ: DTC235200099" class="input-control" />
+              <div class="error-msg" *ngIf="createForm.get('studentCode')?.touched && createForm.get('studentCode')?.invalid">
+                MSSV là bắt buộc (8 - 15 ký tự chữ/số).
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email tài khoản <span class="req">*</span></label>
+              <input type="email" formControlName="email" placeholder="nam.cntt@ictu.edu.vn" class="input-control" />
+              <div class="error-msg" *ngIf="createForm.get('email')?.touched && createForm.get('email')?.invalid">
+                Vui lòng nhập định dạng email hợp lệ.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Số điện thoại liên lạc</label>
+              <input type="text" formControlName="phone" placeholder="0912345678" class="input-control" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Giới tính <span class="req">*</span></label>
+              <select formControlName="gender" class="input-control">
+                <option value="MALE">Nam (Bố trí Khu Tòa A)</option>
+                <option value="FEMALE">Nữ (Bố trí Khu Tòa B)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Mật khẩu khởi tạo <span class="req">*</span></label>
+              <input type="text" formControlName="defaultPassword" class="input-control" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeCreateModal()">Hủy bỏ</button>
+          <button type="submit" class="btn-confirm-save">Xác nhận tạo hồ sơ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: XEM CHI TIẾT HỒ SƠ -->
+  <div class="modal-backdrop" *ngIf="isDetailModalOpen()">
+    <div class="modal-box modal-detail" *ngIf="selectedStudent() as st">
+      <div class="modal-header">
+        <h3>Hồ sơ sinh viên nội trú: {{ st.fullName }}</h3>
+        <button class="close-modal-btn" (click)="closeDetailModal()">✕</button>
+      </div>
+
+      <div class="modal-body detail-body">
+        <div class="profile-card-top">
+          <div class="avatar-lg">{{ st.fullName[0] }}</div>
+          <div class="profile-meta">
+            <h2>{{ st.fullName }}</h2>
+            <div class="meta-tags">
+              <span class="code-pill">{{ st.studentCode }}</span>
+              <span class="gender-pill" [class.female]="st.gender === 'FEMALE'">{{ st.gender === 'FEMALE' ? 'Nữ' : 'Nam' }}</span>
+              <span class="role-tag">Sinh viên KTX</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Email tài khoản:</span>
+            <span class="detail-val">{{ st.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Số điện thoại:</span>
+            <span class="detail-val">{{ st.phone || 'Chưa cung cấp' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Ngày tạo hồ sơ:</span>
+            <span class="detail-val">{{ st.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Phòng đang ở:</span>
+            <span class="detail-val fw-bold" *ngIf="st.occupiedBed as b">
+              Phòng {{ b.room?.roomNumber }} - Giường {{ b.bedNumber }} ({{ b.room?.building }})
+            </span>
+            <span class="detail-val text-muted" *ngIf="!st.occupiedBed">Chưa phân phòng</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeDetailModal()">Đóng</button>
+        <button type="button" class="btn-confirm-save" (click)="closeDetailModal(); openEditModal(st)">
+          Chỉnh sửa thông tin
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: CHỈNH SỬA HỒ SƠ -->
+  <div class="modal-backdrop" *ngIf="isEditModalOpen()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Chỉnh sửa hồ sơ sinh viên</h3>
+        <button class="close-modal-btn" (click)="closeEditModal()">✕</button>
+      </div>
+
+      <form [formGroup]="editForm" (ngSubmit)="submitUpdateStudent()" class="modal-form" novalidate>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Họ và tên sinh viên <span class="req">*</span></label>
+            <input type="text" formControlName="fullName" class="input-control" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Mã số sinh viên (MSSV) <span class="req">*</span></label>
+              <input type="text" formControlName="studentCode" class="input-control" />
+            </div>
+
+            <div class="form-group">
+              <label>Giới tính <span class="req">*</span></label>
+              <select formControlName="gender" class="input-control">
+                <option value="MALE">Nam (Tòa A)</option>
+                <option value="FEMALE">Nữ (Tòa B)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email tài khoản <span class="req">*</span></label>
+              <input type="email" formControlName="email" class="input-control" />
+            </div>
+
+            <div class="form-group">
+              <label>Số điện thoại liên lạc</label>
+              <input type="text" formControlName="phone" class="input-control" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeEditModal()">Hủy bỏ</button>
+          <button type="submit" class="btn-confirm-save">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

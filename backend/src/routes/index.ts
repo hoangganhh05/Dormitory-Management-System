@@ -5,6 +5,7 @@ import registrationRoutes from './registration.routes';
 import maintenanceRoutes from './maintenance.routes';
 import dashboardRoutes from './dashboard.routes';
 import authRoutes from './auth.routes';
+import studentRoutes from './student.routes';
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 
 // Business API routes
+router.use('/students', studentRoutes);
 router.use('/rooms', roomRoutes);
 router.use('/registrations', registrationRoutes);
 router.use('/maintenance', maintenanceRoutes);

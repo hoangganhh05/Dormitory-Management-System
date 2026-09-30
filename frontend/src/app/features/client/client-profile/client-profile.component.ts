@@ -1,0 +1,94 @@
+import { Component, OnInit, signal, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { StudentService } from '../../../core/services/student.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { StudentProfile } from '../../../core/models/student.model';
+
+@Component({
+  selector: 'app-client-profile',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  templateUrl: './client-profile.component.html',
+  styleUrl: './client-profile.component.css',
+})
+export class ClientProfileComponent implements OnInit {
+  private studentService = inject(StudentService);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
+
+  currentUser = this.authService.currentUser;
+  profile = signal<StudentProfile | null>(null);
+  isLoading = signal(true);
+  errorMessage = signal('');
+  updateSuccessMsg = signal('');
+  isUpdatingPhone = signal(false);
+  isEditingPhone = signal(false);
+
+  phoneForm: FormGroup;
+
+  constructor() {
+    this.phoneForm = this.fb.group({
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadProfile();
+  }
+
+  loadProfile(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    this.studentService.getMyProfile().subscribe({
+      next: (data) => {
+        this.profile.set(data);
+        this.phoneForm.patchValue({ phone: data.phone || '' });
+        this.isLoading.set(false);
+      },
+      error: (err: Error) => {
+        console.error('[ClientProfileComponent Error]', err);
+        this.errorMessage.set(err.message || 'Không thể tải hồ sơ lưu trú cá nhân.');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  toggleEditPhone(): void {
+    if (!this.isEditingPhone()) {
+      this.phoneForm.patchValue({ phone: this.profile()?.phone || '' });
+      this.isEditingPhone.set(true);
+    } else {
+      this.isEditingPhone.set(false);
+    }
+  }
+
+  submitUpdatePhone(): void {
+    if (this.phoneForm.invalid) {
+      this.phoneForm.markAllAsTouched();
+      return;
+    }
+
+    const newPhone = this.phoneForm.value.phone;
+    this.isUpdatingPhone.set(true);
+    this.updateSuccessMsg.set('');
+
+    this.studentService.updateMyPhone(newPhone).subscribe({
+      next: () => {
+        this.isUpdatingPhone.set(false);
+        this.isEditingPhone.set(false);
+        this.updateSuccessMsg.set('Cập nhật số điện thoại liên lạc thành công!');
+        if (this.profile()) {
+          this.profile.update((prev) => (prev ? { ...prev, phone: newPhone } : null));
+        }
+        setTimeout(() => this.updateSuccessMsg.set(''), 4000);
+      },
+      error: (err: Error) => {
+        this.isUpdatingPhone.set(false);
+        alert(err.message || 'Lỗi khi cập nhật số điện thoại.');
+      },
+    });
+  }
+}
