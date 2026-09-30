@@ -78,6 +78,7 @@ model User {
   registrations       Registration[]
   maintenanceRequests MaintenanceRequest[]
   chatLogs            ChatLog[]
+  allocationHistories BedAllocationHistory[]
 
   @@map("users")
 }
@@ -181,3 +182,24 @@ model ChatLog {
 
   @@map("chat_logs")
 }
+
+enum AllocationActionType {
+  CHECK_IN
+  TRANSFER
+  CHECK_OUT
+}
+
+model BedAllocationHistory {
+  id          Int                  @id @default(autoincrement())
+  userId      Int
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fromBedInfo String?
+  toBedInfo   String?
+  actionType  AllocationActionType @default(CHECK_IN)
+  performedBy String?
+  note        String?              @db.Text
+  createdAt   DateTime             @default(now())
+
+  @@map("bed_allocation_history")
+}
+
