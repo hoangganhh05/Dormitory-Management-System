@@ -1,0 +1,123 @@
+<div class="client-shell">
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div class="brand">
+        <a routerLink="/client/dashboard" class="brand-link">
+          <div class="brand-icon">🏛️</div>
+          <div class="brand-text">
+            <span class="brand-title">KTX THÔNG MINH</span>
+            <span class="brand-subtitle">Trường ĐH CNTT & TT (ICTU)</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <nav class="nav-links">
+        <a routerLink="/client/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+          <span class="nav-icon">📊</span> Tổng quan
+        </a>
+        <a routerLink="/client/rooms" routerLinkActive="active" class="nav-item">
+          <span class="nav-icon">🔍</span> Tra cứu phòng
+        </a>
+        <a routerLink="/client/register-room" routerLinkActive="active" class="nav-item">
+          <span class="nav-icon">📝</span> Đăng ký lưu trú
+        </a>
+        <a routerLink="/client/maintenance" routerLinkActive="active" class="nav-item">
+          <span class="nav-icon">🛠️</span> Báo hỏng thiết bị
+        </a>
+      </nav>
+
+      <!-- User Profile & Action -->
+      <div class="nav-actions">
+        <button class="ai-pill-btn" (click)="toggleChat()">
+          <span class="ai-sparkle">✨</span> Trợ lý AI
+        </button>
+        <div class="user-profile">
+          <div class="avatar">Á</div>
+          <div class="user-meta">
+            <span class="user-name">Ngọc Ánh</span>
+            <span class="user-role">Sinh viên</span>
+          </div>
+        </div>
+        <button class="hamburger-btn" (click)="toggleMobileMenu()" aria-label="Toggle Navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Navigation -->
+    <div class="mobile-drawer" [class.open]="isMobileMenuOpen()">
+      <div class="mobile-drawer-header">
+        <span>Điều hướng</span>
+        <button class="close-drawer" (click)="closeMobileMenu()">✕</button>
+      </div>
+      <nav class="mobile-nav-links">
+        <a routerLink="/client/dashboard" (click)="closeMobileMenu()" class="mobile-nav-item">
+          <span>📊</span> Tổng quan sinh viên
+        </a>
+        <a routerLink="/client/rooms" (click)="closeMobileMenu()" class="mobile-nav-item">
+          <span>🔍</span> Tra cứu phòng trống
+        </a>
+        <a routerLink="/client/register-room" (click)="closeMobileMenu()" class="mobile-nav-item">
+          <span>📝</span> Đăng ký lưu trú online
+        </a>
+        <a routerLink="/client/maintenance" (click)="closeMobileMenu()" class="mobile-nav-item">
+          <span>🛠️</span> Báo hỏng cơ sở vật chất
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content View -->
+  <main class="main-body">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Floating AI Assistant Bubble -->
+  <div class="floating-ai-widget">
+    <button class="ai-bubble-btn" (click)="toggleChat()" title="Hỏi đáp nội quy với AI Gemini">
+      <span class="bubble-icon">🤖</span>
+      <span class="bubble-label">Hỏi AI</span>
+    </button>
+
+    <!-- Mini Chat Modal Preview (for KTX-011 layout placeholder) -->
+    <div class="ai-chat-preview" *ngIf="isChatOpen()">
+      <div class="chat-header">
+        <div class="chat-title">
+          <span>✨</span> Trợ lý KTX Gemini
+        </div>
+        <button class="close-chat" (click)="toggleChat()">✕</button>
+      </div>
+      <div class="chat-body">
+        <div class="chat-msg bot">
+          <div class="bot-avatar">🤖</div>
+          <div class="msg-bubble">
+            Xin chào bạn! Mình là Trợ lý AI Ký túc xá. Bạn có thể hỏi mình về giờ giấc, nội quy, hoặc thủ tục đăng ký phòng nhé!
+          </div>
+        </div>
+      </div>
+      <div class="chat-footer">
+        <input type="text" placeholder="Nhập câu hỏi về nội quy KTX..." disabled />
+        <button disabled>Gửi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="client-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <strong>HỆ THỐNG QUẢN LÝ KÝ TÚC XÁ TÍCH HỢP AI</strong>
+        <p>Trường Đại học Công nghệ Thông tin và Truyền thông - ICTU</p>
+        <p>Cơ sở thực tập: Công ty Cổ phần Công nghệ TFL</p>
+      </div>
+      <div class="footer-right">
+        <p><strong>Hotline khẩn cấp KTX:</strong> 0985.333.555 (Cán bộ trực bàn 24/7)</p>
+        <p>Giờ đóng cửa Ký túc xá: 23h00 hàng ngày</p>
+      </div>
+    </div>
+  </footer>
+</div>
