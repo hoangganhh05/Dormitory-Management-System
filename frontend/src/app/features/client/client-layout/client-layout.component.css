@@ -146,6 +146,42 @@
   color: var(--text-muted);
 }
 
+.logout-btn {
+  background: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #64748b;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: all 0.15s ease;
+}
+
+.logout-btn:hover {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.login-nav-btn {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.login-nav-btn:hover {
+  background-color: #1e293b;
+}
+
 .hamburger-btn {
   display: none;
   flex-direction: column;

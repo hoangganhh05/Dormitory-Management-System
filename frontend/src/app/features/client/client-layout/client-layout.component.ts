@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-client-layout',
@@ -10,6 +11,12 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './client-layout.component.css'
 })
 export class ClientLayoutComponent {
+  authService = inject(AuthService);
+
+  currentUser = this.authService.currentUser;
+  isLoggedIn = this.authService.isLoggedIn;
+  isAdmin = this.authService.isAdmin;
+
   isMobileMenuOpen = signal(false);
   isChatOpen = signal(false);
 
@@ -23,5 +30,9 @@ export class ClientLayoutComponent {
 
   toggleChat(): void {
     this.isChatOpen.update(v => !v);
+  }
+
+  logout(): void {
+    this.authService.logout('/login');
   }
 }
