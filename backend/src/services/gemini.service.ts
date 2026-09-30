@@ -1,6 +1,41 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { ENV } from '../config/env';
 
+export interface RoommateInfo {
+  fullName: string;
+  studentCode: string | null;
+  bedNumber: string;
+}
+
+export interface UserDormitoryContext {
+  userId: number | string;
+  fullName: string;
+  studentCode: string | null;
+  gender: string;
+  role: string;
+  currentRoom?: {
+    roomNumber: string;
+    building: string;
+    floor: number;
+    roomType: string;
+    bedNumber: string;
+    pricePerMonth: number;
+    roommates: RoommateInfo[];
+  } | null;
+  latestRegistration?: {
+    status: string;
+    semester: string;
+    roomNumber?: string;
+    createdAt: string;
+  } | null;
+  pendingMaintenanceRequests?: Array<{
+    title: string;
+    urgency: string;
+    status: string;
+    createdAt: string;
+  }>;
+}
+
 export interface ChatHistoryItem {
   role: 'user' | 'model' | 'bot';
   content: string;
@@ -119,15 +154,22 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
   }
 
   /**
-   * Sinh câu trả lời từ Gemini hoặc Fallback Knowledge Base với hỗ trợ Multi-turn Context
+   * Sinh câu trả lời từ Gemini hoặc Fallback Knowledge Base với hỗ trợ Multi-turn Context và Personalized User Context
    */
-  static async askAI(userPrompt: string, history?: ChatHistoryItem[]): Promise<AIResponse> {
+  static async askAI(
+    userPrompt: string,
+    history?: ChatHistoryItem[],
+    userContext?: UserDormitoryContext
+  ): Promise<AIResponse> {
     const client = this.getClient();
     const promptTrimmed = userPrompt?.trim() || '';
 
     if (!promptTrimmed) {
+      const greeting = userContext
+        ? `Xin chào **${userContext.fullName}**! Mình là Trợ lý AI Ký túc xá ICTU 🤖. Hôm nay bạn cần kiểm tra thông tin phòng ở, bạn cùng phòng, hay cần hỗ trợ gì không?`
+        : 'Xin chào! Mình là Trợ lý AI Ký túc xá ICTU. Bạn cần hỗ trợ thông tin gì về nội quy, giờ giấc, phòng ở hay thủ tục đăng ký KTX hôm nay?';
       return {
-        answer: 'Xin chào! Mình là Trợ lý AI Ký túc xá ICTU. Bạn cần hỗ trợ thông tin gì về nội quy, giờ giấc, phòng ở hay thủ tục đăng ký KTX hôm nay?',
+        answer: greeting,
         source: 'KNOWLEDGE_BASE_FALLBACK',
         modelUsed: 'system-default',
         isAiGenerated: false,
@@ -138,9 +180,40 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
     // Nếu đã cấu hình khóa Gemini API hợp lệ
     if (client) {
       try {
+        // Xây dựng Dynamic System Instruction tích hợp ngữ cảnh người dùng
+        let dynamicInstruction = this.SYSTEM_INSTRUCTION;
+        if (userContext) {
+          let userInfoText = `\n\nTHÔNG TIN SINH VIÊN ĐANG TRÒ CHUYỆN:
+- Họ và tên: ${userContext.fullName}
+- Mã sinh viên: ${userContext.studentCode || 'N/A'}
+- Giới tính: ${userContext.gender === 'FEMALE' ? 'Nữ' : 'Nam'}
+- Vai trò: ${userContext.role}\n`;
+
+          if (userContext.currentRoom) {
+            userInfoText += `- Phòng đang ở: Phòng ${userContext.currentRoom.roomNumber}, ${userContext.currentRoom.building}, Tầng ${userContext.currentRoom.floor}, Giường ${userContext.currentRoom.bedNumber} (Loại: ${userContext.currentRoom.roomType}, Giá: ${userContext.currentRoom.pricePerMonth.toLocaleString('vi-VN')} VNĐ/tháng)\n`;
+            if (userContext.currentRoom.roommates.length > 0) {
+              userInfoText += `- Các bạn cùng phòng: ${userContext.currentRoom.roommates.map(r => `${r.fullName} (MSV: ${r.studentCode || 'N/A'}, Giường ${r.bedNumber})`).join(', ')}\n`;
+            } else {
+              userInfoText += `- Các bạn cùng phòng: Chưa có (phòng hiện có một mình sinh viên này)\n`;
+            }
+          } else {
+            userInfoText += `- Phòng đang ở: Hiện tại chưa được phân phòng lưu trú\n`;
+          }
+
+          if (userContext.latestRegistration) {
+            userInfoText += `- Đơn đăng ký lưu trú gần nhất: Trạng thái ${userContext.latestRegistration.status} (Học kỳ: ${userContext.latestRegistration.semester})\n`;
+          }
+
+          if (userContext.pendingMaintenanceRequests && userContext.pendingMaintenanceRequests.length > 0) {
+            userInfoText += `- Phiếu báo hỏng đang chờ xử lý: ${userContext.pendingMaintenanceRequests.map(m => `"${m.title}" (Mức độ: ${m.urgency}, Trạng thái: ${m.status})`).join('; ')}\n`;
+          }
+
+          dynamicInstruction += userInfoText;
+        }
+
         const model = client.getGenerativeModel({
           model: ENV.GEMINI_MODEL,
-          systemInstruction: this.SYSTEM_INSTRUCTION,
+          systemInstruction: dynamicInstruction,
           generationConfig: {
             temperature: 0.3, // Nhiệt độ thấp để giảm tối đa ảo giác (hallucination), tăng tính chính xác
             topP: 0.8,
@@ -199,14 +272,14 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
       }
     }
 
-    // Fallback Engine thông minh dựa trên bộ từ khóa quy chế KTX
-    return this.generateFallbackAnswer(promptTrimmed);
+    // Fallback Engine thông minh dựa trên bộ từ khóa quy chế KTX và User Context
+    return this.generateFallbackAnswer(promptTrimmed, userContext);
   }
 
   /**
-   * Cơ chế trả lời thông minh dự phòng (Rule-based Fallback Engine)
+   * Cơ chế trả lời thông minh dự phòng (Rule-based Fallback Engine) tích hợp User Context
    */
-  private static generateFallbackAnswer(query: string): AIResponse {
+  private static generateFallbackAnswer(query: string, userContext?: UserDormitoryContext): AIResponse {
     const q = query.toLowerCase();
 
     let answer = '';
@@ -214,7 +287,80 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
     // Helper khớp nhiều từ khóa (hỗ trợ cả tiếng Việt có dấu và không dấu)
     const hasKeyword = (...keywords: string[]) => keywords.some(k => q.includes(k));
 
-    if (hasKeyword('giờ', 'gio', 'mở cửa', 'mo cua', 'đóng cửa', 'dong cua', 'giới nghiêm', 'gioi nghiem', 'về muộn', 've muon')) {
+    // 1. CÁ NHÂN HÓA: Tra cứu thông tin phòng của bản thân
+    if (hasKeyword('phòng tôi', 'phong toi', 'tôi ở phòng', 'toi o phong', 'phòng của tôi', 'phong cua toi', 'giường của tôi', 'giuong cua toi', 'tôi ở đâu', 'toi o dau', 'số phòng của tôi', 'so phong cua toi', 'phòng nào', 'phong nao')) {
+      if (userContext?.currentRoom) {
+        answer = `🏢 **Thông tin phòng lưu trú của bạn (${userContext.fullName} - MSV: ${userContext.studentCode || 'N/A'}):**
+- **Phòng:** ${userContext.currentRoom.roomNumber}
+- **Tòa nhà:** ${userContext.currentRoom.building} (${userContext.gender === 'FEMALE' ? 'Khu sinh viên Nữ' : 'Khu sinh viên Nam'})
+- **Tầng:** Tầng ${userContext.currentRoom.floor}
+- **Vị trí giường:** Giường ${userContext.currentRoom.bedNumber}
+- **Loại phòng:** ${userContext.currentRoom.roomType === 'VIP' ? 'Phòng VIP (2 người, trang bị điều hòa Inverter & nóng lạnh)' : 'Phòng Tiêu chuẩn (4 người)'}
+- **Đơn giá lưu trú:** ${userContext.currentRoom.pricePerMonth.toLocaleString('vi-VN')} VNĐ / tháng`;
+      } else if (userContext) {
+        answer = `ℹ️ Chào bạn **${userContext.fullName}**, hiện tại trên hệ thống bạn **chưa được phân phòng lưu trú**.
+Nếu bạn vừa nộp hồ sơ, vui lòng theo dõi tiến độ duyệt tại mục **"Đăng ký lưu trú"** hoặc liên hệ Văn phòng Quản lý Tầng 1 Tòa A nhé!`;
+      } else {
+        answer = `🔒 Bạn vui lòng **đăng nhập vào hệ thống** để mình có thể tra cứu chính xác phòng và vị trí giường cá nhân của bạn nhé!`;
+      }
+    }
+    // 2. CÁ NHÂN HÓA: Tra cứu danh sách bạn cùng phòng
+    else if (hasKeyword('bạn cùng phòng', 'ban cung phong', 'ai ở cùng', 'ai o cung', 'cùng phòng', 'cung phong', 'những ai ở cùng', 'nhung ai o cung', 'ở chung', 'o chung')) {
+      if (userContext?.currentRoom) {
+        if (userContext.currentRoom.roommates.length > 0) {
+          const list = userContext.currentRoom.roommates
+            .map((r, idx) => `${idx + 1}. **${r.fullName}** (MSV: ${r.studentCode || 'Chưa cập nhật'}) — Giường ${r.bedNumber}`)
+            .join('\n');
+          answer = `👥 **Danh sách các bạn đang ở cùng phòng ${userContext.currentRoom.roomNumber} với bạn:**
+${list}
+
+*Tổng số thành viên trong phòng hiện tại: ${userContext.currentRoom.roommates.length + 1} sinh viên.*`;
+        } else {
+          answer = `Hiện tại phòng **${userContext.currentRoom.roomNumber}** chỉ có một mình bạn đang lưu trú (các giường còn lại hiện đang trống).`;
+        }
+      } else if (userContext) {
+        answer = `ℹ️ Hiện tại bạn chưa được phân phòng lưu trú nên chưa có danh sách bạn cùng phòng.`;
+      } else {
+        answer = `🔒 Vui lòng **đăng nhập** tài khoản sinh viên để xem danh sách các bạn đang ở cùng phòng với bạn nhé!`;
+      }
+    }
+    // 3. CÁ NHÂN HÓA: Tra cứu trạng thái đơn đăng ký lưu trú
+    else if (hasKeyword('đơn của tôi', 'don cua toi', 'hồ sơ của tôi', 'ho so cua toi', 'đơn được duyệt chưa', 'don duoc duyet chua', 'kết quả đơn', 'ket qua don', 'đơn đăng ký của tôi', 'don dang ky cua toi')) {
+      if (userContext?.latestRegistration) {
+        const reg = userContext.latestRegistration;
+        const statusMap: Record<string, string> = {
+          APPROVED: '✅ **ĐÃ ĐƯỢC DUYỆT** — Bạn đã được cấp chỗ ở thành công.',
+          PENDING: '⏳ **ĐANG CHỜ XÉT DUYỆT** — Ban Quản lý đang xử lý hồ sơ của bạn (24 - 48h).',
+          REJECTED: '❌ **ĐÃ BỊ TỪ CHỐI** — Hồ sơ chưa đáp ứng điều kiện hoặc phòng đã hết chỗ.',
+        };
+        answer = `📋 **Trạng thái đơn đăng ký lưu trú mới nhất của bạn:**
+- **Học kỳ:** ${reg.semester}
+- **Trạng thái:** ${statusMap[reg.status] || reg.status}
+- **Ngày nộp đơn:** ${new Date(reg.createdAt).toLocaleDateString('vi-VN')}`;
+      } else if (userContext) {
+        answer = `Bạn chưa nộp đơn đăng ký lưu trú nào trong hệ thống. Bạn có thể truy cập mục **"Đăng ký lưu trú"** để chọn phòng nguyện vọng nhé!`;
+      } else {
+        answer = `🔒 Bạn vui lòng **đăng nhập** để kiểm tra trạng thái đơn đăng ký của mình nhé!`;
+      }
+    }
+    // 4. CÁ NHÂN HÓA: Tra cứu phiếu báo hỏng thiết bị của tôi
+    else if (hasKeyword('phiếu báo hỏng', 'phieu bao hong', 'báo hỏng của tôi', 'bao hong cua toi', 'sửa chữa của tôi', 'sua chua cua toi', 'tiến độ sửa', 'tien do sua', 'đã sửa chưa', 'da sua chua')) {
+      if (userContext?.pendingMaintenanceRequests && userContext.pendingMaintenanceRequests.length > 0) {
+        const reqList = userContext.pendingMaintenanceRequests
+          .map((m, idx) => `${idx + 1}. **${m.title}** (Mức độ: ${m.urgency}) — ${m.status === 'PENDING' ? '⏳ Chờ tiếp nhận' : '⚙️ Kỹ thuật đang xử lý'}`)
+          .join('\n');
+        answer = `🛠️ **Các phiếu báo hỏng thiết bị đang được xử lý của bạn:**
+${reqList}
+
+*Kỹ thuật viên KTX sẽ liên hệ và khắc phục trong vòng 24 giờ.*`;
+      } else if (userContext) {
+        answer = `Hiện tại bạn không có phiếu báo hỏng thiết bị nào đang chờ xử lý. Nếu phòng có sự cố điện/nước/cửa, bạn hãy vào mục **"Báo hỏng thiết bị"** để gửi yêu cầu nhé!`;
+      } else {
+        answer = `🔒 Bạn vui lòng **đăng nhập** để xem tiến độ các phiếu báo hỏng của mình nhé!`;
+      }
+    }
+    // 5. CÁC NỘI QUY CHUNG KÝ TÚC XÁ
+    else if (hasKeyword('giờ', 'gio', 'mở cửa', 'mo cua', 'đóng cửa', 'dong cua', 'giới nghiêm', 'gioi nghiem', 'về muộn', 've muon')) {
       answer = `🕒 **Quy định giờ giấc ra vào Ký túc xá ICTU:**
 - **Giờ mở cửa:** 05h30 sáng hàng ngày.
 - **Giờ đóng cửa (giới nghiêm):** 23h00 đêm hàng ngày.

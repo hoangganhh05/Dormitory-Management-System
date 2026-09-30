@@ -13,6 +13,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiService, AIAskResponse, ChatMessage, ChatHistoryPayload } from '../../core/services/ai.service';
 
+import { AuthService } from '../../core/services/auth.service';
+
 const STORAGE_KEY = 'ktx_ai_chat_history';
 
 @Component({
@@ -24,32 +26,52 @@ const STORAGE_KEY = 'ktx_ai_chat_history';
 })
 export class ChatWidgetComponent implements OnInit, AfterViewChecked {
   private aiService = inject(AiService);
+  private authService = inject(AuthService);
+
+  currentUser = this.authService.currentUser;
+  isLoggedIn = this.authService.isLoggedIn;
 
   // Output event để báo parent đóng widget
   closeChat = output<void>();
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
 
-  private readonly DEFAULT_WELCOME_MESSAGE: ChatMessage = {
-    id: 'welcome',
-    role: 'bot',
-    content:
-      'Xin chào! Mình là **Trợ lý AI Ký túc xá ICTU** 🤖\n\nMình có thể giúp bạn:\n- 🕒 Giờ mở/đóng cửa KTX\n- 💰 Biểu phí phòng Standard & VIP\n- 📝 Thủ tục đăng ký lưu trú\n- 🛠️ Quy trình báo hỏng thiết bị\n- 📞 Thông tin liên hệ Ban Quản lý\n\nBạn cần hỗ trợ gì hôm nay?',
-    timestamp: new Date(),
-  };
+  private getWelcomeMessage(): ChatMessage {
+    const user = this.currentUser();
+    const content = user
+      ? `Xin chào bạn **${user.fullName}** (${user.studentCode || 'Sinh viên ICTU'})! 🤖\n\nMình là Trợ lý AI Ký túc xá. Mình có thể hỗ trợ bạn:\n- 🏢 Tra cứu phòng ở & vị trí giường của bạn\n- 👥 Danh sách các bạn cùng phòng\n- 📝 Tiến độ xét duyệt đơn đăng ký lưu trú\n- 🛠️ Trạng thái phiếu báo hỏng thiết bị\n- 🕒 Nội quy giờ giấc & an toàn KTX\n\nBạn cần mình hỗ trợ gì hôm nay?`
+      : 'Xin chào! Mình là **Trợ lý AI Ký túc xá ICTU** 🤖\n\nMình có thể giúp bạn:\n- 🕒 Giờ mở/đóng cửa KTX\n- 💰 Biểu phí phòng Standard & VIP\n- 📝 Thủ tục đăng ký lưu trú\n- 🛠️ Quy trình báo hỏng thiết bị\n- 📞 Thông tin liên hệ Ban Quản lý\n\nBạn cần hỗ trợ gì hôm nay?';
+
+    return {
+      id: 'welcome',
+      role: 'bot',
+      content,
+      timestamp: new Date(),
+    };
+  }
 
   // State
   userInput = signal('');
   isLoading = signal(false);
-  messages = signal<ChatMessage[]>([this.DEFAULT_WELCOME_MESSAGE]);
+  messages = signal<ChatMessage[]>([]);
 
-  // Quick suggestions
-  suggestions = [
-    'Giờ đóng cửa KTX?',
-    'Phí phòng VIP là bao nhiêu?',
-    'Cách báo hỏng thiết bị?',
-    'Hotline Ban Quản lý?',
-  ];
+  // Quick suggestions theo ngữ cảnh đăng nhập
+  suggestions = computed(() => {
+    if (this.isLoggedIn()) {
+      return [
+        'Tôi đang ở phòng nào?',
+        'Ai đang ở cùng phòng với tôi?',
+        'Đơn của tôi thế nào rồi?',
+        'Giờ đóng cửa KTX là mấy giờ?',
+      ];
+    }
+    return [
+      'Giờ đóng cửa KTX?',
+      'Phí phòng VIP là bao nhiêu?',
+      'Cách báo hỏng thiết bị?',
+      'Hotline Ban Quản lý?',
+    ];
+  });
 
   isInputEmpty = computed(() => this.userInput().trim().length === 0);
   hasConversationHistory = computed(() => this.messages().length > 1);
@@ -57,6 +79,7 @@ export class ChatWidgetComponent implements OnInit, AfterViewChecked {
   private shouldScrollToBottom = false;
 
   ngOnInit(): void {
+    this.messages.set([this.getWelcomeMessage()]);
     this.restoreChatHistory();
   }
 
@@ -121,12 +144,7 @@ export class ChatWidgetComponent implements OnInit, AfterViewChecked {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem(STORAGE_KEY);
     }
-    this.messages.set([
-      {
-        ...this.DEFAULT_WELCOME_MESSAGE,
-        timestamp: new Date(),
-      },
-    ]);
+    this.messages.set([this.getWelcomeMessage()]);
     this.userInput.set('');
     this.shouldScrollToBottom = true;
   }
