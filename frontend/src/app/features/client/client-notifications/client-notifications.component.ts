@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -22,6 +22,7 @@ import { catchError, finalize, of } from 'rxjs';
 })
 export class ClientNotificationsComponent implements OnInit {
   private notifService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
   authService = inject(AuthService);
 
   notifications: NotificationItem[] = [];
@@ -45,6 +46,8 @@ export class ClientNotificationsComponent implements OnInit {
   loadNotifications(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.markForCheck();
+
     this.notifService
       .getNotifications({
         category: (this.selectedCategory as NotificationCategory) || '',
@@ -64,6 +67,7 @@ export class ClientNotificationsComponent implements OnInit {
         }),
         finalize(() => {
           this.isLoading = false;
+          this.cdr.markForCheck();
         }),
       )
       .subscribe({
@@ -82,6 +86,7 @@ export class ClientNotificationsComponent implements OnInit {
             this.errorMessage = res.message || 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
           }
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Lỗi khi tải thông báo:', err);
@@ -90,6 +95,7 @@ export class ClientNotificationsComponent implements OnInit {
           this.totalPages = 1;
           this.errorMessage = 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -115,6 +121,7 @@ export class ClientNotificationsComponent implements OnInit {
           this.selectedNotification = res.data;
           item.isRead = true;
           item.viewCount = res.data.viewCount;
+          this.cdr.markForCheck();
         }
       },
     });
@@ -123,6 +130,7 @@ export class ClientNotificationsComponent implements OnInit {
   closeDetail(): void {
     this.isDetailOpen = false;
     this.selectedNotification = null;
+    this.cdr.markForCheck();
   }
 
   markAllAsRead(): void {
@@ -130,6 +138,7 @@ export class ClientNotificationsComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.notifications.forEach((n) => (n.isRead = true));
+          this.cdr.markForCheck();
         }
       },
       error: (err) => console.error('Lỗi khi đánh dấu đọc:', err),
