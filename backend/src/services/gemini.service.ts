@@ -196,7 +196,7 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
       }
 
       return rooms
-        .map((r) => {
+        .map((r: any) => {
           const vacant = Math.max(0, r.capacity - (r.currentOccupancy || 0));
           const typeStr = r.roomType === 'VIP' ? 'VIP' : 'Tiêu chuẩn';
           const statusNote = r.status === 'MAINTENANCE' ? ' (Đang bảo trì)' : (vacant === 0 ? ' (Hết chỗ)' : ` (Còn ${vacant}/${r.capacity} giường trống)`);
