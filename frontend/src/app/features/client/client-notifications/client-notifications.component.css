@@ -1,15 +1,17 @@
 /* Client Notifications Component - Spartan UI Enterprise SaaS */
 
 .notifications-page {
-  padding-top: 24px;
-  padding-bottom: 48px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 3.5rem;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0;
 }
 
 /* Header */
-.page-header-box {
+.page-header {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -133,31 +135,30 @@
 /* Category Pills */
 .category-pills {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 1.5rem;
   flex-wrap: wrap;
+  margin-top: 24px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .pill-btn {
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #475569;
-  padding: 6px 12px;
+  background-color: transparent;
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease;
 }
 
 .pill-btn:hover {
-  background-color: #f1f5f9;
+  background-color: transparent;
   color: #0f172a;
 }
 
 .pill-btn.active {
-  background-color: #0f172a;
-  border-color: #0f172a;
-  color: #ffffff;
+  background-color: transparent;
+  border-bottom: 2px solid #0f172a;
+  color: #0f172a;
+  margin-bottom: -1px;
 }
 
 /* Notifications List */
@@ -437,7 +438,7 @@
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   position: relative;
 }
 
@@ -524,3 +525,27 @@
     transform: rotate(360deg);
   }
 }
+
+/* Unified bulletin canvas */
+.notifications-page { background: transparent; }
+.page-header { border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 0; }
+.notifications-content-card {
+  background: #fff;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  padding: 1.5rem;
+}
+@media (min-width: 640px) {
+  .notifications-content-card { padding: 2rem; }
+}
+.filter-card { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; background: #fff; box-shadow: none; padding: 1rem 0; }
+.category-pills { border-top: 0; padding-top: 0; }
+.pill-btn { border-radius: 0; background: transparent; padding-left: 0; padding-right: 0; }
+.pill-btn.active { border-bottom-color: #0f172a; background: transparent; color: #0f172a; }
+.notifications-list-wrap { border: 0; border-radius: 0; box-shadow: none; }
+.notif-card, .notif-card.pinned-card, .notif-card.unread-card { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; background: #fff; box-shadow: none; padding: 1rem 0; }
+.notif-card:hover { background: #f8fafc; }
+.badge, .priority-tag, .pinned-indicator, .building-scope-tag { border-radius: .125rem; }
+.empty-box { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; }
+.pagination-bar { border-radius: 0; border-left: 0; border-right: 0; }

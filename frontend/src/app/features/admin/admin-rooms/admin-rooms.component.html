@@ -12,9 +12,7 @@
     </div>
     <div class="header-actions">
       <button class="btn-create-room" (click)="openCreateModal()">
-        <svg class="w-4 h-4 mr-1.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
+        <ng-icon name="lucidePlus" size="16" class="mr-1.5"></ng-icon>
         Tạo phòng mới
       </button>
     </div>
@@ -22,16 +20,12 @@
 
   <!-- Action Feedback Notifications -->
   <div class="alert-success" *ngIf="actionSuccessMsg()">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-    </svg>
+    <ng-icon name="lucideCheck" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ actionSuccessMsg() }}</span>
   </div>
 
   <div class="alert-error" *ngIf="errorMessage()">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-    </svg>
+    <ng-icon name="lucideAlertTriangle" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ errorMessage() }}</span>
     <button class="btn-retry" (click)="loadData()">Tải lại</button>
   </div>
@@ -41,7 +35,6 @@
     <div class="metric-card">
       <div class="metric-head">
         <span class="metric-title">Tổng số phòng</span>
-        <span class="metric-icon">🏢</span>
       </div>
       <div class="metric-value">{{ st.totalRooms }}</div>
       <div class="metric-sub">Bao gồm tất cả các khu nhà</div>
@@ -50,7 +43,6 @@
     <div class="metric-card">
       <div class="metric-head">
         <span class="metric-title">Tổng sức chứa</span>
-        <span class="metric-icon">🛏️</span>
       </div>
       <div class="metric-value">{{ st.totalCapacity }} <span class="unit">giường</span></div>
       <div class="metric-sub">Quy mô phục vụ toàn trường</div>
@@ -59,7 +51,6 @@
     <div class="metric-card">
       <div class="metric-head">
         <span class="metric-title">Đang lưu trú</span>
-        <span class="metric-icon">👥</span>
       </div>
       <div class="metric-value font-mono text-blue-600">{{ st.totalOccupancy }} <span class="unit">sinh viên</span></div>
       <div class="metric-sub">Hợp đồng lưu trú đang hiệu lực</div>
@@ -68,7 +59,6 @@
     <div class="metric-card">
       <div class="metric-head">
         <span class="metric-title">Chỗ còn trống</span>
-        <span class="metric-icon">✨</span>
       </div>
       <div class="metric-value font-mono text-emerald-600">{{ st.totalVacantBeds }} <span class="unit">chỗ</span></div>
       <div class="metric-sub">Sẵn sàng tiếp nhận đăng ký</div>
@@ -77,7 +67,6 @@
     <div class="metric-card">
       <div class="metric-head">
         <span class="metric-title">Tỷ lệ lấp đầy</span>
-        <span class="metric-icon">📊</span>
       </div>
       <div class="metric-value font-mono">{{ st.occupancyRate }}%</div>
       <div class="occupancy-progress-bar">
@@ -89,7 +78,7 @@
   <!-- Building Breakdown Mini Cards -->
   <div class="building-chips-row" *ngIf="stats()?.buildings?.length">
     <div class="building-card" *ngFor="let b of stats()!.buildings">
-      <div class="building-name">🏛️ {{ b.building }}</div>
+      <div class="building-name"><ng-icon name="lucideBuilding2" size="16" class="mr-1.5 align-middle text-slate-400"></ng-icon>{{ b.building }}</div>
       <div class="building-details">
         <span><strong>{{ b.totalRooms }}</strong> phòng</span>
         <span class="dot">•</span>
@@ -103,9 +92,7 @@
   <!-- Filter & Search Toolbar -->
   <div class="toolbar-card">
     <div class="search-box">
-      <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg>
+      <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
       <input
         type="text"
         [value]="searchTerm()"
@@ -113,7 +100,7 @@
         placeholder="Tìm theo số phòng (VD: A101) hoặc tên tòa nhà..."
         class="search-input"
       />
-      <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')">✕</button>
+      <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')" title="Xóa tìm kiếm"><ng-icon name="lucideX" size="14"></ng-icon></button>
     </div>
 
     <div class="filter-group">
@@ -214,7 +201,7 @@
             <!-- Room Type -->
             <td>
               <span class="badge" [class.badge-vip]="room.roomType === 'VIP'" [class.badge-standard]="room.roomType === 'STANDARD'">
-                {{ room.roomType === 'VIP' ? '★ VIP' : 'Tiêu chuẩn' }}
+                {{ room.roomType === 'VIP' ? 'Chất lượng cao' : 'Tiêu chuẩn' }}
               </span>
             </td>
 
@@ -307,7 +294,7 @@
 
     <!-- Empty Table State -->
     <div class="empty-state" *ngIf="filteredRooms().length === 0">
-      <div class="empty-icon">🔍</div>
+      <ng-icon name="lucideSearch" size="24" class="empty-icon"></ng-icon>
       <h3 class="empty-title">Không tìm thấy phòng nào phù hợp</h3>
       <p class="empty-desc">Thử điều chỉnh lại từ khóa tìm kiếm hoặc các tiêu chí bộ lọc phía trên.</p>
       <button class="btn-reset-empty" (click)="resetFilters()">Xóa bộ lọc</button>
@@ -322,7 +309,7 @@
           <h3 class="modal-title">Khởi tạo phòng ký túc xá mới</h3>
           <p class="modal-subtitle">Hệ thống sẽ tự động sinh danh sách giường tương ứng với sức chứa</p>
         </div>
-        <button class="btn-close-modal" (click)="closeCreateModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeCreateModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="createForm" (ngSubmit)="submitCreateRoom()" class="modal-body">
@@ -427,7 +414,7 @@
           <h3 class="modal-title">Cập nhật thông tin phòng {{ selectedRoom()?.roomNumber }}</h3>
           <p class="modal-subtitle">Chỉnh sửa thông số cơ sở vật chất và trạng thái phòng</p>
         </div>
-        <button class="btn-close-modal" (click)="closeEditModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeEditModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="editForm" (ngSubmit)="submitUpdateRoom()" class="modal-body">
@@ -525,7 +512,7 @@
             <p class="modal-subtitle">{{ selectedRoom()?.building }} • Tầng {{ selectedRoom()?.floor }} • Sức chứa {{ selectedRoom()?.capacity }} giường</p>
           </div>
         </div>
-        <button class="btn-close-modal" (click)="closeDetailModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeDetailModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <div class="modal-body">
@@ -556,7 +543,7 @@
           <div class="bed-item-card" *ngFor="let bed of selectedRoom()?.beds" [class.occupied]="bed.status === 'OCCUPIED'">
             <div class="bed-card-header">
               <div class="bed-number-pill">
-                🛏️ {{ bed.bedNumber }}
+                <ng-icon name="lucideBedDouble" size="15" class="mr-1 align-middle text-slate-400"></ng-icon>{{ bed.bedNumber }}
               </div>
               <span class="bed-status-badge" [ngClass]="{
                 'status-vacant': bed.status === 'VACANT',

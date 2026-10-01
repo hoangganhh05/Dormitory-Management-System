@@ -12,9 +12,7 @@
     </div>
     <div class="header-actions">
       <button class="btn-create-student" (click)="openCreateModal()">
-        <svg class="w-4 h-4 mr-1.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
+        <ng-icon name="lucidePlus" size="16" class="mr-1.5"></ng-icon>
         Tạo hồ sơ sinh viên
       </button>
     </div>
@@ -22,16 +20,12 @@
 
   <!-- Action Feedback Alerts -->
   <div class="alert-success" *ngIf="actionSuccessMsg()">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-    </svg>
+    <ng-icon name="lucideCheck" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ actionSuccessMsg() }}</span>
   </div>
 
   <div class="alert-error" *ngIf="errorMessage()">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-    </svg>
+    <ng-icon name="lucideAlertTriangle" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ errorMessage() }}</span>
     <button class="btn-retry" (click)="loadStudents()">Thử lại</button>
   </div>
@@ -76,14 +70,14 @@
       [class.active]="activeViewTab() === 'STUDENTS'"
       (click)="switchTab('STUDENTS')"
     >
-      👥 Danh sách hồ sơ sinh viên ({{ students().length }})
+      Danh sách hồ sơ sinh viên ({{ students().length }})
     </button>
     <button
       class="main-tab-btn"
       [class.active]="activeViewTab() === 'HISTORY'"
       (click)="switchTab('HISTORY')"
     >
-      📋 Nhật ký điều chuyển & Lưu trú ({{ allocationStats()?.totalHistories ?? 0 }})
+      Nhật ký điều chuyển & Lưu trú ({{ allocationStats()?.totalHistories ?? 0 }})
     </button>
   </div>
 
@@ -92,9 +86,7 @@
     <!-- Filter Toolbar -->
     <div class="toolbar-card">
       <div class="search-box">
-        <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+        <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
           [value]="searchTerm()"
@@ -102,7 +94,7 @@
           placeholder="Tìm theo tên, mã sinh viên, email, số điện thoại..."
           class="search-input"
         />
-        <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')">✕</button>
+        <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')" title="Xóa tìm kiếm"><ng-icon name="lucideX" size="14"></ng-icon></button>
       </div>
 
       <div class="filter-group">
@@ -200,7 +192,7 @@
               <td>
                 <div *ngIf="student.occupiedBed as bed; else unassignedBed">
                   <div class="bed-allocated-box">
-                    <span class="bed-pill">🛏️ {{ bed.bedNumber }}</span>
+                    <span class="bed-pill"><ng-icon name="lucideBedDouble" size="15"></ng-icon> {{ bed.bedNumber }}</span>
                     <span class="room-pill">Phòng {{ bed.room?.roomNumber }}</span>
                   </div>
                   <div class="text-[11px] text-slate-500 mt-0.5">
@@ -285,7 +277,7 @@
 
       <!-- Empty State -->
       <div class="empty-state" *ngIf="filteredStudents().length === 0">
-        <div class="empty-icon">👥</div>
+        <ng-icon name="lucideUsers" size="24" class="empty-icon"></ng-icon>
         <h3 class="empty-title">Không tìm thấy sinh viên phù hợp</h3>
         <p class="empty-desc">Thử điều chỉnh lại từ khóa tìm kiếm hoặc các tiêu chí bộ lọc giới tính / tình trạng.</p>
         <button class="btn-reset-empty" (click)="resetFilters()">Xem tất cả</button>
@@ -297,9 +289,7 @@
   <ng-container *ngIf="activeViewTab() === 'HISTORY'">
     <div class="toolbar-card">
       <div class="search-box">
-        <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+        <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
           [value]="historySearchTerm()"
@@ -307,7 +297,7 @@
           placeholder="Tìm sinh viên, mã SV, thông tin phòng/giường..."
           class="search-input"
         />
-        <button class="clear-btn" *ngIf="historySearchTerm()" (click)="historySearchTerm.set('')">✕</button>
+        <button class="clear-btn" *ngIf="historySearchTerm()" (click)="historySearchTerm.set('')" title="Xóa tìm kiếm"><ng-icon name="lucideX" size="14"></ng-icon></button>
       </div>
 
       <div class="filter-group">
@@ -406,7 +396,7 @@
       </div>
 
       <div class="empty-state" *ngIf="filteredHistories().length === 0">
-        <div class="empty-icon">📜</div>
+        <ng-icon name="lucideClipboardList" size="24" class="empty-icon"></ng-icon>
         <h3 class="empty-title">Chưa có bản ghi nhật ký nào</h3>
         <p class="empty-desc">Toàn bộ thao tác phân bổ, đổi chỗ và trả phòng sẽ tự động ghi vết tại đây.</p>
       </div>
@@ -421,7 +411,7 @@
           <h3 class="modal-title">Phân bổ giường lưu trú (Check-in)</h3>
           <p class="modal-subtitle">Hệ thống áp dụng quy tắc giới tính và ngăn phân trùng tuyệt đối</p>
         </div>
-        <button class="btn-close-modal" (click)="closeAllocateModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeAllocateModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="allocationForm" (ngSubmit)="submitAllocateBed()" class="modal-body">
@@ -451,7 +441,7 @@
           </div>
           <ng-template #noAvailableBeds>
             <div class="alert-warning-box">
-              ⚠️ Không còn giường trống khả dụng phù hợp với giới tính sinh viên. Vui lòng kiểm tra lại sơ đồ phòng hoặc thêm phòng mới!
+              <ng-icon name="lucideAlertTriangle" size="16"></ng-icon> Không còn giường trống khả dụng phù hợp với giới tính sinh viên. Vui lòng kiểm tra lại sơ đồ phòng hoặc thêm phòng mới!
             </div>
           </ng-template>
         </div>
@@ -481,7 +471,7 @@
           <h3 class="modal-title">Điều chuyển phòng / Giường (Transfer)</h3>
           <p class="modal-subtitle">Chuyển sinh viên sang vị trí giường trống khác mà không làm sai lệch số liệu</p>
         </div>
-        <button class="btn-close-modal" (click)="closeTransferModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeTransferModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="transferForm" (ngSubmit)="submitTransferBed()" class="modal-body">
@@ -510,7 +500,7 @@
           </div>
           <ng-template #noTransferBeds>
             <div class="alert-warning-box">
-              ⚠️ Không còn giường trống nào khác khả dụng để điều chuyển.
+              <ng-icon name="lucideAlertTriangle" size="16"></ng-icon> Không còn giường trống nào khác khả dụng để điều chuyển.
             </div>
           </ng-template>
         </div>
@@ -540,7 +530,7 @@
           <h3 class="modal-title">Lịch sử lưu trú — {{ selectedStudent()?.fullName }}</h3>
           <p class="modal-subtitle">Mã SV: {{ selectedStudent()?.studentCode }} • Toàn bộ vết phân bổ và thay đổi giường</p>
         </div>
-        <button class="btn-close-modal" (click)="closeHistoryModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeHistoryModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <div class="modal-body">
@@ -569,7 +559,7 @@
 
         <ng-template #noStudentHistories>
           <div class="empty-state">
-            <div class="empty-icon">📜</div>
+            <ng-icon name="lucideClipboardList" size="24" class="empty-icon"></ng-icon>
             <p class="empty-desc">Chưa có bản ghi điều chuyển nào được lưu lại cho sinh viên này.</p>
           </div>
         </ng-template>
@@ -591,7 +581,7 @@
           <h3 class="modal-title">Tạo mới hồ sơ sinh viên lưu trú</h3>
           <p class="modal-subtitle">Tạo tài khoản và hồ sơ định danh chính thức trên hệ thống KTX</p>
         </div>
-        <button class="btn-close-modal" (click)="closeCreateModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeCreateModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="createForm" (ngSubmit)="submitCreateStudent()" class="modal-body">
@@ -641,7 +631,7 @@
           <h3 class="modal-title">Cập nhật hồ sơ sinh viên</h3>
           <p class="modal-subtitle">Chỉnh sửa thông tin định danh của sinh viên</p>
         </div>
-        <button class="btn-close-modal" (click)="closeEditModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeEditModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="editForm" (ngSubmit)="submitUpdateStudent()" class="modal-body">
@@ -690,7 +680,7 @@
             <p class="modal-subtitle font-mono">{{ selectedStudent()?.studentCode }} • {{ selectedStudent()?.email }}</p>
           </div>
         </div>
-        <button class="btn-close-modal" (click)="closeDetailModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeDetailModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <div class="modal-body">

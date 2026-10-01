@@ -1,20 +1,20 @@
-<div class="container maintenance-page">
+<div class="w-full space-y-6">
   <div class="page-header">
     <h1 class="page-title">Báo Hỏng Cơ Sở Vật Chất KTX</h1>
     <p class="page-subtitle">Sinh viên phản ánh sự cố kỹ thuật, hỏng hóc thiết bị điện nước tại phòng để Ban Quản lý điều phối sửa chữa.</p>
   </div>
 
-  <div class="maintenance-grid">
+  <div class="maintenance-grid grid w-full grid-cols-1 gap-6 lg:grid-cols-12">
     <!-- Form gửi phiếu báo hỏng -->
-    <div class="maint-card">
+    <div class="maint-card w-full rounded-xl border border-slate-200/60 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] sm:p-8 lg:col-span-5">
       <h2 class="card-title">Tạo phiếu báo hỏng mới</h2>
 
       <div class="alert-success" *ngIf="submitSuccess()">
-        ✓ Gửi phiếu báo hỏng thành công! Kỹ thuật viên sẽ tiếp nhận và xử lý sớm nhất.
+        <ng-icon name="lucideCheck" size="16"></ng-icon> Gửi phiếu báo hỏng thành công. Kỹ thuật viên sẽ tiếp nhận và xử lý sớm nhất.
       </div>
 
       <div class="alert-error" *ngIf="errorMessage()">
-        ⚠️ {{ errorMessage() }}
+        <ng-icon name="lucideAlertTriangle" size="16"></ng-icon> {{ errorMessage() }}
       </div>
 
       <form (ngSubmit)="onSubmit()" class="maint-form">
@@ -75,14 +75,14 @@
         </div>
 
         <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
-          <span *ngIf="!isSubmitting()">🛠️ Gửi phiếu báo hỏng</span>
-          <span *ngIf="isSubmitting()">⏳ Đang gửi...</span>
+          <span *ngIf="!isSubmitting()"><ng-icon name="lucideWrench" size="16"></ng-icon> Gửi phiếu báo hỏng</span>
+          <span *ngIf="isSubmitting()"><ng-icon name="lucideClock3" size="16"></ng-icon> Đang gửi...</span>
         </button>
       </form>
     </div>
 
     <!-- Lịch sử các phiếu báo hỏng -->
-    <div class="maint-card">
+    <div class="maint-card w-full rounded-xl border border-slate-200/60 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] sm:p-8 lg:col-span-7">
       <div class="history-header">
         <h2 class="card-title">Lịch sử yêu cầu đã gửi ({{ myRequests().length }})</h2>
       </div>
@@ -92,7 +92,7 @@
       </div>
 
       <div class="alert-error" *ngIf="loadError() && !isLoading()">
-        ⚠️ {{ loadError() }}
+        <ng-icon name="lucideAlertTriangle" size="16"></ng-icon> {{ loadError() }}
       </div>
 
       <div class="request-list" *ngIf="!isLoading() && myRequests().length > 0">
@@ -103,20 +103,20 @@
               <strong class="req-title">{{ req.title }}</strong>
             </div>
             <span class="req-status-pill" [ngClass]="req.status.toLowerCase()">
-              {{ req.status === 'PENDING' ? 'Chờ tiếp nhận' : req.status === 'PROCESSING' ? 'Đang sửa chữa' : req.status === 'RESOLVED' ? 'Đã khắc phục' : 'Đã từ chối' }}
+               {{ req.status === 'PENDING' ? 'Chờ tiếp nhận' : req.status === 'PROCESSING' ? 'Đang xử lý' : req.status === 'RESOLVED' ? 'Hoàn thành' : 'Từ chối' }}
             </span>
           </div>
 
           <div class="req-meta">
             <span>Phòng {{ req.roomNumber }}</span>
-            <span>●</span>
+            <span class="text-slate-300">·</span>
             <span class="urgency-text" [ngClass]="req.urgency.toLowerCase()">Mức độ: {{ req.urgency }}</span>
-            <span>●</span>
+            <span class="text-slate-300">·</span>
             <span>{{ req.createdAt }}</span>
           </div>
 
           <div class="feedback-box" *ngIf="req.feedback">
-            <span class="fb-icon">💬</span>
+            <ng-icon name="lucideMessageCircle" size="15" class="fb-icon"></ng-icon>
             <div class="fb-text">
               <strong>Phản hồi BQL:</strong> {{ req.feedback }}
             </div>

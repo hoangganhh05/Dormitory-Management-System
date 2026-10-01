@@ -8,11 +8,14 @@ import {
   NotificationCategory,
   NotificationPriority,
 } from '../../../core/models/notification.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideBell, lucideCheckCheck, lucideSearch, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-client-notifications',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIcon],
+  providers: [provideIcons({ lucideBell, lucideCheckCheck, lucideSearch, lucideX })],
   templateUrl: './client-notifications.component.html',
   styleUrl: './client-notifications.component.css',
 })

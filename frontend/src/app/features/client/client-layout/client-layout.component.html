@@ -1,130 +1,254 @@
-<div class="client-shell">
-  <!-- Top Navigation Bar -->
-  <header class="navbar">
-    <div class="container nav-container">
-      <div class="brand">
-        <a routerLink="/client/dashboard" class="brand-link">
-          <div class="brand-icon">🏛️</div>
-          <div class="brand-text">
-            <span class="brand-title">KTX THÔNG MINH</span>
-            <span class="brand-subtitle">Trường ĐH CNTT & TT (ICTU)</span>
-          </div>
-        </a>
-      </div>
+<div class="flex h-screen overflow-hidden bg-[#f8fafc] font-sans text-slate-800 antialiased">
+  <!-- Mobile sidebar backdrop -->
+  <div
+    *ngIf="isMobileMenuOpen()"
+    class="fixed inset-0 z-40 bg-slate-900/30 md:hidden"
+    (click)="closeMobileMenu()"
+  ></div>
 
-      <!-- Desktop Navigation -->
-      <nav class="nav-links">
-        <a routerLink="/client/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-          <span class="nav-icon">📊</span> Tổng quan
-        </a>
-        <a routerLink="/client/rooms" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">🔍</span> Tra cứu phòng
-        </a>
-        <a routerLink="/client/register-room" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">📝</span> Đăng ký lưu trú
-        </a>
-        <a routerLink="/client/maintenance" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">🛠️</span> Báo hỏng thiết bị
-        </a>
-        <a routerLink="/client/notifications" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">📢</span> Bảng tin thông báo
-        </a>
-        <a routerLink="/client/profile" routerLinkActive="active" class="nav-item" *ngIf="isLoggedIn()">
-          <span class="nav-icon">👤</span> Hồ sơ lưu trú
-        </a>
-      </nav>
+  <!-- Collapsible sidebar -->
+  <aside
+    [ngClass]="{
+      'w-64': !isSidebarCollapsed(),
+      'w-16': isSidebarCollapsed(),
+      'translate-x-0': isMobileMenuOpen(),
+      '-translate-x-full': !isMobileMenuOpen()
+    }"
+    class="group/sidebar fixed inset-y-0 left-0 z-50 flex shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out md:static md:translate-x-0"
+  >
+    <!-- Sidebar brand and collapse control -->
+    <div class="relative flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-3">
+      <a
+        routerLink="/client/dashboard"
+        (click)="closeMobileMenu()"
+        class="flex min-w-0 items-center gap-3 rounded-md text-slate-900"
+        [class.justify-center]="isSidebarCollapsed()"
+        [class.w-full]="isSidebarCollapsed()"
+        title="KTX THÔNG MINH"
+      >
+        <span
+          [ngClass]="{ 'group-hover/sidebar:opacity-0': isSidebarCollapsed() }"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-slate-900 text-white transition-opacity duration-200"
+        >
+          <ng-icon name="lucideBuilding2" class="h-4 w-4"></ng-icon>
+        </span>
+        <span *ngIf="!isSidebarCollapsed()" class="min-w-0">
+          <span class="block truncate text-sm font-bold tracking-tight leading-none">KTX THÔNG MINH</span>
+          <span class="mt-1 block truncate text-[11px] font-medium leading-tight text-slate-500">Trường ĐH CNTT &amp; TT (ICTU)</span>
+        </span>
+      </a>
 
-      <!-- User Profile & Action -->
-      <div class="nav-actions">
-        <button class="ai-pill-btn" (click)="toggleChat()">
-          <span class="ai-sparkle">✨</span> Trợ lý AI
-        </button>
-        <div class="user-profile" *ngIf="isLoggedIn()">
-          <div class="avatar">{{ currentUser()?.fullName ? currentUser()!.fullName[0] : 'U' }}</div>
-          <div class="user-meta">
-            <span class="user-name">{{ currentUser()?.fullName }}</span>
-            <span class="user-role">{{ currentUser()?.role === 'ADMIN' ? 'Ban Quản trị' : (currentUser()?.studentCode || 'Sinh viên') }}</span>
-          </div>
-          <button class="logout-btn" (click)="logout()" title="Đăng xuất khỏi hệ thống">⎋</button>
+      <button
+        type="button"
+        (click)="toggleSidebar()"
+        [attr.aria-label]="isSidebarCollapsed() ? 'Mở rộng thanh menu' : 'Thu gọn thanh menu'"
+        [title]="isSidebarCollapsed() ? 'Mở rộng thanh menu' : 'Thu gọn thanh menu'"
+        [ngClass]="{
+          'relative': !isSidebarCollapsed(),
+          'absolute left-1/2 top-1/2 z-10 h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border border-slate-200 bg-white shadow-sm': isSidebarCollapsed()
+        }"
+        class="inline-flex shrink-0 p-1.5 text-slate-500 opacity-100 pointer-events-auto transition-opacity duration-200 hover:bg-slate-100 hover:text-slate-900 md:pointer-events-none md:opacity-0 md:group-hover/sidebar:pointer-events-auto md:group-hover/sidebar:opacity-100"
+      >
+        <ng-icon [name]="isSidebarCollapsed() ? 'lucidePanelLeftOpen' : 'lucidePanelLeftClose'" class="h-4 w-4"></ng-icon>
+      </button>
+
+      <button
+        type="button"
+        (click)="closeMobileMenu()"
+        aria-label="Đóng thanh menu"
+        title="Đóng thanh menu"
+        class="inline-flex shrink-0 rounded-md p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 md:hidden"
+      >
+        <ng-icon name="lucideX" class="h-4 w-4"></ng-icon>
+      </button>
+    </div>
+
+    <!-- Sidebar navigation -->
+    <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Điều hướng chính">
+      <a
+        routerLink="/client/dashboard"
+        (click)="closeMobileMenu()"
+        routerLinkActive="bg-slate-900 text-white font-semibold shadow-sm"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [class.justify-center]="isSidebarCollapsed()"
+        [class.gap-0]="isSidebarCollapsed()"
+        class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900"
+        title="Tổng quan"
+      >
+        <ng-icon name="lucideLayoutDashboard" class="h-4 w-4 shrink-0"></ng-icon>
+        <span *ngIf="!isSidebarCollapsed()">Tổng quan</span>
+      </a>
+
+      <a
+        routerLink="/client/rooms"
+        (click)="closeMobileMenu()"
+        routerLinkActive="bg-slate-900 text-white font-semibold shadow-sm"
+        [class.justify-center]="isSidebarCollapsed()"
+        [class.gap-0]="isSidebarCollapsed()"
+        class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900"
+        title="Tra cứu phòng"
+      >
+        <ng-icon name="lucideSearch" class="h-4 w-4 shrink-0"></ng-icon>
+        <span *ngIf="!isSidebarCollapsed()">Tra cứu phòng</span>
+      </a>
+
+      <a
+        routerLink="/client/register-room"
+        (click)="closeMobileMenu()"
+        routerLinkActive="bg-slate-900 text-white font-semibold shadow-sm"
+        [class.justify-center]="isSidebarCollapsed()"
+        [class.gap-0]="isSidebarCollapsed()"
+        class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900"
+        title="Đăng ký lưu trú"
+      >
+        <ng-icon name="lucideFileText" class="h-4 w-4 shrink-0"></ng-icon>
+        <span *ngIf="!isSidebarCollapsed()">Đăng ký lưu trú</span>
+      </a>
+
+      <a
+        routerLink="/client/maintenance"
+        (click)="closeMobileMenu()"
+        routerLinkActive="bg-slate-900 text-white font-semibold shadow-sm"
+        [class.justify-center]="isSidebarCollapsed()"
+        [class.gap-0]="isSidebarCollapsed()"
+        class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900"
+        title="Báo hỏng cơ sở vật chất"
+      >
+        <ng-icon name="lucideWrench" class="h-4 w-4 shrink-0"></ng-icon>
+        <span *ngIf="!isSidebarCollapsed()">Báo hỏng</span>
+      </a>
+
+      <a
+        routerLink="/client/notifications"
+        (click)="closeMobileMenu()"
+        routerLinkActive="bg-slate-900 text-white font-semibold shadow-sm"
+        [class.justify-center]="isSidebarCollapsed()"
+        [class.gap-0]="isSidebarCollapsed()"
+        class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900"
+        title="Thông báo"
+      >
+        <ng-icon name="lucideBell" class="h-4 w-4 shrink-0"></ng-icon>
+        <span *ngIf="!isSidebarCollapsed()">Thông báo</span>
+      </a>
+
+      <a
+        *ngIf="isLoggedIn()"
+        routerLink="/client/profile"
+        (click)="closeMobileMenu()"
+        routerLinkActive="bg-slate-900 text-white font-semibold shadow-sm"
+        [class.justify-center]="isSidebarCollapsed()"
+        [class.gap-0]="isSidebarCollapsed()"
+        class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900"
+        title="Hồ sơ"
+      >
+        <ng-icon name="lucideUser" class="h-4 w-4 shrink-0"></ng-icon>
+        <span *ngIf="!isSidebarCollapsed()">Hồ sơ</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar user summary -->
+    <div class="shrink-0 border-t border-slate-200 p-3">
+      <div *ngIf="isLoggedIn(); else guestSidebar" class="flex items-center gap-3" [class.justify-center]="isSidebarCollapsed()">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-semibold uppercase text-slate-700">
+          {{ currentUser()?.fullName ? currentUser()!.fullName[0] : 'U' }}
         </div>
-        <a routerLink="/login" class="login-nav-btn" *ngIf="!isLoggedIn()">
-          <span>Đăng nhập</span>
-        </a>
-        <button class="hamburger-btn" (click)="toggleMobileMenu()" aria-label="Toggle Navigation">
-          <span></span>
-          <span></span>
-          <span></span>
+        <div *ngIf="!isSidebarCollapsed()" class="min-w-0 flex-1">
+          <p class="truncate text-xs font-medium text-slate-900">{{ currentUser()?.fullName }}</p>
+          <p class="mt-0.5 truncate font-mono text-[11px] text-slate-500">{{ currentUser()?.studentCode || 'Sinh viên' }}</p>
+        </div>
+        <button
+          *ngIf="!isSidebarCollapsed()"
+          type="button"
+          (click)="logout()"
+          aria-label="Đăng xuất khỏi hệ thống"
+          title="Đăng xuất khỏi hệ thống"
+          class="shrink-0 rounded-md border border-transparent p-1.5 text-slate-400 transition-colors hover:border-slate-200 hover:bg-slate-100 hover:text-slate-800"
+        >
+          <ng-icon name="lucideLogOut" class="h-4 w-4"></ng-icon>
+        </button>
+        <button
+          *ngIf="isSidebarCollapsed()"
+          type="button"
+          (click)="logout()"
+          aria-label="Đăng xuất khỏi hệ thống"
+          title="Đăng xuất khỏi hệ thống"
+          class="shrink-0 rounded-md border border-transparent p-1.5 text-slate-400 transition-colors hover:border-slate-200 hover:bg-slate-100 hover:text-slate-800"
+        >
+          <ng-icon name="lucideLogOut" class="h-4 w-4"></ng-icon>
         </button>
       </div>
+      <ng-template #guestSidebar>
+        <a
+          routerLink="/login"
+          (click)="closeMobileMenu()"
+          [class.justify-center]="isSidebarCollapsed()"
+          class="flex items-center gap-2 rounded-md bg-slate-900 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-slate-800"
+          title="Đăng nhập"
+        >
+          <ng-icon name="lucideLogIn" class="h-4 w-4 shrink-0"></ng-icon>
+          <span *ngIf="!isSidebarCollapsed()">Đăng nhập</span>
+        </a>
+      </ng-template>
     </div>
+  </aside>
 
-    <!-- Mobile Drawer Navigation -->
-    <div class="mobile-drawer" [class.open]="isMobileMenuOpen()">
-      <div class="mobile-drawer-header">
-        <span>Điều hướng</span>
-        <button class="close-drawer" (click)="closeMobileMenu()">✕</button>
+  <!-- Main application area -->
+  <div class="min-w-0 flex-1 flex h-full flex-col overflow-y-auto">
+    <!-- Compact application header -->
+    <header class="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="toggleMobileMenu()"
+          aria-label="Mở thanh menu"
+          title="Mở thanh menu"
+          class="inline-flex rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 md:hidden"
+        >
+          <ng-icon name="lucideMenu" class="h-5 w-5"></ng-icon>
+        </button>
+        <span class="hidden text-sm font-semibold text-slate-800 sm:inline">Cổng thông tin sinh viên</span>
       </div>
-      <nav class="mobile-nav-links">
-        <a routerLink="/client/dashboard" (click)="closeMobileMenu()" class="mobile-nav-item">
-          <span>📊</span> Tổng quan sinh viên
-        </a>
-        <a routerLink="/client/rooms" (click)="closeMobileMenu()" class="mobile-nav-item">
-          <span>🔍</span> Tra cứu phòng trống
-        </a>
-        <a routerLink="/client/register-room" (click)="closeMobileMenu()" class="mobile-nav-item">
-          <span>📝</span> Đăng ký lưu trú online
-        </a>
-        <a routerLink="/client/maintenance" (click)="closeMobileMenu()" class="mobile-nav-item">
-          <span>🛠️</span> Báo hỏng cơ sở vật chất
-        </a>
-        <a routerLink="/client/notifications" (click)="closeMobileMenu()" class="mobile-nav-item">
-          <span>📢</span> Bảng tin thông báo
-        </a>
-        <a routerLink="/client/profile" (click)="closeMobileMenu()" class="mobile-nav-item" *ngIf="isLoggedIn()">
-          <span>👤</span> Hồ sơ lưu trú cá nhân
-        </a>
-      </nav>
-    </div>
-  </header>
 
-  <!-- Main Content View -->
-  <main class="main-body">
-    <router-outlet></router-outlet>
-  </main>
+      <div class="flex items-center gap-3">
+        <a
+          routerLink="/client/notifications"
+          aria-label="Mở thông báo"
+          title="Thông báo"
+          class="rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+        >
+          <ng-icon name="lucideBell" class="h-4 w-4"></ng-icon>
+        </a>
 
-  <!-- Floating AI Assistant Widget -->
-  <div class="floating-ai-widget">
-    <!-- Bubble toggle button -->
-    <button
-      class="ai-bubble-btn"
-      (click)="toggleChat()"
-      [class.active]="isChatOpen()"
-      title="Hỏi đáp nội quy với Trợ lý AI Gemini"
-    >
-      <span class="bubble-icon">{{ isChatOpen() ? '✕' : '🤖' }}</span>
-      <span class="bubble-label">{{ isChatOpen() ? 'Đóng' : 'Hỏi AI' }}</span>
-    </button>
-
-    <!-- Chat Panel -->
-    @if (isChatOpen()) {
-      <div class="chat-panel-wrapper">
-        <app-chat-widget (closeChat)="isChatOpen.set(false)" />
+        <a
+          *ngIf="!isLoggedIn()"
+          routerLink="/login"
+          class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-slate-800"
+        >
+          Đăng nhập
+        </a>
       </div>
-    }
+    </header>
+
+    <main class="min-h-0 flex-1 bg-[#f8fafc]">
+      <div class="w-full px-6 py-6 lg:px-8">
+        <router-outlet></router-outlet>
+      </div>
+
+      <!-- Footer -->
+      <footer class="mt-12 border-t border-slate-200 bg-white px-4 py-6 text-xs text-slate-500 sm:px-6 lg:px-8">
+        <div class="flex w-full flex-col items-center justify-between gap-4 md:flex-row">
+          <div>
+            <span class="font-semibold text-slate-700">HỆ THỐNG QUẢN LÝ KÝ TÚC XÁ - TRƯỜNG ĐẠI HỌC CNTT &amp; TT (ICTU)</span>
+            <span class="hidden md:inline mx-2 text-slate-300">•</span>
+            <span class="mt-0.5 block md:mt-0 md:inline">Trường Đại học Công nghệ Thông tin và Truyền thông - ICTU</span>
+          </div>
+          <div class="flex items-center gap-4 text-slate-500">
+            <span>Hỗ trợ: <strong class="font-mono font-semibold text-slate-700">(0280) xxxxxxx</strong></span>
+            <span class="text-slate-300">•</span>
+            <span>Giờ đóng cửa: 23h00 hàng ngày</span>
+          </div>
+        </div>
+      </footer>
+    </main>
   </div>
-
-  <!-- Footer -->
-  <footer class="client-footer">
-    <div class="container footer-content">
-      <div class="footer-left">
-        <strong>HỆ THỐNG QUẢN LÝ KÝ TÚC XÁ TÍCH HỢP AI</strong>
-        <p>Trường Đại học Công nghệ Thông tin và Truyền thông - ICTU</p>
-        <p>Cơ sở thực tập: Công ty Cổ phần Công nghệ TFL</p>
-      </div>
-      <div class="footer-right">
-        <p><strong>Hotline khẩn cấp KTX:</strong> 0985.333.555 (Cán bộ trực bàn 24/7)</p>
-        <p>Giờ đóng cửa Ký túc xá: 23h00 hàng ngày</p>
-      </div>
-    </div>
-  </footer>
 </div>

@@ -7,18 +7,24 @@
 }
 
 .register-page {
-  padding-top: 1.5rem;
-  padding-bottom: 3.5rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 3.5rem;
 }
 
 .form-wrapper {
-  max-width: 820px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  padding: 2rem 2.25rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+@media (min-width: 640px) {
+  .form-wrapper { padding: 2rem; }
 }
 
 .breadcrumb {
@@ -391,3 +397,14 @@ input.invalid, select.invalid, textarea.invalid {
 .btn-cancel-reg:hover {
   background-color: #fef2f2;
 }
+
+/* Subtle registration card */
+.register-page { background: transparent; }
+.form-wrapper { border: 1px solid rgba(226, 232, 240, 0.6); border-radius: .75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); background: #fff; }
+.form-header { border-bottom: 1px solid #f1f5f9; }
+.register-form { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; box-shadow: none; }
+.history-card { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; box-shadow: none; }
+.success-banner, .error-banner, .alert-cancel-success { border-radius: 0; box-shadow: none; }
+.form-section-title { border-bottom: 1px solid #f1f5f9; }
+.history-table th { background: #f8fafc; }
+.badge, .btn-primary, .btn-secondary, .submit-btn, .btn-cancel-reg { border-radius: .25rem; }

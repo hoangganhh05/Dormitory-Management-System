@@ -12,9 +12,7 @@
 
   <!-- Toast Notification Message -->
   <div class="toast-alert toast-success" *ngIf="successMessage">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-    </svg>
+    <ng-icon name="lucideCheck" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ successMessage }}</span>
   </div>
 
@@ -26,9 +24,7 @@
         <span class="metric-value">{{ stats?.total || 0 }}</span>
       </div>
       <div class="metric-icon bg-slate-100 text-slate-700">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-        </svg>
+        <ng-icon name="lucideClipboardList" size="18"></ng-icon>
       </div>
     </div>
 
@@ -38,33 +34,27 @@
         <span class="metric-value text-amber-600">{{ stats?.pending || 0 }}</span>
       </div>
       <div class="metric-icon bg-amber-50 text-amber-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
+        <ng-icon name="lucideClock3" size="18"></ng-icon>
       </div>
     </div>
 
     <div class="metric-card">
       <div class="metric-info">
-        <span class="metric-label">Đang sửa chữa</span>
+        <span class="metric-label">Đang xử lý</span>
         <span class="metric-value text-blue-600">{{ stats?.processing || 0 }}</span>
       </div>
       <div class="metric-icon bg-blue-50 text-blue-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-        </svg>
+        <ng-icon name="lucidePencil" size="18"></ng-icon>
       </div>
     </div>
 
     <div class="metric-card">
       <div class="metric-info">
-        <span class="metric-label">Đã khắc phục hoàn tất</span>
+        <span class="metric-label">Hoàn thành</span>
         <span class="metric-value text-emerald-700">{{ stats?.resolved || 0 }}</span>
       </div>
       <div class="metric-icon bg-emerald-50 text-emerald-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
+        <ng-icon name="lucideCheckCircle" size="18"></ng-icon>
       </div>
     </div>
   </div>
@@ -79,25 +69,23 @@
         Chờ tiếp nhận ({{ stats?.pending || 0 }})
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'PROCESSING'" (click)="switchTab('PROCESSING')">
-        Đang sửa chữa ({{ stats?.processing || 0 }})
+        Đang xử lý ({{ stats?.processing || 0 }})
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'RESOLVED'" (click)="switchTab('RESOLVED')">
-        Đã khắc phục
+        Hoàn thành
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'REJECTED'" (click)="switchTab('REJECTED')">
-        Đã từ chối
+        Từ chối
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'HIGH'" (click)="switchTab('HIGH')">
-        🚨 Khẩn cấp
+        Khẩn cấp
       </button>
     </div>
 
     <div class="filter-controls-row">
       <!-- Search Input -->
       <div class="search-box">
-        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
+        <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
           class="form-input search-input"
@@ -165,7 +153,7 @@
             <div class="user-col">
               <span class="user-fullname">{{ item.user?.fullName }}</span>
               <span class="user-code">{{ item.user?.studentCode }}</span>
-              <span class="user-phone" *ngIf="item.user?.phone">📞 {{ item.user?.phone }}</span>
+              <span class="user-phone" *ngIf="item.user?.phone">{{ item.user?.phone }}</span>
             </div>
           </td>
 
@@ -210,9 +198,7 @@
                 Xử lý
               </button>
               <button class="action-btn text-red-600 hover:bg-red-50" title="Xóa yêu cầu" (click)="confirmDelete(item)">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
+                <ng-icon name="lucideTrash2" size="16"></ng-icon>
               </button>
             </div>
           </td>
@@ -222,9 +208,7 @@
         <tr *ngIf="requests.length === 0">
           <td colspan="9" class="empty-state-cell">
             <div class="empty-content">
-              <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
+              <ng-icon name="lucideCheckCircle" size="24" class="empty-icon"></ng-icon>
               <span class="empty-title">Không có sự cố nào cần xử lý</span>
               <p class="empty-desc">Toàn bộ trang thiết bị tại các phòng đang hoạt động bình thường hoặc không khớp với bộ lọc.</p>
             </div>
@@ -254,7 +238,7 @@
           <h3 class="modal-title">Tiếp Nhận & Xử Lý Sự Cố Báo Hỏng #{{ selectedRequest?.id }}</h3>
           <p class="modal-subtitle">Phòng {{ selectedRequest?.room?.roomNumber }} ({{ selectedRequest?.room?.building }}) - Sinh viên: {{ selectedRequest?.user?.fullName }}</p>
         </div>
-        <button class="close-btn" (click)="closeModal()">✕</button>
+        <button class="close-btn" (click)="closeModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <div class="modal-body">
@@ -278,10 +262,10 @@
         <div class="form-group">
           <label class="form-label">Cập nhật trạng thái xử lý <span class="text-red-500">*</span></label>
           <select class="form-select w-full" [(ngModel)]="formStatus">
-            <option value="PROCESSING">🔧 Đang sửa chữa (Đội kỹ thuật đã tiếp nhận)</option>
-            <option value="RESOLVED">✅ Đã khắc phục hoàn tất (Đã sửa xong và nghiệm thu)</option>
-            <option value="REJECTED">❌ Từ chối xử lý (Không thuộc phạm vi bảo trì / Báo nhầm)</option>
-            <option value="PENDING">⏳ Chờ tiếp nhận</option>
+            <option value="PROCESSING">Đang xử lý (Đã tiếp nhận)</option>
+            <option value="RESOLVED">Hoàn thành (Đã kiểm tra)</option>
+            <option value="REJECTED">Từ chối xử lý (Không thuộc phạm vi)</option>
+            <option value="PENDING">Chờ tiếp nhận</option>
           </select>
         </div>
 
@@ -311,7 +295,7 @@
     <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="modal-title text-red-600">Xác Nhận Xóa Yêu Cầu</h3>
-        <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+        <button class="close-btn" (click)="closeDeleteConfirm()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
       <div class="modal-body">
         <p class="text-sm text-slate-700">

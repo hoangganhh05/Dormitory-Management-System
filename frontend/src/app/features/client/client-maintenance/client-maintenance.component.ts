@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { MaintenanceService } from '../../../core/services/maintenance.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { MaintenanceRequest } from '../../../core/models/maintenance.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideAlertTriangle, lucideCheck, lucideClock3, lucideMessageCircle, lucideWrench } from '@ng-icons/lucide';
 
 export interface MaintenanceItem {
   id: number;
@@ -19,7 +21,8 @@ export interface MaintenanceItem {
 @Component({
   selector: 'app-client-maintenance',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIcon],
+  providers: [provideIcons({ lucideAlertTriangle, lucideCheck, lucideClock3, lucideMessageCircle, lucideWrench })],
   templateUrl: './client-maintenance.component.html',
   styleUrl: './client-maintenance.component.css'
 })
@@ -80,7 +83,7 @@ export class ClientMaintenanceComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('[ClientMaintenanceComponent loadRequests Error]', err);
-        this.loadError.set('Không thể tải lịch sử báo hỏng từ máy chủ API.');
+        this.loadError.set('Không thể tải lịch sử báo hỏng. Vui lòng thử lại sau.');
         this.isLoading.set(false);
       }
     });
@@ -125,7 +128,7 @@ export class ClientMaintenanceComponent implements OnInit {
       error: (err: any) => {
         console.error('[ClientMaintenanceComponent onSubmit Error]', err);
         this.isSubmitting.set(false);
-        this.errorMessage.set(err.error?.message || err.message || 'Lỗi khi gửi yêu cầu báo hỏng tới máy chủ API.');
+        this.errorMessage.set('Không thể gửi yêu cầu báo hỏng lúc này. Vui lòng thử lại sau.');
       }
     });
   }

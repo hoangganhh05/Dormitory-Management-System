@@ -746,3 +746,24 @@
     transform: rotate(360deg);
   }
 }
+
+/* Seamless bulletin administration canvas */
+.admin-notifications-page { background: #fff; }
+.page-header { border-bottom: 1px solid #f1f5f9; }
+.toast-alert { border-radius: 0; box-shadow: none; }
+.metrics-grid { gap: 0; border-bottom: 1px solid #f1f5f9; padding: 1.25rem 0; }
+.metric-card { border: 0; border-right: 1px solid #f1f5f9; border-radius: 0; box-shadow: none; background: #fff; padding-left: 1rem; }
+.metric-card:first-child { padding-left: 0; }
+.metric-card:last-child { border-right: 0; }
+.metric-icon { display: none; }
+.filter-wrapper, .table-container { border: 0; border-radius: 0; box-shadow: none; background: #fff; padding-left: 0; padding-right: 0; }
+.filter-wrapper { border-bottom: 1px solid #f1f5f9; }
+.tab-list { border-bottom: 1px solid #f1f5f9; }
+.tab-btn { border-radius: 0; border-bottom: 2px solid transparent; background: transparent; }
+.tab-btn.active { border-bottom-color: #0f172a; background: transparent; color: #0f172a; }
+.data-table thead th { background: #f8fafc; }
+.data-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+.data-table tbody tr:hover { background: #f8fafc; }
+.category-badge, .priority-badge, .status-badge, .target-role-tag, .target-bld-tag, .target-all-tag, .pinned-tag { border-radius: .125rem; }
+.action-btn { border-radius: 0; background: transparent; }
+.pagination-footer { border-radius: 0; border-left: 0; border-right: 0; }

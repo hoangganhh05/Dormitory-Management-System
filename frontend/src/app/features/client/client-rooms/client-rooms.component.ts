@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { RoomService } from '../../../core/services/room.service';
 import { Room } from '../../../core/models/room.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideAlertTriangle, lucideBedDouble, lucideRefreshCw, lucideSearch } from '@ng-icons/lucide';
 
 export interface RoomItem {
   id: number;
@@ -21,7 +23,8 @@ export interface RoomItem {
 @Component({
   selector: 'app-client-rooms',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, NgIcon],
+  providers: [provideIcons({ lucideAlertTriangle, lucideBedDouble, lucideRefreshCw, lucideSearch })],
   templateUrl: './client-rooms.component.html',
   styleUrl: './client-rooms.component.css'
 })
@@ -83,7 +86,7 @@ export class ClientRoomsComponent implements OnInit {
       error: (err: Error) => {
         console.error('[ClientRoomsComponent Error]', err);
         this.hasError.set(true);
-        this.errorMessage.set(err.message || 'Lỗi mạng: Không thể kết nối tới máy chủ API KTX.');
+        this.errorMessage.set('Không thể tải danh sách phòng. Vui lòng kiểm tra kết nối mạng và thử lại.');
         this.isLoading.set(false);
       },
     });

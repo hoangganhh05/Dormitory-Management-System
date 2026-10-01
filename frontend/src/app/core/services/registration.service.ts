@@ -104,7 +104,9 @@ export class RegistrationService {
 
   // 6. [ADMIN] Phê duyệt đơn đăng ký & phân bổ giường
   approveRegistration(id: number, bedId?: number | null): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}/approve`, { bedId }).pipe(
+    const normalizedBedId = bedId === undefined || bedId === null ? null : Number(bedId);
+
+    return this.http.put<any>(`${this.apiUrl}/${id}/approve`, { bedId: normalizedBedId }).pipe(
       catchError((error) => {
         console.error('[RegistrationService.approveRegistration Error]', error);
         return throwError(

@@ -7,6 +7,8 @@ import { RegistrationService } from '../../../core/services/registration.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Room } from '../../../core/models/room.model';
 import { Registration } from '../../../core/models/registration.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideAlertTriangle, lucideCheckCircle, lucideX } from '@ng-icons/lucide';
 
 export interface RoomOption {
   id: number;
@@ -16,7 +18,8 @@ export interface RoomOption {
 @Component({
   selector: 'app-client-register-room',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIcon],
+  providers: [provideIcons({ lucideAlertTriangle, lucideCheckCircle, lucideX })],
   templateUrl: './client-register-room.component.html',
   styleUrl: './client-register-room.component.css'
 })
@@ -102,7 +105,7 @@ export class ClientRegisterRoomComponent implements OnInit {
         this.loadMyRegistrations();
         setTimeout(() => this.cancelSuccessMsg.set(''), 4000);
       },
-      error: (err: Error) => alert(err.message || 'Lỗi khi hủy đơn đăng ký.'),
+      error: () => alert('Không thể hủy đơn đăng ký lúc này. Vui lòng thử lại sau.'),
     });
   }
 
@@ -133,7 +136,7 @@ export class ClientRegisterRoomComponent implements OnInit {
       error: (err: Error) => {
         console.error('[ClientRegisterRoomComponent loadRooms Error]', err);
         this.isLoadingRooms.set(false);
-        this.submitError.set('Không thể tải danh sách phòng từ API máy chủ. Vui lòng kiểm tra kết nối mạng.');
+        this.submitError.set('Không thể tải danh sách phòng. Vui lòng kiểm tra kết nối mạng và thử lại.');
       }
     });
   }
@@ -173,10 +176,26 @@ export class ClientRegisterRoomComponent implements OnInit {
           this.loadMyRegistrations();
         }
       },
-      error: (err: Error) => {
+      error: (err: unknown) => {
         console.error('[Registration Submit Error]', err);
         this.isSubmitting.set(false);
-        this.submitError.set(err.message || 'Lỗi khi gửi đơn đăng ký tới máy chủ API.');
+
+        const responseError = err as {
+          error?: { message?: unknown } | string;
+          message?: unknown;
+        };
+        const backendMessage =
+          typeof responseError.error === 'object' && responseError.error !== null
+            ? responseError.error.message
+            : responseError.error;
+        const message =
+          typeof backendMessage === 'string' && backendMessage.trim()
+            ? backendMessage
+            : typeof responseError.message === 'string' && responseError.message.trim()
+              ? responseError.message
+              : 'Không thể gửi đơn đăng ký lúc này. Vui lòng thử lại sau.';
+
+        this.submitError.set(message);
       }
     });
   }

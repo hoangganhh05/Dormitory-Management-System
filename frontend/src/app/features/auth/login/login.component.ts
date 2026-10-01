@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideAlertTriangle, lucideBuilding2, lucideCheckCircle, lucideEye, lucideEyeOff, lucideLockKeyhole, lucideShieldCheck, lucideUser } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIcon],
+  providers: [provideIcons({ lucideAlertTriangle, lucideBuilding2, lucideCheckCircle, lucideEye, lucideEyeOff, lucideLockKeyhole, lucideShieldCheck, lucideUser })],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -95,7 +98,7 @@ export class LoginComponent {
       error: (err: Error) => {
         console.error('[Login Error]', err);
         this.isLoading.set(false);
-        this.errorMessage.set(err.message || 'Tài khoản hoặc mật khẩu không chính xác.');
+        this.errorMessage.set('Tài khoản hoặc mật khẩu không chính xác.');
       }
     });
   }
@@ -119,7 +122,7 @@ export class LoginComponent {
       },
       error: (err: Error) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.message || 'Không thể khôi phục mật khẩu. Vui lòng kiểm tra lại thông tin.');
+        this.errorMessage.set('Không thể khôi phục mật khẩu. Vui lòng kiểm tra lại thông tin.');
       }
     });
   }

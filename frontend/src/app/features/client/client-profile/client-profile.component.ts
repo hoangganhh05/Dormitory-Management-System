@@ -5,11 +5,14 @@ import { RouterLink } from '@angular/router';
 import { StudentService } from '../../../core/services/student.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { StudentProfile } from '../../../core/models/student.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideBedDouble, lucideBuilding2, lucideCheckCircle, lucideClipboardList, lucideFileText, lucideHouse, lucideTriangleAlert, lucideUsers, lucideWrench, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-client-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, NgIcon],
+  providers: [provideIcons({ lucideBedDouble, lucideBuilding2, lucideCheckCircle, lucideClipboardList, lucideFileText, lucideHouse, lucideTriangleAlert, lucideUsers, lucideWrench, lucideX })],
   templateUrl: './client-profile.component.html',
   styleUrl: './client-profile.component.css',
 })
@@ -50,7 +53,7 @@ export class ClientProfileComponent implements OnInit {
       },
       error: (err: Error) => {
         console.error('[ClientProfileComponent Error]', err);
-        this.errorMessage.set(err.message || 'Không thể tải hồ sơ lưu trú cá nhân.');
+        this.errorMessage.set('Không thể tải hồ sơ lưu trú cá nhân. Vui lòng thử lại sau.');
         this.isLoading.set(false);
       },
     });
@@ -87,7 +90,7 @@ export class ClientProfileComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isUpdatingPhone.set(false);
-        alert(err.message || 'Lỗi khi cập nhật số điện thoại.');
+        alert('Không thể cập nhật số điện thoại. Vui lòng thử lại sau.');
       },
     });
   }

@@ -7,9 +7,10 @@
 }
 
 .profile-container {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 3rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -174,13 +175,13 @@
 /* Profile Grid */
 .profile-grid {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
-@media (max-width: 840px) {
+@media (min-width: 1280px) {
   .profile-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -653,3 +654,16 @@
 .table-b2b tbody tr:hover {
   background-color: #f8fafc;
 }
+
+/* Subtle profile cards on a slate-50 workspace */
+.profile-container { background: transparent; }
+.page-header { border-bottom: 1px solid #f1f5f9; }
+.profile-grid { gap: 1.5rem; }
+.card, .card-identity, .card-housing, .card-history { border: 1px solid rgba(226, 232, 240, 0.6); border-radius: .75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); background: #fff; }
+.card-header, .card-body { padding-left: 0; padding-right: 0; }
+.card-header { border-bottom: 1px solid #f1f5f9; padding-top: 0; }
+.card-body { padding-bottom: 0; }
+.header-icon-box { border-radius: .125rem; background: #f1f5f9; }
+.bed-hero-box, .guidance-box, .empty-bed-box, .edit-phone-panel { border-radius: 0; box-shadow: none; }
+.table-b2b th { background: #f8fafc; }
+.badge, .status-chip, .student-code-badge, .btn-action-outline, .btn-register-primary { border-radius: .125rem; }

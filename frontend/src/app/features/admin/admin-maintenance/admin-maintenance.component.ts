@@ -8,11 +8,14 @@ import {
   MaintenanceStatus,
   MaintenanceUrgency,
 } from '../../../core/models/maintenance.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideAlertTriangle, lucideCheck, lucideCheckCircle, lucideClipboardList, lucideClock3, lucidePencil, lucideSearch, lucideTrash2, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-admin-maintenance',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIcon],
+  providers: [provideIcons({ lucideAlertTriangle, lucideCheck, lucideCheckCircle, lucideClipboardList, lucideClock3, lucidePencil, lucideSearch, lucideTrash2, lucideX })],
   templateUrl: './admin-maintenance.component.html',
   styleUrl: './admin-maintenance.component.css',
 })
@@ -98,7 +101,7 @@ export class AdminMaintenanceComponent implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
-          this.errorMessage = err.error?.message || 'Lỗi khi tải danh sách yêu cầu';
+          this.errorMessage = 'Không thể tải danh sách yêu cầu. Vui lòng thử lại sau.';
         },
       });
   }
@@ -153,7 +156,7 @@ export class AdminMaintenanceComponent implements OnInit {
         },
         error: (err) => {
           this.isSaving = false;
-          alert(err.error?.message || 'Lỗi khi cập nhật trạng thái');
+          alert('Không thể cập nhật trạng thái. Vui lòng thử lại sau.');
         },
       });
   }
@@ -182,7 +185,7 @@ export class AdminMaintenanceComponent implements OnInit {
       },
       error: (err) => {
         this.closeDeleteConfirm();
-        alert(err.error?.message || 'Lỗi khi xóa yêu cầu');
+        alert('Không thể xóa yêu cầu lúc này. Vui lòng thử lại sau.');
       },
     });
   }
@@ -230,11 +233,11 @@ export class AdminMaintenanceComponent implements OnInit {
       case 'PENDING':
         return 'Chờ tiếp nhận';
       case 'PROCESSING':
-        return 'Đang sửa chữa';
+        return 'Đang xử lý';
       case 'RESOLVED':
-        return 'Đã khắc phục';
+        return 'Hoàn thành';
       case 'REJECTED':
-        return 'Đã từ chối';
+        return 'Từ chối';
       default:
         return status;
     }

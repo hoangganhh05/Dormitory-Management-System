@@ -12,11 +12,14 @@ import {
   CreateNotificationDto,
   UpdateNotificationDto,
 } from '../../../core/models/notification.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideAlertTriangle, lucideBell, lucideCheck, lucideEye, lucideFileText, lucidePencil, lucidePin, lucidePlus, lucideSearch, lucideTrash2, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-admin-notifications',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIcon],
+  providers: [provideIcons({ lucideAlertTriangle, lucideBell, lucideCheck, lucideEye, lucideFileText, lucidePencil, lucidePin, lucidePlus, lucideSearch, lucideTrash2, lucideX })],
   templateUrl: './admin-notifications.component.html',
   styleUrl: './admin-notifications.component.css',
 })
@@ -117,7 +120,7 @@ export class AdminNotificationsComponent implements OnInit {
         },
         error: (err) => {
           this.isLoading = false;
-          this.errorMessage = err.error?.message || 'Không thể tải danh sách thông báo';
+          this.errorMessage = 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
         },
       });
   }
@@ -217,7 +220,7 @@ export class AdminNotificationsComponent implements OnInit {
         },
         error: (err) => {
           this.isSaving = false;
-          alert(err.error?.message || 'Lỗi khi cập nhật thông báo');
+          alert('Không thể cập nhật thông báo. Vui lòng thử lại sau.');
         },
       });
     } else {
@@ -233,7 +236,7 @@ export class AdminNotificationsComponent implements OnInit {
         },
         error: (err) => {
           this.isSaving = false;
-          alert(err.error?.message || 'Lỗi khi đăng thông báo');
+          alert('Không thể đăng thông báo. Vui lòng thử lại sau.');
         },
       });
     }
@@ -252,7 +255,7 @@ export class AdminNotificationsComponent implements OnInit {
           this.loadStats();
         }
       },
-      error: (err) => alert(err.error?.message || 'Lỗi khi thay đổi ghim'),
+      error: () => alert('Không thể thay đổi trạng thái ghim. Vui lòng thử lại sau.'),
     });
   }
 
@@ -301,7 +304,7 @@ export class AdminNotificationsComponent implements OnInit {
       },
       error: (err) => {
         this.closeDeleteConfirm();
-        alert(err.error?.message || 'Lỗi khi xóa thông báo');
+        alert('Không thể xóa thông báo. Vui lòng thử lại sau.');
       },
     });
   }
