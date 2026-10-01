@@ -52,6 +52,7 @@ export class ClientLayoutComponent {
 
   isMobileMenuOpen = signal(false);
   isSidebarCollapsed = signal(false);
+  isLogoutConfirmOpen = signal(false);
 
   toggleSidebar(): void {
     this.isSidebarCollapsed.update(v => !v);
@@ -65,7 +66,20 @@ export class ClientLayoutComponent {
     this.isMobileMenuOpen.set(false);
   }
 
-  logout(): void {
+  openLogoutConfirm(): void {
+    this.isLogoutConfirmOpen.set(true);
+  }
+
+  closeLogoutConfirm(): void {
+    this.isLogoutConfirmOpen.set(false);
+  }
+
+  confirmLogout(): void {
+    this.isLogoutConfirmOpen.set(false);
     this.authService.logout('/login');
+  }
+
+  logout(): void {
+    this.openLogoutConfirm();
   }
 }
