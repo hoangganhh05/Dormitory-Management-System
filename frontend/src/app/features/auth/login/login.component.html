@@ -1,29 +1,32 @@
 <div class="auth-page-wrapper">
+  <!-- Subtle Dot Grid Background Pattern -->
+  <div class="auth-bg-pattern"></div>
+
   <div class="auth-card">
     <!-- Brand Header -->
     <div class="brand-header">
       <div class="brand-badge">
-        <ng-icon name="lucideBuilding2" size="20" class="brand-icon"></ng-icon>
-        <span class="brand-title">DORMITORY MANAGEMENT</span>
+        <ng-icon name="lucideBuilding2" size="16" class="brand-icon"></ng-icon>
+        <span class="brand-title">ICTU DORMITORY SYSTEM</span>
       </div>
-      <h1 class="auth-heading">Đăng nhập Hệ thống KTX</h1>
-      <p class="auth-subtext">Cổng thông tin Quản lý Ký túc xá</p>
+      <h1 class="auth-heading">Đăng nhập Cổng Ký Túc Xá</h1>
+      <p class="auth-subtext">Hệ thống Quản lý Lưu trú &amp; Dịch vụ Sinh viên ICTU</p>
     </div>
 
     <!-- Feedback Alerts -->
     <div class="alert alert-error" *ngIf="errorMessage()">
-      <ng-icon name="lucideAlertTriangle" size="18" class="alert-icon"></ng-icon>
+      <ng-icon name="lucideAlertTriangle" size="16" class="alert-icon"></ng-icon>
       <span>{{ errorMessage() }}</span>
     </div>
 
     <div class="alert alert-success" *ngIf="successMessage()">
-      <ng-icon name="lucideCheckCircle" size="18" class="alert-icon"></ng-icon>
+      <ng-icon name="lucideCheckCircle" size="16" class="alert-icon"></ng-icon>
       <span>{{ successMessage() }}</span>
     </div>
 
     <!-- VIEW 1: LOGIN FORM -->
     <div *ngIf="currentView() === 'login'">
-      <!-- Role Switcher Tabs -->
+      <!-- Role Switcher Tabs (Segmented Control) -->
       <div class="role-tabs">
         <button 
           type="button" 
@@ -31,7 +34,7 @@
           [class.active]="activeRole() === 'STUDENT'"
           (click)="switchRole('STUDENT')"
         >
-          <ng-icon name="lucideUser" size="17" class="tab-icon"></ng-icon>
+          <ng-icon name="lucideUser" size="16" class="tab-icon"></ng-icon>
           <span>Sinh viên</span>
         </button>
         <button 
@@ -40,8 +43,8 @@
           [class.active]="activeRole() === 'ADMIN'"
           (click)="switchRole('ADMIN')"
         >
-          <ng-icon name="lucideShieldCheck" size="17" class="tab-icon"></ng-icon>
-          <span>Ban Quản trị</span>
+          <ng-icon name="lucideShieldCheck" size="16" class="tab-icon"></ng-icon>
+          <span>Ban Quản lý</span>
         </button>
       </div>
 
@@ -50,7 +53,7 @@
         <!-- Identifier Field -->
         <div class="form-group">
           <label for="identifier" class="field-label">
-            {{ activeRole() === 'STUDENT' ? 'Mã sinh viên hoặc Email trường' : 'Email Ban Quản trị KTX' }}
+            {{ activeRole() === 'STUDENT' ? 'Mã sinh viên hoặc Email trường' : 'Tài khoản Email Quản trị' }}
             <span class="text-danger">*</span>
           </label>
           <input
@@ -83,14 +86,14 @@
               id="password"
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
-              placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
+              placeholder="Nhập mật khẩu của bạn"
               class="input-control pr-10"
               [class.invalid]="f['password'].touched && f['password'].invalid"
               autocomplete="current-password"
             />
             <button type="button" class="toggle-password-btn" (click)="togglePasswordVisibility()" title="Ẩn/Hiện mật khẩu">
-              <ng-icon *ngIf="!showPassword()" name="lucideEye" size="17" class="icon-eye"></ng-icon>
-              <ng-icon *ngIf="showPassword()" name="lucideEyeOff" size="17" class="icon-eye"></ng-icon>
+              <ng-icon *ngIf="!showPassword()" name="lucideEye" size="16" class="icon-eye"></ng-icon>
+              <ng-icon *ngIf="showPassword()" name="lucideEyeOff" size="16" class="icon-eye"></ng-icon>
             </button>
           </div>
           <div class="field-error" *ngIf="f['password'].touched && f['password'].errors">
@@ -102,36 +105,20 @@
         <!-- Submit Button -->
         <button type="submit" class="btn-primary-action" [disabled]="isLoading()">
           <span *ngIf="!isLoading()">
-            {{ activeRole() === 'STUDENT' ? 'Đăng nhập Cổng Sinh Viên' : 'Đăng nhập Ban Quản Lý' }}
+            {{ activeRole() === 'STUDENT' ? 'Đăng nhập Cổng Sinh Viên' : 'Đăng nhập Cổng Ban Quản Lý' }}
           </span>
           <span *ngIf="isLoading()" class="btn-loading">
             <span class="spinner-sm"></span> Đang xác thực thông tin...
           </span>
         </button>
       </form>
-
-      <!-- Quick Demo Credentials for Fast Testing -->
-      <div class="demo-section">
-        <span class="demo-title">Tài khoản trải nghiệm mẫu:</span>
-        <div class="demo-buttons">
-          <button type="button" class="demo-btn" (click)="fillDemoCredentials('student')">
-            <span class="role-badge student">SV</span>
-            <span>DTC235200050 (Ánh)</span>
-          </button>
-          <button type="button" class="demo-btn" (click)="fillDemoCredentials('admin')">
-            <span class="role-badge admin">BQL</span>
-            <span>admin@dormitory.com</span>
-          </button>
-        </div>
-        <p class="demo-note">Mật khẩu mặc định: <strong>123456</strong></p>
-      </div>
     </div>
 
     <!-- VIEW 2: FORGOT PASSWORD -->
     <div *ngIf="currentView() === 'forgot'" class="forgot-container">
       <div class="forgot-header">
         <h2 class="forgot-title">Khôi phục mật khẩu</h2>
-        <p class="forgot-desc">Nhập Email hoặc Mã sinh viên đã đăng ký trong hồ sơ KTX để nhận mật khẩu tạm thời.</p>
+        <p class="forgot-desc">Nhập Email hoặc Mã sinh viên đã đăng ký để nhận thông tin cấp lại mật khẩu.</p>
       </div>
 
       <form [formGroup]="forgotForm" (ngSubmit)="onForgotSubmit()" class="auth-form" novalidate>
@@ -143,7 +130,7 @@
             id="emailOrStudentCode"
             type="text"
             formControlName="emailOrStudentCode"
-            placeholder="Ví dụ: DTC235200050 hoặc ngocanh.cntt@ictu.edu.vn"
+            placeholder="Ví dụ: DTC235200050 hoặc email @ictu.edu.vn"
             class="input-control"
             [class.invalid]="forgotF['emailOrStudentCode'].touched && forgotF['emailOrStudentCode'].invalid"
           />
@@ -160,18 +147,18 @@
         </button>
 
         <button type="button" class="btn-back" (click)="currentView.set('login')">
-          ← Quay lại màn hình đăng nhập
+          ← Quay lại đăng nhập
         </button>
       </form>
     </div>
 
     <!-- Footer Security Note -->
     <div class="auth-footer">
+      <a routerLink="/client/dashboard" class="guest-link">Tiếp tục tra cứu phòng với tư cách Khách →</a>
       <div class="security-badge">
-        <ng-icon name="lucideLockKeyhole" size="16" class="lock-icon"></ng-icon>
-        <span>Hệ thống Quản lý Ký túc xá - Trường Đại học CNTT &amp; TT (ICTU) • Hỗ trợ: (0280) xxxxxxx</span>
+        <ng-icon name="lucideLockKeyhole" size="14" class="lock-icon"></ng-icon>
+        <span>Trường Đại học Công nghệ Thông tin &amp; Truyền thông (ICTU)</span>
       </div>
-      <a routerLink="/client/dashboard" class="guest-link">Tiếp tục xem phòng với tư cách Khách</a>
     </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -53,6 +53,7 @@ import { catchError, finalize, of } from 'rxjs';
 export class ClientHomeComponent implements OnInit {
   private notifService = inject(NotificationService);
   private maintenanceService = inject(MaintenanceService);
+  private cdr = inject(ChangeDetectorRef);
   authService = inject(AuthService);
 
   studentName = 'Phạm Thị Ngọc Ánh';
@@ -116,6 +117,7 @@ export class ClientHomeComponent implements OnInit {
 
   loadAnnouncements(): void {
     this.isLoadingAnnouncements = true;
+    this.cdr.markForCheck();
     this.notifService
       .getNotifications({ limit: 4 })
       .pipe(
@@ -125,6 +127,7 @@ export class ClientHomeComponent implements OnInit {
         }),
         finalize(() => {
           this.isLoadingAnnouncements = false;
+          this.cdr.markForCheck();
         }),
       )
       .subscribe({
@@ -135,11 +138,13 @@ export class ClientHomeComponent implements OnInit {
             this.announcements = [];
           }
           this.isLoadingAnnouncements = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Lỗi loadAnnouncements subscribe:', err);
           this.announcements = [];
           this.isLoadingAnnouncements = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -148,10 +153,12 @@ export class ClientHomeComponent implements OnInit {
     if (!this.authService.currentUser()) {
       this.setFallbackRequests();
       this.isLoadingRequests = false;
+      this.cdr.markForCheck();
       return;
     }
 
     this.isLoadingRequests = true;
+    this.cdr.markForCheck();
     this.maintenanceService.getMyRequests()
       .pipe(
         catchError((err) => {
@@ -160,6 +167,7 @@ export class ClientHomeComponent implements OnInit {
         }),
         finalize(() => {
           this.isLoadingRequests = false;
+          this.cdr.markForCheck();
         }),
       )
       .subscribe({
@@ -172,11 +180,13 @@ export class ClientHomeComponent implements OnInit {
             this.setFallbackRequests();
           }
           this.isLoadingRequests = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Lỗi loadRecentRequests subscribe:', err);
           this.setFallbackRequests();
           this.isLoadingRequests = false;
+          this.cdr.markForCheck();
         },
       });
   }
