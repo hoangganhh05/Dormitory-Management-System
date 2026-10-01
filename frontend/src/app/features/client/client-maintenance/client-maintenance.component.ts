@@ -67,14 +67,16 @@ export class ClientMaintenanceComponent implements OnInit {
   }
 
   loadRequests(): void {
+    if (!this.authService.currentUser()) {
+      this.myRequests.set([]);
+      this.isLoading.set(false);
+      return;
+    }
+
     this.isLoading.set(true);
     this.loadError.set('');
 
-    const request$ = this.authService.currentUser()
-      ? this.maintenanceService.getMyRequests()
-      : this.maintenanceService.getRequests();
-
-    request$
+    this.maintenanceService.getMyRequests()
       .pipe(
         catchError((err) => {
           console.error('[ClientMaintenanceComponent loadRequests Error]', err);

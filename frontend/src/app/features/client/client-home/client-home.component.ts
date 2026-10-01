@@ -145,12 +145,14 @@ export class ClientHomeComponent implements OnInit {
   }
 
   loadRecentRequests(): void {
-    this.isLoadingRequests = true;
-    const request$ = this.authService.currentUser()
-      ? this.maintenanceService.getMyRequests()
-      : this.maintenanceService.getRequests({ limit: 4 });
+    if (!this.authService.currentUser()) {
+      this.setFallbackRequests();
+      this.isLoadingRequests = false;
+      return;
+    }
 
-    request$
+    this.isLoadingRequests = true;
+    this.maintenanceService.getMyRequests()
       .pipe(
         catchError((err) => {
           console.error('Lỗi khi tải yêu cầu cơ sở vật chất trang chủ:', err);
