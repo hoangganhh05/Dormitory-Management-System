@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, of, throwError, timeout } from 'rxjs';
+import { environment } from '../../environments/environment';
 import {
   NotificationItem,
   NotificationStats,
@@ -30,7 +31,7 @@ export interface ApiResponse<T> {
 })
 export class NotificationService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/notifications';
+  private apiUrl = `${environment.apiUrl}/notifications`;
 
   /**
    * Lấy danh sách thông báo hỗ trợ phân quyền, lọc chuyên mục, trạng thái và tìm kiếm

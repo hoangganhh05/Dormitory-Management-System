@@ -1,6 +1,6 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5000/api',
+  production: true,
+  apiUrl: 'https://dormitory-management-system-o9ow.onrender.com/api',
   appName: 'Dormitory Management System',
   version: '1.0.0',
 };

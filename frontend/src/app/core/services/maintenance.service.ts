@@ -9,13 +9,14 @@ import {
   MaintenanceQueryParams,
   MaintenanceStatus,
 } from '../models/maintenance.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MaintenanceService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/maintenance';
+  private apiUrl = `${environment.apiUrl}/maintenance`;
 
   /**
    * Thống kê tổng hợp số liệu bảo trì
