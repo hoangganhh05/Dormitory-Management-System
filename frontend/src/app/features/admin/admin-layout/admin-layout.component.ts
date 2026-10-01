@@ -48,6 +48,7 @@ export class AdminLayoutComponent {
   currentUser = this.authService.currentUser;
   isSidebarCollapsed = signal(false);
   isMobileSidebarOpen = signal(false);
+  isLogoutConfirmOpen = signal(false);
 
   toggleSidebar(): void {
     this.isSidebarCollapsed.update(v => !v);
@@ -61,7 +62,20 @@ export class AdminLayoutComponent {
     this.isMobileSidebarOpen.set(false);
   }
 
-  logout(): void {
+  openLogoutConfirm(): void {
+    this.isLogoutConfirmOpen.set(true);
+  }
+
+  closeLogoutConfirm(): void {
+    this.isLogoutConfirmOpen.set(false);
+  }
+
+  confirmLogout(): void {
+    this.isLogoutConfirmOpen.set(false);
     this.authService.logout('/login');
+  }
+
+  logout(): void {
+    this.openLogoutConfirm();
   }
 }
