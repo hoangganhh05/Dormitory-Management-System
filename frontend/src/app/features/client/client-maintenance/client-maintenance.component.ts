@@ -165,11 +165,11 @@ export class ClientMaintenanceComponent implements OnInit {
       clearTimeout(this.debounceTimer);
     }
     this.debounceTimer = setTimeout(() => {
-      this.runAiClassification();
+      this.runAiClassification(false);
     }, 400);
   }
 
-  runAiClassification(): void {
+  runAiClassification(autoApply = false): void {
     const trimmedTitle = this.title.trim();
     const trimmedDesc = this.description.trim();
 
@@ -182,10 +182,8 @@ export class ClientMaintenanceComponent implements OnInit {
     const localResult = this.aiClassifier.classifyRequest(trimmedTitle, trimmedDesc);
     this.aiSuggestion.set(localResult);
 
-    // Tự động gán mức độ khẩn cấp & phân loại danh mục vào form
-    this.urgency = localResult.urgencyMapped;
-    if (localResult.category) {
-      this.category = localResult.category;
+    if (autoApply) {
+      this.applySuggestion(localResult);
     }
 
     // 2. Gọi đồng bộ AI phân loại chuyên sâu từ Backend endpoint
@@ -193,9 +191,8 @@ export class ClientMaintenanceComponent implements OnInit {
       next: (remoteResult) => {
         if (remoteResult) {
           this.aiSuggestion.set(remoteResult);
-          this.urgency = remoteResult.urgencyMapped;
-          if (remoteResult.category) {
-            this.category = remoteResult.category;
+          if (autoApply) {
+            this.applySuggestion(remoteResult);
           }
         }
       },
@@ -203,6 +200,22 @@ export class ClientMaintenanceComponent implements OnInit {
         console.warn('[ClientMaintenanceComponent] Phân tích AI từ xa thất bại, giữ kết quả nội bộ:', err);
       },
     });
+  }
+
+  applyAiSuggestion(): void {
+    const suggestion = this.aiSuggestion();
+    if (suggestion) {
+      this.applySuggestion(suggestion);
+    }
+  }
+
+  private applySuggestion(res: MaintenanceClassificationResult): void {
+    if (res.urgencyMapped) {
+      this.urgency = res.urgencyMapped;
+    }
+    if (res.category) {
+      this.category = res.category;
+    }
   }
 
   getSeverityLabel(severity: string): string {

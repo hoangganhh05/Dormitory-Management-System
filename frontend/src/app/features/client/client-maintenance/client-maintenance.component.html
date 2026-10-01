@@ -58,7 +58,7 @@
             type="text" 
             [(ngModel)]="title" 
             (input)="onInputChange()"
-            (blur)="runAiClassification()"
+            (blur)="runAiClassification(false)"
             name="title" 
             placeholder="Ví dụ: Bóng đèn bàn học bị chập cháy" 
             required 
@@ -70,7 +70,7 @@
           <textarea 
             [(ngModel)]="description" 
             (input)="onInputChange()"
-            (blur)="runAiClassification()"
+            (blur)="runAiClassification(false)"
             name="description" 
             rows="4" 
             placeholder="Mô tả cụ thể để thợ kỹ thuật mang đúng dụng cụ và linh kiện thay thế..." 
@@ -79,12 +79,23 @@
 
           <!-- Smart AI Recommendation Badge -->
           <div *ngIf="aiSuggestion()" class="ai-badge-box mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
-            <div class="flex items-center gap-1.5 font-semibold text-slate-900">
-              <ng-icon name="lucideSparkles" class="text-slate-900 shrink-0" size="14"></ng-icon>
-              <span>✨ AI Đề xuất: {{ getSeverityLabel(aiSuggestion()!.severity) }}</span>
-              <span [ngClass]="getSeverityTagClass(aiSuggestion()!.severity)" class="rounded border px-1.5 py-0.5 text-[10px] font-bold">
-                {{ aiSuggestion()!.severity }}
-              </span>
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5 font-semibold text-slate-900">
+                <ng-icon name="lucideSparkles" class="text-slate-900 shrink-0" size="14"></ng-icon>
+                <span>✨ AI Đề xuất: {{ aiSuggestion()!.category }} · {{ getSeverityLabel(aiSuggestion()!.severity) }}</span>
+                <span [ngClass]="getSeverityTagClass(aiSuggestion()!.severity)" class="rounded border px-1.5 py-0.5 text-[10px] font-bold">
+                  {{ aiSuggestion()!.severity }}
+                </span>
+              </div>
+              <button
+                type="button"
+                (click)="applyAiSuggestion()"
+                class="inline-flex items-center gap-1 rounded-md bg-slate-900 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-slate-800 transition-colors shadow-xs shrink-0 cursor-pointer"
+                title="Bấm để tự động điền danh mục và mức độ theo gợi ý của AI"
+              >
+                <ng-icon name="lucideCheck" size="12"></ng-icon>
+                Áp dụng gợi ý
+              </button>
             </div>
             <p class="mt-1 text-slate-600 pl-5">Lý do: {{ aiSuggestion()!.aiReason }}</p>
           </div>
