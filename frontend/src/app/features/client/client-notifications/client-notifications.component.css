@@ -1,15 +1,17 @@
 /* Client Notifications Component - Spartan UI Enterprise SaaS */
 
 .notifications-page {
-  padding-top: 24px;
-  padding-bottom: 48px;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding-bottom: 3.5rem;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.5rem;
 }
 
 /* Header */
-.page-header-box {
+.page-header {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -133,31 +135,30 @@
 /* Category Pills */
 .category-pills {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 1.5rem;
   flex-wrap: wrap;
+  margin-top: 24px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .pill-btn {
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #475569;
-  padding: 6px 12px;
+  background-color: transparent;
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease;
 }
 
 .pill-btn:hover {
-  background-color: #f1f5f9;
+  background-color: transparent;
   color: #0f172a;
 }
 
 .pill-btn.active {
-  background-color: #0f172a;
-  border-color: #0f172a;
-  color: #ffffff;
+  background-color: transparent;
+  border-bottom: 2px solid #0f172a;
+  color: #0f172a;
+  margin-bottom: -1px;
 }
 
 /* Notifications List */
@@ -437,7 +438,7 @@
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   position: relative;
 }
 
@@ -524,3 +525,81 @@
     transform: rotate(360deg);
   }
 }
+
+/* Solid bulletin canvas */
+.notifications-page { background: transparent; }
+.page-header { border: 1px solid #e2e8f0; border-radius: .75rem; background: #fff; box-shadow: 0 1px 2px rgb(15 23 42 / .05); padding: 1.5rem; }
+.notifications-content-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: .75rem;
+  box-shadow: 0 1px 2px rgb(15 23 42 / .05);
+  padding: 1.5rem !important;
+  padding-inline: 1.5rem !important;
+  padding-block: 1.5rem !important;
+  box-sizing: border-box;
+}
+.notifications-content-card > .filter-card,
+.notifications-content-card > .notification-filter-card,
+.notifications-content-card > .pt-6 {
+  width: 100%;
+  min-width: 0;
+}
+.notification-filter-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+.notification-filter-card .category-pills {
+  margin-top: 0;
+  border-top: 0;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 0 0 .75rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.notification-filter-card .search-input {
+  height: 2.5rem;
+  padding: 0 1rem 0 2.5rem;
+  font-size: .875rem;
+}
+.notification-filter-card .btn-search {
+  height: 2.5rem;
+}
+.filter-card { display: block; border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; background: transparent; box-shadow: none; padding: 0 0 1.25rem; }
+.search-bar-row { width: 100%; gap: .5rem; }
+.category-pills { width: 100%; margin-top: 0; border-top: 0; border-bottom: 1px solid #f1f5f9; padding: 0 0 .75rem; flex-wrap: nowrap; overflow-x: auto; }
+.pill-btn { border-radius: 0; background: transparent; padding-left: 0; padding-right: 0; }
+.pill-btn.active { border-bottom-color: #0f172a; background: transparent; color: #0f172a; }
+.notifications-list-wrap { width: 100%; border: 0; border-radius: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
+.items-list { width: 100%; gap: 1rem; padding-left: 0; padding-right: 0; }
+.notif-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.notif-card:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+.notif-card.pinned-card {
+  background-color: #fffdf5;
+  border-color: #fef08a;
+}
+.notif-card.pinned-card:hover {
+  border-color: #fde047;
+}
+.notif-card.unread-card {
+  border-left: 4px solid #0f172a;
+}
+.badge, .priority-tag, .pinned-indicator, .building-scope-tag { border-radius: .25rem; }
+.empty-box { border: 1px solid #e2e8f0; border-radius: .75rem; padding: 2.5rem; text-align: center; }
+.pagination-bar { border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem 1.5rem; }

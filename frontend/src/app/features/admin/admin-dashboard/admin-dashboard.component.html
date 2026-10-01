@@ -1,181 +1,219 @@
-<div class="admin-dashboard-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-titles">
-      <h1 class="page-title">Bảng Điều Khiển Tổng Quan KTX</h1>
-      <p class="page-subtitle">Giám sát công suất phòng, quản lý sinh viên nội trú và điều hành tác nghiệp Ký túc xá.</p>
+<div class="w-full space-y-6 pb-12">
+  <!-- Page header -->
+  <section class="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 lg:flex-row lg:items-end">
+    <div>
+      <p class="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Tổng quan điều hành</p>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Bảng điều hành Ký túc xá</h1>
+      <p class="mt-1.5 max-w-2xl text-sm text-slate-500">Theo dõi công suất lưu trú, hồ sơ sinh viên và các yêu cầu cần xử lý.</p>
     </div>
-    <div class="header-actions">
-      <a routerLink="/admin/registrations" class="btn-primary">
-        <span>📝</span> Duyệt đơn đăng ký ({{ stats()[2]?.value || '0 Đơn' }})
-      </a>
+    <a
+      routerLink="/admin/registrations"
+      class="inline-flex w-fit items-center gap-2 rounded-md border border-slate-900 bg-slate-900 px-3.5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-700"
+    >
+      <ng-icon name="lucideClipboardCheck" class="h-4 w-4"></ng-icon>
+      <span>Duyệt đơn đăng ký</span>
+      <span class="border-l border-white/20 pl-2 text-xs text-slate-300">{{ stats()[2]?.value || '0' }} {{ stats()[2]?.unit || 'Đơn' }}</span>
+    </a>
+  </section>
+
+  <!-- Loading error -->
+  <div *ngIf="hasError()" class="flex items-center justify-between gap-4 rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+    <div class="flex items-center gap-2">
+      <ng-icon name="lucideCircleAlert" class="h-4 w-4 shrink-0"></ng-icon>
+      <span>{{ errorMessage() }}</span>
     </div>
+    <button
+      type="button"
+      (click)="loadDashboardData()"
+      class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700 transition-colors hover:text-rose-900"
+    >
+      <ng-icon name="lucideRefreshCw" class="h-3.5 w-3.5"></ng-icon>
+      Thử lại
+    </button>
   </div>
 
-  <!-- API Error Banner -->
-  <div class="dashboard-error-banner" *ngIf="hasError()">
-    <span>⚠️ {{ errorMessage() }}</span>
-    <button class="retry-btn-sm" (click)="loadDashboardData()">Thử lại</button>
-  </div>
-
-  <!-- KPI Metrics Grid -->
-  <div class="kpi-grid">
-    <div *ngFor="let item of stats()" class="kpi-card">
-      <div class="kpi-icon-box" [ngClass]="item.color">{{ item.icon }}</div>
-      <div class="kpi-info">
-        <span class="kpi-label">{{ item.label }}</span>
-        <span class="kpi-val">{{ item.value }}</span>
-        <span class="kpi-sub">{{ item.sub }}</span>
+  <!-- KPI metrics -->
+  <section class="grid grid-cols-2 items-stretch gap-4 md:grid-cols-4" aria-label="Chỉ số vận hành">
+    <article *ngFor="let item of stats()" class="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs transition-colors hover:border-slate-300">
+      <div class="mb-1.5 flex items-start justify-between gap-3">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{{ item.label }}</span>
+        <span class="text-slate-500">
+          <ng-container [ngSwitch]="item.label">
+            <ng-icon *ngSwitchCase="'Tổng số phòng KTX'" name="lucideBuilding2" class="h-5 w-5"></ng-icon>
+            <ng-icon *ngSwitchCase="'Sức chứa / Đã ở'" name="lucideBedDouble" class="h-5 w-5"></ng-icon>
+            <ng-icon *ngSwitchCase="'Đơn đăng ký chờ duyệt'" name="lucideClipboardCheck" class="h-5 w-5"></ng-icon>
+            <ng-icon *ngSwitchCase="'Sự cố cần sửa chữa'" name="lucideWrench" class="h-5 w-5"></ng-icon>
+          </ng-container>
+        </span>
       </div>
-    </div>
-  </div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="text-2xl font-bold tracking-tight text-slate-900">{{ item.value }}</span>
+        <span class="text-sm font-medium text-slate-500">{{ item.unit }}</span>
+      </div>
+      <p class="mt-2 truncate text-[11px] text-slate-400">{{ item.sub }}</p>
+    </article>
+  </section>
 
-  <!-- Content Split Grid -->
-  <div class="dashboard-split-grid">
-    <!-- Left Column: Operations -->
-    <div class="split-col-left">
-      <!-- Registration Approvals Card -->
-      <div class="dash-card">
-        <div class="dash-card-header">
-          <div class="card-title-group">
-            <h3 class="card-title">Đơn đăng ký lưu trú mới nộp</h3>
-            <span class="card-badge-amber">{{ recentRegistrations().length }} đơn mới</span>
+  <!-- Main dashboard grid -->
+  <section class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+    <!-- Operational tables -->
+    <div class="space-y-6 xl:col-span-8">
+      <article class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-col justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-semibold text-slate-900">Đơn đăng ký mới nộp</h2>
+              <span class="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">{{ recentRegistrations().length }} đơn</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-500">Các hồ sơ gần đây cần được xem xét.</p>
           </div>
-          <a routerLink="/admin/registrations" class="card-action-link">Xem tất cả</a>
+          <a routerLink="/admin/registrations" class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 transition-colors hover:text-blue-800">
+            Xem tất cả
+            <ng-icon name="lucideArrowUpRight" class="h-3.5 w-3.5"></ng-icon>
+          </a>
         </div>
 
-        <div class="table-responsive" *ngIf="recentRegistrations().length > 0">
-          <table class="data-table">
-            <thead>
+        <div *ngIf="recentRegistrations().length > 0" class="overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-600">
               <tr>
-                <th>Sinh viên</th>
-                <th>Mã sinh viên</th>
-                <th>Phòng đăng ký</th>
-                <th>Thời gian</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Sinh viên</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Mã sinh viên</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Phòng đăng ký</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Thời gian</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Trạng thái</th>
+                <th class="whitespace-nowrap px-6 py-3.5 text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody>
-              <tr *ngFor="let reg of recentRegistrations()">
-                <td class="fw-bold">{{ reg.student }}</td>
-                <td><span class="code-pill">{{ reg.code }}</span></td>
-                <td>{{ reg.room }}</td>
-                <td class="text-muted">{{ reg.date }}</td>
-                <td>
-                  <span class="status-pill" [ngClass]="reg.status.toLowerCase()">
+            <tbody class="divide-y divide-slate-100">
+              <tr *ngFor="let reg of recentRegistrations()" class="transition-colors hover:bg-slate-50">
+                <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ reg.student }}</td>
+                <td class="whitespace-nowrap px-6 py-4 font-mono text-xs text-slate-600">{{ reg.code }}</td>
+                <td class="whitespace-nowrap px-6 py-4 text-slate-600">{{ reg.room }}</td>
+                <td class="whitespace-nowrap px-6 py-4 text-xs text-slate-500">{{ reg.date }}</td>
+                <td class="whitespace-nowrap px-6 py-4">
+                  <span
+                    class="inline-flex rounded-full border px-2 py-0.5 text-xs font-medium"
+                    [ngClass]="{
+                      'border-amber-200 bg-amber-50 text-amber-700': reg.status === 'PENDING',
+                      'border-emerald-200 bg-emerald-50 text-emerald-700': reg.status === 'APPROVED',
+                      'border-rose-200 bg-rose-50 text-rose-700': reg.status === 'REJECTED'
+                    }"
+                  >
                     {{ reg.status === 'PENDING' ? 'Chờ duyệt' : reg.status === 'APPROVED' ? 'Đã duyệt' : 'Từ chối' }}
                   </span>
                 </td>
-                <td>
-                  <a routerLink="/admin/registrations" class="action-btn-sm">Xét duyệt</a>
+                <td class="whitespace-nowrap px-6 py-4 text-right">
+                  <a routerLink="/admin/registrations" class="text-xs font-medium text-blue-600 transition-colors hover:text-blue-800">Xét duyệt</a>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div class="empty-mini" *ngIf="recentRegistrations().length === 0">
-          <p>Chưa có đơn đăng ký lưu trú nào trong hệ thống.</p>
+        <div *ngIf="recentRegistrations().length === 0" class="px-5 py-10 text-center text-sm text-slate-500">
+          Chưa có đơn đăng ký lưu trú nào trong hệ thống.
         </div>
-      </div>
+      </article>
 
-      <!-- Maintenance Requests Card -->
-      <div class="dash-card">
-        <div class="dash-card-header">
-          <div class="card-title-group">
-            <h3 class="card-title">Báo hỏng cơ sở vật chất gần đây</h3>
-            <span class="card-badge-danger">{{ recentIssues().length }} sự cố</span>
+      <article class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-col justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-semibold text-slate-900">Báo hỏng cơ sở vật chất</h2>
+              <span class="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-600">{{ recentIssues().length }} sự cố</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-500">Theo dõi các yêu cầu mới nhất từ sinh viên.</p>
           </div>
-          <a routerLink="/admin/maintenance" class="card-action-link">Xem tất cả</a>
+          <a routerLink="/admin/maintenance" class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 transition-colors hover:text-blue-800">
+            Xem tất cả
+            <ng-icon name="lucideArrowUpRight" class="h-3.5 w-3.5"></ng-icon>
+          </a>
         </div>
 
-        <div class="table-responsive" *ngIf="recentIssues().length > 0">
-          <table class="data-table">
-            <thead>
+        <div *ngIf="recentIssues().length > 0" class="overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-600">
               <tr>
-                <th>Vị trí</th>
-                <th>Nội dung sự cố</th>
-                <th>Mức độ</th>
-                <th>Trạng thái</th>
-                <th>Thời gian</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Vị trí</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Nội dung sự cố</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Mức độ</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Trạng thái</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Thời gian</th>
               </tr>
             </thead>
-            <tbody>
-              <tr *ngFor="let issue of recentIssues()">
-                <td class="fw-bold">{{ issue.room }}</td>
-                <td>{{ issue.title }}</td>
-                <td>
-                  <span class="status-pill" [ngClass]="issue.urgency.toLowerCase()">
+            <tbody class="divide-y divide-slate-100">
+              <tr *ngFor="let issue of recentIssues()" class="transition-colors hover:bg-slate-50">
+                <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ issue.room }}</td>
+                <td class="min-w-48 px-6 py-4 text-slate-600">{{ issue.title }}</td>
+                <td class="whitespace-nowrap px-6 py-4">
+                  <span
+                    class="inline-flex rounded-full border px-2 py-0.5 text-xs font-medium"
+                    [ngClass]="{
+                      'border-rose-200 bg-rose-50 text-rose-700': issue.urgency === 'HIGH',
+                      'border-amber-200 bg-amber-50 text-amber-700': issue.urgency === 'MEDIUM',
+                      'border-slate-200 bg-slate-50 text-slate-600': issue.urgency === 'LOW'
+                    }"
+                  >
                     {{ issue.urgency === 'HIGH' ? 'Khẩn cấp' : issue.urgency === 'MEDIUM' ? 'Bình thường' : 'Thấp' }}
                   </span>
                 </td>
-                <td>
-                  <span class="status-pill" [ngClass]="issue.status.toLowerCase()">
-                    {{ issue.status === 'PENDING' ? 'Chờ xử lý' : issue.status === 'PROCESSING' ? 'Đang sửa' : 'Đã sửa' }}
+                <td class="whitespace-nowrap px-6 py-4">
+                  <span
+                    class="inline-flex rounded-full border px-2 py-0.5 text-xs font-medium"
+                    [ngClass]="{
+                      'border-amber-200 bg-amber-50 text-amber-700': issue.status === 'PENDING',
+                      'border-blue-200 bg-blue-50 text-blue-700': issue.status === 'PROCESSING',
+                      'border-emerald-200 bg-emerald-50 text-emerald-700': issue.status === 'RESOLVED',
+                      'border-rose-200 bg-rose-50 text-rose-700': issue.status === 'REJECTED'
+                    }"
+                  >
+                    {{ issue.status === 'PENDING' ? 'Chờ tiếp nhận' : issue.status === 'PROCESSING' ? 'Đang xử lý' : issue.status === 'RESOLVED' ? 'Hoàn thành' : 'Từ chối' }}
                   </span>
                 </td>
-                <td class="text-muted">{{ issue.date }}</td>
+                <td class="whitespace-nowrap px-6 py-4 text-xs text-slate-500">{{ issue.date }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div class="empty-mini" *ngIf="recentIssues().length === 0">
-          <p>Không có sự cố báo hỏng thiết bị nào gần đây.</p>
+        <div *ngIf="recentIssues().length === 0" class="px-5 py-10 text-center text-sm text-slate-500">
+          Không có sự cố báo hỏng thiết bị nào gần đây.
         </div>
-      </div>
+      </article>
     </div>
 
-    <!-- Right Column: Analytics & System Status -->
-    <div class="split-col-right">
-      <!-- Building Occupancy Progress -->
-      <div class="dash-card">
-        <div class="dash-card-header">
-          <h3 class="card-title">Tỷ lệ lấp đầy theo Tòa nhà</h3>
-        </div>
-
-        <div class="occupancy-list" *ngIf="buildingStats().length > 0">
-          <div *ngFor="let b of buildingStats()" class="building-item">
-            <div class="b-info">
-              <span class="b-name">{{ b.name }}</span>
-              <span class="b-count">{{ b.occupied }} / {{ b.capacity }} Giường</span>
-            </div>
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" [style.width.%]="b.percent"></div>
-            </div>
-            <span class="b-percent">{{ b.percent }}% công suất</span>
-          </div>
-        </div>
-
-        <div class="empty-mini" *ngIf="buildingStats().length === 0">
-          <p>Chưa có dữ liệu tòa nhà.</p>
-        </div>
-      </div>
-
-      <!-- AI System Health Card -->
-      <div class="dash-card ai-health-card">
-        <div class="ai-health-header">
-          <span class="ai-sparkle-icon">🤖</span>
+    <!-- Occupancy analytics -->
+    <aside class="xl:col-span-4">
+      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h4 class="ai-health-title">Trợ lý AI Gemini 1.5 Flash</h4>
-            <span class="ai-status-active">● Trực tuyến & Sẵn sàng</span>
+            <h2 class="text-sm font-semibold text-slate-900">Công suất theo tòa</h2>
+            <p class="mt-1 text-xs text-slate-500">Tình trạng sử dụng giường hiện tại.</p>
+          </div>
+          <ng-icon name="lucideBuilding2" class="h-5 w-5 text-slate-500"></ng-icon>
+        </div>
+
+        <div *ngIf="buildingStats().length > 0" class="space-y-6">
+          <div *ngFor="let b of buildingStats()">
+            <div class="mb-2 flex items-center justify-between gap-3">
+              <span class="text-sm font-medium text-slate-900">{{ b.name }}</span>
+              <span class="text-sm font-semibold tabular-nums text-slate-900">{{ b.percent }}%</span>
+            </div>
+            <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div class="h-full rounded-full bg-slate-700 transition-all duration-500" [style.width.%]="b.percent"></div>
+            </div>
+            <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
+              <span>{{ b.occupied }} / {{ b.capacity }} giường đã sử dụng</span>
+              <span>{{ b.capacity - b.occupied }} còn trống</span>
+            </div>
           </div>
         </div>
-        <p class="ai-health-desc">
-          Mô hình tự động giải đáp nội quy 10 điều của KTX đang hoạt động bình thường, hỗ trợ sinh viên 24/7.
-        </p>
-        <div class="ai-metrics-row">
-          <div class="ai-metric-item">
-            <span class="ai-metric-val">100%</span>
-            <span class="ai-metric-lbl">Tỷ lệ phản hồi</span>
-          </div>
-          <div class="ai-metric-item">
-            <span class="ai-metric-val">&lt; 1.5s</span>
-            <span class="ai-metric-lbl">Thời gian trả lời</span>
-          </div>
+
+        <div *ngIf="buildingStats().length === 0" class="border-t border-slate-100 py-8 text-center text-sm text-slate-500">
+          Chưa có dữ liệu tòa nhà.
         </div>
-      </div>
-    </div>
-  </div>
+      </article>
+    </aside>
+  </section>
 </div>

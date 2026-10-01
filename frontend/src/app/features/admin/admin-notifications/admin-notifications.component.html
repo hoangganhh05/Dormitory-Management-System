@@ -1,4 +1,4 @@
-<div class="admin-notifications-page">
+<div class="admin-notifications-page w-full space-y-6 pb-12">
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
@@ -10,9 +10,7 @@
     </div>
     <div class="header-right">
       <button class="btn btn-primary" (click)="openCreateModal()">
-        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+        <ng-icon name="lucidePlus" size="16" class="mr-1.5"></ng-icon>
         Đăng Thông Báo Mới
       </button>
     </div>
@@ -20,69 +18,76 @@
 
   <!-- Toast Notification Message -->
   <div class="toast-alert toast-success" *ngIf="successMessage">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-    </svg>
+    <ng-icon name="lucideCheck" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ successMessage }}</span>
+  </div>
+  <div class="toast-alert toast-error" *ngIf="errorMessage && !isLoading">
+    <ng-icon name="lucideAlertTriangle" size="18" class="flex-shrink-0"></ng-icon>
+    <span>{{ errorMessage }}</span>
   </div>
 
   <!-- KPI Metrics Cards -->
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-info">
-        <span class="metric-label">Tổng số bài thông báo</span>
-        <span class="metric-value">{{ stats?.total || 0 }}</span>
-      </div>
-      <div class="metric-icon bg-slate-100 text-slate-700">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-info">
-        <span class="metric-label">Đang công khai</span>
-        <span class="metric-value text-emerald-700">{{ stats?.published || 0 }}</span>
-      </div>
-      <div class="metric-icon bg-emerald-50 text-emerald-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-info">
-        <span class="metric-label">Khẩn cấp & Đang ghim</span>
-        <div class="metric-split-values">
-          <span class="metric-value text-red-600">{{ stats?.urgent || 0 }}</span>
-          <span class="metric-sub">/ {{ stats?.pinned || 0 }} ghim</span>
+  <div class="metrics-grid grid w-full grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="metric-card flex h-full w-full items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="metric-info min-w-0 flex-1">
+        <p class="metric-label mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Tổng số bài thông báo</p>
+        <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span class="metric-value text-2xl font-bold leading-none tracking-tight text-slate-900">{{ stats?.total || 0 }}</span>
+          <span class="text-xs font-medium text-slate-500">bài</span>
         </div>
+        <p class="metric-desc mt-2 truncate text-xs text-slate-400">Tổng bài viết trong hệ thống</p>
       </div>
-      <div class="metric-icon bg-red-50 text-red-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-        </svg>
+      <div class="metric-icon shrink-0 rounded-lg bg-slate-50 p-2.5 text-slate-600">
+        <ng-icon name="lucideFileText" size="18" class="block"></ng-icon>
       </div>
     </div>
 
-    <div class="metric-card">
-      <div class="metric-info">
-        <span class="metric-label">Bản nháp lưu trữ</span>
-        <span class="metric-value text-slate-500">{{ (stats?.draft || 0) + (stats?.archived || 0) }}</span>
+    <div class="metric-card flex h-full w-full items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="metric-info min-w-0 flex-1">
+        <p class="metric-label mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Đang công khai</p>
+        <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span class="metric-value text-2xl font-bold leading-none tracking-tight text-emerald-700">{{ stats?.published || 0 }}</span>
+          <span class="text-xs font-medium text-slate-500">bài</span>
+        </div>
+        <p class="metric-desc mt-2 truncate text-xs text-slate-400">Đang hiển thị tới sinh viên</p>
       </div>
-      <div class="metric-icon bg-slate-100 text-slate-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-        </svg>
+      <div class="metric-icon shrink-0 rounded-lg bg-emerald-50 p-2.5 text-emerald-600">
+        <ng-icon name="lucideCheck" size="18" class="block"></ng-icon>
+      </div>
+    </div>
+
+    <div class="metric-card flex h-full w-full items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="metric-info min-w-0 flex-1">
+        <p class="metric-label mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Khẩn cấp & Đang ghim</p>
+        <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span class="metric-value text-2xl font-bold leading-none tracking-tight text-red-600">{{ stats?.urgent || 0 }}</span>
+          <span class="metric-sub text-xs font-medium text-slate-500">/ {{ stats?.pinned || 0 }} ghim</span>
+        </div>
+        <p class="metric-desc mt-2 truncate text-xs text-slate-400">Ưu tiên và đang ghim</p>
+      </div>
+      <div class="metric-icon shrink-0 rounded-lg bg-red-50 p-2.5 text-red-600">
+        <ng-icon name="lucideAlertTriangle" size="18" class="block"></ng-icon>
+      </div>
+    </div>
+
+    <div class="metric-card flex h-full w-full items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="metric-info min-w-0 flex-1">
+        <p class="metric-label mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Bản nháp lưu trữ</p>
+        <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span class="metric-value text-2xl font-bold leading-none tracking-tight text-slate-500">{{ (stats?.draft || 0) + (stats?.archived || 0) }}</span>
+          <span class="text-xs font-medium text-slate-500">bài</span>
+        </div>
+        <p class="metric-desc mt-2 truncate text-xs text-slate-400">Bản nháp và lưu trữ</p>
+      </div>
+      <div class="metric-icon shrink-0 rounded-lg bg-slate-50 p-2.5 text-slate-600">
+        <ng-icon name="lucidePencil" size="18" class="block"></ng-icon>
       </div>
     </div>
   </div>
 
   <!-- Tab Bar & Filter Controls -->
-  <div class="filter-wrapper">
-    <div class="tab-list">
+  <div class="filter-wrapper bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs space-y-4">
+    <div class="tab-list flex gap-6 border-b border-slate-100 pb-2 text-sm">
       <button class="tab-btn" [class.active]="activeTab === 'ALL'" (click)="switchTab('ALL')">
         Tất cả thông báo
       </button>
@@ -100,15 +105,13 @@
       </button>
     </div>
 
-    <div class="filter-controls-row">
+    <div class="filter-controls-row flex flex-wrap items-center gap-3">
       <!-- Search Input -->
       <div class="search-box">
-        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
+        <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
-          class="form-input search-input"
+          class="form-input search-input h-10 min-w-[240px] flex-1 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
           placeholder="Tìm tiêu đề, nội dung tóm tắt..."
           [(ngModel)]="searchKeyword"
           (keyup.enter)="onFilterChange()"
@@ -116,7 +119,7 @@
       </div>
 
       <!-- Select Category -->
-      <select class="form-select" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
         <option value="">Tất cả chuyên mục</option>
         <option value="GENERAL">Chung</option>
         <option value="URGENT">Khẩn cấp</option>
@@ -127,7 +130,7 @@
       </select>
 
       <!-- Select Target Audience -->
-      <select class="form-select" [(ngModel)]="selectedTargetRole" (change)="onFilterChange()">
+      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedTargetRole" (change)="onFilterChange()">
         <option value="">Tất cả đối tượng</option>
         <option value="ALL">Toàn bộ KTX</option>
         <option value="STUDENT">Chỉ sinh viên</option>
@@ -135,21 +138,21 @@
       </select>
 
       <!-- Select Building Scope -->
-      <select class="form-select" [(ngModel)]="selectedBuilding" (change)="onFilterChange()">
+      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedBuilding" (change)="onFilterChange()">
         <option value="">Tất cả các tòa</option>
         <option value="Tòa A">Tòa A (Nam)</option>
         <option value="Tòa B">Tòa B (Nữ)</option>
       </select>
 
       <!-- Apply filter button -->
-      <button class="btn btn-secondary" (click)="onFilterChange()">
+      <button class="btn btn-secondary h-10 rounded-lg px-3 text-sm" (click)="onFilterChange()">
         Lọc
       </button>
     </div>
   </div>
 
   <!-- Data Table Container -->
-  <div class="table-container">
+  <div class="table-container mt-6 overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-xs">
     <div class="loading-overlay" *ngIf="isLoading">
       <div class="spinner"></div>
       <span class="mt-2 text-sm text-slate-500 font-medium">Đang tải dữ liệu thông báo...</span>
@@ -169,7 +172,7 @@
           <th style="width: 140px;" class="text-right">Thao tác</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-slate-100">
         <tr *ngFor="let item of notifications" [class.pinned-row]="item.isPinned">
           <!-- Pin Toggle -->
           <td class="text-center">
@@ -179,9 +182,7 @@
               (click)="togglePin(item, $event)"
               [title]="item.isPinned ? 'Bỏ ghim thông báo' : 'Ghim thông báo lên đầu'"
             >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15v2a1 1 0 01-1 1h-1a1 1 0 01-1-1v-2H8v2a1 1 0 01-1 1H6a1 1 0 01-1-1v-2a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.789l1.599.8L9 4.323V3a1 1 0 011-1z"/>
-              </svg>
+              <ng-icon name="lucidePin" size="16"></ng-icon>
             </button>
           </td>
 
@@ -248,22 +249,9 @@
           <!-- Actions -->
           <td class="text-right">
             <div class="table-actions">
-              <button class="action-btn" title="Xem chi tiết" (click)="openPreview(item)">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-              </button>
-              <button class="action-btn" title="Chỉnh sửa" (click)="openEditModal(item)">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-              </button>
-              <button class="action-btn text-red-600 hover:bg-red-50" title="Xóa thông báo" (click)="confirmDelete(item, $event)">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-              </button>
+              <button class="action-btn" title="Xem chi tiết" (click)="openPreview(item)"><ng-icon name="lucideEye" size="16"></ng-icon></button>
+              <button class="action-btn" title="Chỉnh sửa" (click)="openEditModal(item)"><ng-icon name="lucidePencil" size="16"></ng-icon></button>
+              <button class="action-btn text-red-600 hover:bg-red-50" title="Xóa thông báo" (click)="confirmDelete(item, $event)"><ng-icon name="lucideTrash2" size="16"></ng-icon></button>
             </div>
           </td>
         </tr>
@@ -272,9 +260,7 @@
         <tr *ngIf="notifications.length === 0">
           <td colspan="9" class="empty-state-cell">
             <div class="empty-content">
-              <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-              </svg>
+              <ng-icon name="lucideBell" size="24" class="empty-icon"></ng-icon>
               <span class="empty-title">Không tìm thấy thông báo nào</span>
               <p class="empty-desc">Thử thay đổi bộ lọc tìm kiếm hoặc tạo bài thông báo mới cho sinh viên KTX.</p>
               <button class="btn btn-primary mt-3" (click)="openCreateModal()">Tạo thông báo đầu tiên</button>
@@ -305,7 +291,7 @@
           <h3 class="modal-title">{{ isEditing ? 'Chỉnh Sửa Thông Báo' : 'Soạn Thảo Thông Báo Mới' }}</h3>
           <p class="modal-subtitle">Xác định nội dung, chuyên mục và đối tượng nhận phù hợp theo quy định KTX.</p>
         </div>
-        <button class="close-btn" (click)="closeModal()">✕</button>
+        <button class="close-btn" (click)="closeModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <div class="modal-body">
@@ -423,11 +409,11 @@
             <span class="priority-badge ml-1.5" [ngClass]="getPriorityBadgeClass(previewItem!.priority)">
               {{ getPriorityLabel(previewItem!.priority) }}
             </span>
-            <span class="pinned-tag ml-1.5" *ngIf="previewItem!.isPinned">📌 Đang ghim</span>
+            <span class="pinned-tag ml-1.5" *ngIf="previewItem!.isPinned">Đang ghim</span>
           </div>
           <h3 class="modal-title">{{ previewItem?.title }}</h3>
         </div>
-        <button class="close-btn" (click)="closePreview()">✕</button>
+        <button class="close-btn" (click)="closePreview()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <div class="modal-body preview-body">
@@ -470,7 +456,7 @@
     <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="modal-title text-red-600">Xác Nhận Xóa Thông Báo</h3>
-        <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+        <button class="close-btn" (click)="closeDeleteConfirm()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
       <div class="modal-body">
         <p class="text-sm text-slate-700">

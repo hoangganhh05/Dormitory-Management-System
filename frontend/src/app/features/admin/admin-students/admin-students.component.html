@@ -1,4 +1,4 @@
-<div class="students-container">
+<div class="students-container w-full space-y-6 pb-12">
   <!-- Page Header -->
   <div class="page-header">
     <div>
@@ -12,9 +12,7 @@
     </div>
     <div class="header-actions">
       <button class="btn-create-student" (click)="openCreateModal()">
-        <svg class="w-4 h-4 mr-1.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
+        <ng-icon name="lucidePlus" size="16" class="mr-1.5"></ng-icon>
         Tạo hồ sơ sinh viên
       </button>
     </div>
@@ -22,87 +20,86 @@
 
   <!-- Action Feedback Alerts -->
   <div class="alert-success" *ngIf="actionSuccessMsg()">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-    </svg>
+    <ng-icon name="lucideCheck" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ actionSuccessMsg() }}</span>
   </div>
 
   <div class="alert-error" *ngIf="errorMessage()">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-    </svg>
+    <ng-icon name="lucideAlertTriangle" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ errorMessage() }}</span>
     <button class="btn-retry" (click)="loadStudents()">Thử lại</button>
   </div>
 
   <!-- Metric Statistics Row -->
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-title">Tổng số sinh viên</div>
-      <div class="metric-val">{{ students().length }}</div>
-      <div class="metric-desc">Hồ sơ đăng ký tài khoản KTX</div>
+  <div class="metrics-grid grid grid-cols-2 items-stretch gap-4 md:grid-cols-4 xl:grid-cols-5">
+    <div class="metric-card flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
+      <div class="metric-title mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Tổng số sinh viên</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-val text-2xl font-bold tracking-tight text-slate-900">{{ students().length }}</span>
+        <span class="text-sm font-medium text-slate-500">sinh viên</span>
+      </div>
+      <div class="metric-desc mt-2 truncate text-[11px] text-slate-400">Hồ sơ đăng ký tài khoản KTX</div>
     </div>
 
-    <div class="metric-card emerald">
-      <div class="metric-title">Đã bố trí giường</div>
-      <div class="metric-val text-emerald-600 font-mono">{{ housedCount() }}</div>
-      <div class="metric-desc">Đang ở thực tế trong các phòng</div>
+    <div class="metric-card emerald flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
+      <div class="metric-title mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Đã bố trí giường</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-val text-2xl font-bold tracking-tight text-emerald-600">{{ housedCount() }}</span>
+        <span class="text-sm font-medium text-slate-500">giường</span>
+      </div>
+      <div class="metric-desc mt-2 truncate text-[11px] text-slate-400">Đang ở thực tế trong các phòng</div>
     </div>
 
-    <div class="metric-card amber">
-      <div class="metric-title">Chưa xếp giường</div>
-      <div class="metric-val text-amber-600 font-mono">{{ unassignedCount() }}</div>
-      <div class="metric-desc">Chờ Ban Quản lý phân bổ</div>
+    <div class="metric-card amber flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
+      <div class="metric-title mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Chưa xếp giường</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-val text-2xl font-bold tracking-tight text-amber-600">{{ unassignedCount() }}</span>
+        <span class="text-sm font-medium text-slate-500">giường</span>
+      </div>
+      <div class="metric-desc mt-2 truncate text-[11px] text-slate-400">Chờ Ban Quản lý phân bổ</div>
     </div>
 
-    <div class="metric-card blue">
-      <div class="metric-title">Lượt Check-in</div>
-      <div class="metric-val text-blue-600 font-mono">{{ allocationStats()?.actions?.checkIn ?? 0 }}</div>
-      <div class="metric-desc">Hồ sơ tiếp nhận ban đầu</div>
+    <div class="metric-card blue flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
+      <div class="metric-title mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Lượt Check-in</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-val text-2xl font-bold tracking-tight text-blue-600">{{ allocationStats()?.actions?.checkIn ?? 0 }}</span>
+        <span class="text-sm font-medium text-slate-500">lượt</span>
+      </div>
+      <div class="metric-desc mt-2 truncate text-[11px] text-slate-400">Hồ sơ tiếp nhận ban đầu</div>
     </div>
 
-    <div class="metric-card purple">
-      <div class="metric-title">Lượt Điều chuyển</div>
-      <div class="metric-val text-indigo-600 font-mono">{{ allocationStats()?.actions?.transfer ?? 0 }}</div>
-      <div class="metric-desc">Đổi phòng/giường đã ghi vết</div>
+    <div class="metric-card purple flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
+      <div class="metric-title mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Lượt Điều chuyển</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-val text-2xl font-bold tracking-tight text-indigo-600">{{ allocationStats()?.actions?.transfer ?? 0 }}</span>
+        <span class="text-sm font-medium text-slate-500">lượt</span>
+      </div>
+      <div class="metric-desc mt-2 truncate text-[11px] text-slate-400">Đổi phòng/giường đã ghi vết</div>
     </div>
-  </div>
-
-  <!-- Main View Navigation Tabs -->
-  <div class="main-tabs-bar">
-    <button
-      class="main-tab-btn"
-      [class.active]="activeViewTab() === 'STUDENTS'"
-      (click)="switchTab('STUDENTS')"
-    >
-      👥 Danh sách hồ sơ sinh viên ({{ students().length }})
-    </button>
-    <button
-      class="main-tab-btn"
-      [class.active]="activeViewTab() === 'HISTORY'"
-      (click)="switchTab('HISTORY')"
-    >
-      📋 Nhật ký điều chuyển & Lưu trú ({{ allocationStats()?.totalHistories ?? 0 }})
-    </button>
   </div>
 
   <!-- ================= VIEW 1: STUDENTS LIST & ALLOCATIONS ================= -->
   <ng-container *ngIf="activeViewTab() === 'STUDENTS'">
     <!-- Filter Toolbar -->
-    <div class="toolbar-card">
-      <div class="search-box">
-        <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+    <div class="toolbar-card bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs space-y-4">
+      <div class="main-tabs-bar flex gap-6 border-b border-slate-100 pb-2 text-sm">
+        <button class="main-tab-btn" [class.active]="activeViewTab() === 'STUDENTS'" (click)="switchTab('STUDENTS')">
+          Danh sách hồ sơ sinh viên ({{ students().length }})
+        </button>
+        <button class="main-tab-btn" [class.active]="activeViewTab() === 'HISTORY'" (click)="switchTab('HISTORY')">
+          Nhật ký điều chuyển & Lưu trú ({{ allocationStats()?.totalHistories ?? 0 }})
+        </button>
+      </div>
+      <div class="search-box flex-1 min-w-[240px]">
+        <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
           [value]="searchTerm()"
           (input)="searchTerm.set($any($event.target).value)"
           placeholder="Tìm theo tên, mã sinh viên, email, số điện thoại..."
-          class="search-input"
+          class="search-input h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
         />
-        <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')">✕</button>
+        <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')" title="Xóa tìm kiếm"><ng-icon name="lucideX" size="14"></ng-icon></button>
       </div>
 
       <div class="filter-group">
@@ -112,7 +109,7 @@
           <select
             [value]="selectedGender()"
             (change)="selectedGender.set($any($event.target).value)"
-            class="filter-select"
+            class="filter-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
           >
             <option value="ALL">Tất cả</option>
             <option value="FEMALE">Nữ</option>
@@ -126,7 +123,7 @@
           <select
             [value]="selectedStatus()"
             (change)="selectedStatus.set($any($event.target).value)"
-            class="filter-select"
+            class="filter-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
           >
             <option value="ALL">Tất cả tình trạng</option>
             <option value="HOUSED">Đã có giường lưu trú</option>
@@ -147,7 +144,7 @@
     </div>
 
     <!-- Data Table -->
-    <div class="table-card" *ngIf="!isLoading()">
+    <div class="table-card mt-6 bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden" *ngIf="!isLoading()">
       <div class="table-header-meta">
         <div class="meta-title">
           Hiển thị: <strong>{{ filteredStudents().length }}</strong> / {{ students().length }} sinh viên
@@ -171,7 +168,7 @@
               <th class="text-right">Thao tác phân bổ & Quản lý</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-slate-100">
             <tr *ngFor="let student of filteredStudents()">
               <!-- Student Info -->
               <td>
@@ -200,7 +197,7 @@
               <td>
                 <div *ngIf="student.occupiedBed as bed; else unassignedBed">
                   <div class="bed-allocated-box">
-                    <span class="bed-pill">🛏️ {{ bed.bedNumber }}</span>
+                    <span class="bed-pill"><ng-icon name="lucideBedDouble" size="15"></ng-icon> {{ bed.bedNumber }}</span>
                     <span class="room-pill">Phòng {{ bed.room?.roomNumber }}</span>
                   </div>
                   <div class="text-[11px] text-slate-500 mt-0.5">
@@ -285,7 +282,7 @@
 
       <!-- Empty State -->
       <div class="empty-state" *ngIf="filteredStudents().length === 0">
-        <div class="empty-icon">👥</div>
+        <ng-icon name="lucideUsers" size="24" class="empty-icon"></ng-icon>
         <h3 class="empty-title">Không tìm thấy sinh viên phù hợp</h3>
         <p class="empty-desc">Thử điều chỉnh lại từ khóa tìm kiếm hoặc các tiêu chí bộ lọc giới tính / tình trạng.</p>
         <button class="btn-reset-empty" (click)="resetFilters()">Xem tất cả</button>
@@ -295,19 +292,25 @@
 
   <!-- ================= VIEW 2: GLOBAL ALLOCATION & TRACKING HISTORY ================= -->
   <ng-container *ngIf="activeViewTab() === 'HISTORY'">
-    <div class="toolbar-card">
-      <div class="search-box">
-        <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+    <div class="toolbar-card bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs space-y-4">
+      <div class="main-tabs-bar flex gap-6 border-b border-slate-100 pb-2 text-sm">
+        <button class="main-tab-btn" [class.active]="activeViewTab() === 'STUDENTS'" (click)="switchTab('STUDENTS')">
+          Danh sách hồ sơ sinh viên ({{ students().length }})
+        </button>
+        <button class="main-tab-btn" [class.active]="activeViewTab() === 'HISTORY'" (click)="switchTab('HISTORY')">
+          Nhật ký điều chuyển & Lưu trú ({{ allocationStats()?.totalHistories ?? 0 }})
+        </button>
+      </div>
+      <div class="search-box flex-1 min-w-[240px]">
+        <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
           [value]="historySearchTerm()"
           (input)="historySearchTerm.set($any($event.target).value)"
           placeholder="Tìm sinh viên, mã SV, thông tin phòng/giường..."
-          class="search-input"
+          class="search-input h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
         />
-        <button class="clear-btn" *ngIf="historySearchTerm()" (click)="historySearchTerm.set('')">✕</button>
+        <button class="clear-btn" *ngIf="historySearchTerm()" (click)="historySearchTerm.set('')" title="Xóa tìm kiếm"><ng-icon name="lucideX" size="14"></ng-icon></button>
       </div>
 
       <div class="filter-group">
@@ -316,7 +319,7 @@
           <select
             [value]="historyActionFilter()"
             (change)="historyActionFilter.set($any($event.target).value)"
-            class="filter-select"
+            class="filter-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
           >
             <option value="ALL">Tất cả thao tác</option>
             <option value="CHECK_IN">Tiếp nhận lưu trú (Check-in)</option>
@@ -332,7 +335,7 @@
     </div>
 
     <!-- History Table -->
-    <div class="table-card">
+    <div class="table-card mt-6 bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
       <div class="table-header-meta">
         <div class="meta-title">
           Nhật ký hệ thống: <strong>{{ filteredHistories().length }}</strong> lượt thao tác được ghi vết
@@ -352,7 +355,7 @@
               <th>Ghi chú nghiệp vụ</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-slate-100">
             <tr *ngFor="let h of filteredHistories()">
               <!-- Timestamp -->
               <td class="text-xs font-mono text-slate-500 whitespace-nowrap">
@@ -406,7 +409,7 @@
       </div>
 
       <div class="empty-state" *ngIf="filteredHistories().length === 0">
-        <div class="empty-icon">📜</div>
+        <ng-icon name="lucideClipboardList" size="24" class="empty-icon"></ng-icon>
         <h3 class="empty-title">Chưa có bản ghi nhật ký nào</h3>
         <p class="empty-desc">Toàn bộ thao tác phân bổ, đổi chỗ và trả phòng sẽ tự động ghi vết tại đây.</p>
       </div>
@@ -421,7 +424,7 @@
           <h3 class="modal-title">Phân bổ giường lưu trú (Check-in)</h3>
           <p class="modal-subtitle">Hệ thống áp dụng quy tắc giới tính và ngăn phân trùng tuyệt đối</p>
         </div>
-        <button class="btn-close-modal" (click)="closeAllocateModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeAllocateModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="allocationForm" (ngSubmit)="submitAllocateBed()" class="modal-body">
@@ -451,7 +454,7 @@
           </div>
           <ng-template #noAvailableBeds>
             <div class="alert-warning-box">
-              ⚠️ Không còn giường trống khả dụng phù hợp với giới tính sinh viên. Vui lòng kiểm tra lại sơ đồ phòng hoặc thêm phòng mới!
+              <ng-icon name="lucideAlertTriangle" size="16"></ng-icon> Không còn giường trống khả dụng phù hợp với giới tính sinh viên. Vui lòng kiểm tra lại sơ đồ phòng hoặc thêm phòng mới!
             </div>
           </ng-template>
         </div>
@@ -481,7 +484,7 @@
           <h3 class="modal-title">Điều chuyển phòng / Giường (Transfer)</h3>
           <p class="modal-subtitle">Chuyển sinh viên sang vị trí giường trống khác mà không làm sai lệch số liệu</p>
         </div>
-        <button class="btn-close-modal" (click)="closeTransferModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeTransferModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="transferForm" (ngSubmit)="submitTransferBed()" class="modal-body">
@@ -510,7 +513,7 @@
           </div>
           <ng-template #noTransferBeds>
             <div class="alert-warning-box">
-              ⚠️ Không còn giường trống nào khác khả dụng để điều chuyển.
+              <ng-icon name="lucideAlertTriangle" size="16"></ng-icon> Không còn giường trống nào khác khả dụng để điều chuyển.
             </div>
           </ng-template>
         </div>
@@ -540,7 +543,7 @@
           <h3 class="modal-title">Lịch sử lưu trú — {{ selectedStudent()?.fullName }}</h3>
           <p class="modal-subtitle">Mã SV: {{ selectedStudent()?.studentCode }} • Toàn bộ vết phân bổ và thay đổi giường</p>
         </div>
-        <button class="btn-close-modal" (click)="closeHistoryModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeHistoryModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <div class="modal-body">
@@ -569,7 +572,7 @@
 
         <ng-template #noStudentHistories>
           <div class="empty-state">
-            <div class="empty-icon">📜</div>
+            <ng-icon name="lucideClipboardList" size="24" class="empty-icon"></ng-icon>
             <p class="empty-desc">Chưa có bản ghi điều chuyển nào được lưu lại cho sinh viên này.</p>
           </div>
         </ng-template>
@@ -591,7 +594,7 @@
           <h3 class="modal-title">Tạo mới hồ sơ sinh viên lưu trú</h3>
           <p class="modal-subtitle">Tạo tài khoản và hồ sơ định danh chính thức trên hệ thống KTX</p>
         </div>
-        <button class="btn-close-modal" (click)="closeCreateModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeCreateModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="createForm" (ngSubmit)="submitCreateStudent()" class="modal-body">
@@ -641,7 +644,7 @@
           <h3 class="modal-title">Cập nhật hồ sơ sinh viên</h3>
           <p class="modal-subtitle">Chỉnh sửa thông tin định danh của sinh viên</p>
         </div>
-        <button class="btn-close-modal" (click)="closeEditModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeEditModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <form [formGroup]="editForm" (ngSubmit)="submitUpdateStudent()" class="modal-body">
@@ -690,7 +693,7 @@
             <p class="modal-subtitle font-mono">{{ selectedStudent()?.studentCode }} • {{ selectedStudent()?.email }}</p>
           </div>
         </div>
-        <button class="btn-close-modal" (click)="closeDetailModal()">✕</button>
+        <button class="btn-close-modal" (click)="closeDetailModal()" title="Đóng"><ng-icon name="lucideX" size="18"></ng-icon></button>
       </div>
 
       <div class="modal-body">

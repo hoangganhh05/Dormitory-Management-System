@@ -3,11 +3,32 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { DashboardStats } from '../../../core/models/dashboard.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideArrowUpRight,
+  lucideBedDouble,
+  lucideBuilding2,
+  lucideCircleAlert,
+  lucideClipboardCheck,
+  lucideRefreshCw,
+  lucideWrench,
+} from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, NgIcon],
+  providers: [
+    provideIcons({
+      lucideArrowUpRight,
+      lucideBedDouble,
+      lucideBuilding2,
+      lucideCircleAlert,
+      lucideClipboardCheck,
+      lucideRefreshCw,
+      lucideWrench,
+    }),
+  ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
@@ -19,10 +40,10 @@ export class AdminDashboardComponent implements OnInit {
   errorMessage = signal('');
 
   stats = signal([
-    { label: 'Tổng số phòng KTX', value: '0 Phòng', sub: 'Đang kết nối API...', icon: '🏢', color: 'blue' },
-    { label: 'Sức chứa / Đã ở', value: '0 / 0 Giường', sub: 'Tỷ lệ lấp đầy: 0%', icon: '🛏️', color: 'green' },
-    { label: 'Đơn đăng ký chờ duyệt', value: '0 Đơn', sub: 'Cần ban quản lý duyệt', icon: '📝', color: 'amber' },
-    { label: 'Sự cố cần sửa chữa', value: '0 Yêu cầu', sub: 'Đang điều phối kỹ thuật', icon: '🛠️', color: 'danger' },
+    { label: 'Tổng số phòng KTX', value: '0', unit: 'Phòng', sub: 'Đang tải dữ liệu...', icon: 'lucideBuilding2', color: 'blue' },
+    { label: 'Sức chứa / Đã ở', value: '0 / 0', unit: 'Giường', sub: 'Tỷ lệ lấp đầy: 0%', icon: 'lucideBedDouble', color: 'green' },
+    { label: 'Đơn đăng ký chờ duyệt', value: '0', unit: 'Đơn', sub: 'Cần ban quản lý duyệt', icon: 'lucideClipboardCheck', color: 'amber' },
+    { label: 'Sự cố cần sửa chữa', value: '0', unit: 'Yêu cầu', sub: 'Đang phân công xử lý', icon: 'lucideWrench', color: 'danger' },
   ]);
 
   recentRegistrations = signal<any[]>([]);
@@ -43,30 +64,34 @@ export class AdminDashboardComponent implements OnInit {
         this.stats.set([
           {
             label: 'Tổng số phòng KTX',
-            value: `${data.totalRooms} Phòng`,
+            value: `${data.totalRooms}`,
+            unit: 'Phòng',
             sub: '100% Sẵn sàng hoạt động',
-            icon: '🏢',
+            icon: 'lucideBuilding2',
             color: 'blue'
           },
           {
             label: 'Sức chứa / Đã ở',
-            value: `${data.occupiedBeds} / ${data.totalBeds} Giường`,
+            value: `${data.occupiedBeds} / ${data.totalBeds}`,
+            unit: 'Giường',
             sub: `Tỷ lệ lấp đầy: ${data.occupancyRate}%`,
-            icon: '🛏️',
+            icon: 'lucideBedDouble',
             color: 'green'
           },
           {
             label: 'Đơn đăng ký chờ duyệt',
-            value: `${data.pendingRegistrations} Đơn`,
+            value: `${data.pendingRegistrations}`,
+            unit: 'Đơn',
             sub: 'Cần ban quản lý duyệt',
-            icon: '📝',
+            icon: 'lucideClipboardCheck',
             color: 'amber'
           },
           {
             label: 'Sự cố cần sửa chữa',
-            value: `${data.urgentIssues} Yêu cầu`,
-            sub: 'Đang điều phối kỹ thuật',
-            icon: '🛠️',
+            value: `${data.urgentIssues}`,
+            unit: 'Yêu cầu',
+            sub: 'Đang phân công xử lý',
+            icon: 'lucideWrench',
             color: 'danger'
           },
         ]);
@@ -112,7 +137,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err: Error) => {
         console.error('[AdminDashboardComponent Error]', err);
         this.hasError.set(true);
-        this.errorMessage.set('Không thể tải số liệu thống kê từ máy chủ API. Vui lòng kiểm tra dịch vụ backend.');
+        this.errorMessage.set('Không thể tải số liệu thống kê. Vui lòng thử lại sau.');
         this.isLoading.set(false);
       }
     });

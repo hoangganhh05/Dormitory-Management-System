@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, of, throwError, timeout } from 'rxjs';
 import {
   CreateMaintenanceDto,
   MaintenanceApiResponse,
@@ -21,7 +21,24 @@ export class MaintenanceService {
    * Thống kê tổng hợp số liệu bảo trì
    */
   getMaintenanceStats(): Observable<MaintenanceApiResponse<MaintenanceStats>> {
-    return this.http.get<MaintenanceApiResponse<MaintenanceStats>>(`${this.apiUrl}/stats`);
+    return this.http.get<MaintenanceApiResponse<MaintenanceStats>>(`${this.apiUrl}/stats`).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error('[MaintenanceService] getMaintenanceStats failed:', err);
+        return of({
+          success: false,
+          message: 'Không thể tải thống kê bảo trì',
+          data: {
+            total: 0,
+            pending: 0,
+            processing: 0,
+            resolved: 0,
+            rejected: 0,
+            highUrgency: 0,
+          },
+        });
+      }),
+    );
   }
 
   /**
@@ -37,21 +54,57 @@ export class MaintenanceService {
       if (params.page) httpParams = httpParams.set('page', String(params.page));
       if (params.limit) httpParams = httpParams.set('limit', String(params.limit));
     }
-    return this.http.get<MaintenanceApiResponse<MaintenanceRequest[]>>(this.apiUrl, { params: httpParams });
+    return this.http.get<MaintenanceApiResponse<MaintenanceRequest[]>>(this.apiUrl, { params: httpParams }).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error('[MaintenanceService] getRequests failed:', err);
+        return of({
+          success: false,
+          message: 'Không thể tải danh sách yêu cầu bảo trì.',
+          data: [] as MaintenanceRequest[],
+          pagination: {
+            total: 0,
+            page: params?.page || 1,
+            limit: params?.limit || 10,
+            totalPages: 1,
+          },
+        });
+      }),
+    );
   }
 
   /**
    * Lấy lịch sử yêu cầu của sinh viên đăng nhập
    */
   getMyRequests(): Observable<MaintenanceApiResponse<MaintenanceRequest[]>> {
-    return this.http.get<MaintenanceApiResponse<MaintenanceRequest[]>>(`${this.apiUrl}/my`);
+    return this.http.get<MaintenanceApiResponse<MaintenanceRequest[]>>(`${this.apiUrl}/my`).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error('[MaintenanceService] getMyRequests failed:', err);
+        return of({
+          success: false,
+          message: 'Không thể tải lịch sử báo hỏng.',
+          data: [] as MaintenanceRequest[],
+        });
+      }),
+    );
   }
 
   /**
    * Xem chi tiết yêu cầu
    */
   getRequestById(id: number): Observable<MaintenanceApiResponse<MaintenanceRequest>> {
-    return this.http.get<MaintenanceApiResponse<MaintenanceRequest>>(`${this.apiUrl}/${id}`);
+    return this.http.get<MaintenanceApiResponse<MaintenanceRequest>>(`${this.apiUrl}/${id}`).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error(`[MaintenanceService] getRequestById(${id}) failed:`, err);
+        return of({
+          success: false,
+          message: 'Không thể tải thông tin chi tiết sự cố.',
+          data: null as any,
+        });
+      }),
+    );
   }
 
   /**

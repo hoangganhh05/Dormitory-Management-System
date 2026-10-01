@@ -5,6 +5,14 @@ import { ENV } from '../config/env';
 import { Gender, RegistrationStatus, BedStatus, RoomStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
+type RegistrationApprovalError = Error & { statusCode?: number };
+
+const createRegistrationApprovalError = (message: string, statusCode = 409): RegistrationApprovalError => {
+  const error = new Error(message) as RegistrationApprovalError;
+  error.statusCode = statusCode;
+  return error;
+};
+
 export class RegistrationController {
   // 1. Thống kê tổng hợp đơn đăng ký cho Admin Dashboard
   static async getRegistrationStats(req: Request, res: Response): Promise<void> {
@@ -371,11 +379,24 @@ export class RegistrationController {
   static async approveRegistration(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(String(req.params.id), 10);
-      const { bedId } = req.body;
+      const rawBedId = req.body?.bedId;
 
       if (isNaN(id)) {
         res.status(400).json({ success: false, message: 'Mã đơn đăng ký không hợp lệ' });
         return;
+      }
+
+      let requestedBedId: number | null = null;
+      if (rawBedId !== undefined && rawBedId !== null && String(rawBedId).trim() !== '') {
+        const parsedBedId = Number(rawBedId);
+        if (!Number.isInteger(parsedBedId) || parsedBedId <= 0) {
+          res.status(400).json({
+            success: false,
+            message: `Mã giường không hợp lệ: ${String(rawBedId)}`,
+          });
+          return;
+        }
+        requestedBedId = parsedBedId;
       }
 
       const registration = await prisma.registration.findUnique({
@@ -402,10 +423,10 @@ export class RegistrationController {
         return;
       }
 
-      let targetBedId: number | null = bedId ? parseInt(String(bedId), 10) : null;
+      let targetBedId: number | null = requestedBedId;
 
       // Nếu không truyền bedId, tự động tìm giường trống đầu tiên của phòng nguyện vọng
-      if (!targetBedId && registration.preferredRoom) {
+      if (targetBedId === null && registration.preferredRoom) {
         const vacantBed = registration.preferredRoom.beds.find((b) => b.status === BedStatus.VACANT);
         if (vacantBed) {
           targetBedId = vacantBed.id;
@@ -415,45 +436,87 @@ export class RegistrationController {
       // Thực hiện phê duyệt trong database transaction
       const result = await prisma.$transaction(async (tx) => {
         let assignedBedNumber = '';
+        const oldBed = await tx.bed.findFirst({
+          where: { occupiedById: registration.userId },
+          include: { room: true },
+        });
 
-        if (targetBedId) {
+        if (targetBedId !== null) {
           const bed = await tx.bed.findUnique({
             where: { id: targetBedId },
             include: { room: true },
           });
 
           if (!bed) {
-            throw new Error(`Giường ID ${targetBedId} không tồn tại.`);
+            throw createRegistrationApprovalError(`Giường ID ${targetBedId} không tồn tại.`, 404);
           }
 
-          if (bed.status === BedStatus.OCCUPIED) {
-            throw new Error(`Giường ${bed.bedNumber} đã có người ở. Vui lòng chọn giường khác.`);
+          if (registration.preferredRoomId && bed.roomId !== registration.preferredRoomId) {
+            throw createRegistrationApprovalError(
+              `Giường ${bed.bedNumber} không thuộc phòng nguyện vọng của đơn đăng ký #${id}.`,
+              400
+            );
+          }
+
+          // Trường hợp sinh viên đã ở đúng giường đang được chọn, không cần giải phóng rồi gán lại.
+          const isCurrentBed = oldBed?.id === bed.id;
+          if (!isCurrentBed && (bed.status !== BedStatus.VACANT || bed.occupiedById !== null)) {
+            throw createRegistrationApprovalError(
+              `Giường ${bed.bedNumber} không còn trống. Vui lòng chọn giường khác.`,
+              409
+            );
           }
 
           assignedBedNumber = bed.bedNumber;
 
-          // Cập nhật giường thành OCCUPIED và gán vào sinh viên
-          await tx.bed.update({
-            where: { id: targetBedId },
-            data: {
-              status: BedStatus.OCCUPIED,
-              occupiedById: registration.userId,
-            },
-          });
+          if (!isCurrentBed) {
+            // Một sinh viên chỉ được sở hữu một giường. Giải phóng giường cũ
+            // trước khi gán giường mới để không vi phạm unique occupiedById.
+            if (oldBed) {
+              await tx.bed.update({
+                where: { id: oldBed.id },
+                data: {
+                  occupiedById: null,
+                  status: BedStatus.VACANT,
+                },
+              });
+            }
 
-          // Cập nhật sĩ số phòng và trạng thái phòng
-          const updatedOccupancy = await tx.bed.count({
-            where: { roomId: bed.roomId, occupiedById: { not: null } },
-          });
+            await tx.bed.update({
+              where: { id: bed.id },
+              data: {
+                status: BedStatus.OCCUPIED,
+                occupiedById: registration.userId,
+              },
+            });
+          }
 
-          const newRoomStatus = updatedOccupancy >= bed.room.capacity ? RoomStatus.FULL : RoomStatus.AVAILABLE;
-          await tx.room.update({
-            where: { id: bed.roomId },
-            data: {
-              currentOccupancy: updatedOccupancy,
-              status: bed.room.status === RoomStatus.MAINTENANCE ? RoomStatus.MAINTENANCE : newRoomStatus,
-            },
-          });
+          // Tính lại sĩ số cho cả phòng cũ và phòng mới. Nếu hai phòng trùng
+          // nhau, Set đảm bảo chỉ cập nhật một lần.
+          const affectedRoomIds = new Set<number>([bed.roomId]);
+          if (oldBed && oldBed.roomId !== bed.roomId) {
+            affectedRoomIds.add(oldBed.roomId);
+          }
+
+          for (const roomId of affectedRoomIds) {
+            const room = await tx.room.findUnique({ where: { id: roomId } });
+            if (!room) {
+              throw createRegistrationApprovalError(`Phòng ID ${roomId} không tồn tại.`, 404);
+            }
+
+            const updatedOccupancy = await tx.bed.count({
+              where: { roomId, occupiedById: { not: null } },
+            });
+            const newRoomStatus = updatedOccupancy >= room.capacity ? RoomStatus.FULL : RoomStatus.AVAILABLE;
+
+            await tx.room.update({
+              where: { id: roomId },
+              data: {
+                currentOccupancy: updatedOccupancy,
+                status: room.status === RoomStatus.MAINTENANCE ? RoomStatus.MAINTENANCE : newRoomStatus,
+              },
+            });
+          }
         }
 
         // Cập nhật đơn đăng ký
@@ -479,10 +542,31 @@ export class RegistrationController {
         data: result.updatedReg,
       });
     } catch (error: any) {
-      console.error('[RegistrationController.approveRegistration Error]', error);
-      res.status(500).json({
+      const rawErrorMessage = error instanceof Error ? error.message : 'Lỗi không xác định khi phê duyệt đơn đăng ký';
+      const constraintTarget = String(error?.meta?.target || '');
+      const isOccupiedBedConstraint =
+        error?.code === 'P2002' &&
+        (constraintTarget.includes('occupiedById') || rawErrorMessage.includes('beds_occupiedById_key'));
+      const statusCode = isOccupiedBedConstraint ? 400 : Number(error?.statusCode) || 500;
+      const errorMessage = isOccupiedBedConstraint
+        ? 'Sinh viên này đang được gán một giường khác trong ký túc xá. Vui lòng kiểm tra và chuyển giường cũ trước khi phê duyệt.'
+        : Number(error?.statusCode)
+          ? rawErrorMessage
+          : 'Không thể phê duyệt đơn đăng ký. Vui lòng kiểm tra lại giường được chọn và thử lại.';
+
+      console.error('[RegistrationController.approveRegistration Error]', {
+        registrationId: req.params.id,
+        requestedBedId: req.body?.bedId ?? null,
+        statusCode,
+        message: rawErrorMessage,
+        code: error?.code,
+        meta: error?.meta,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+
+      res.status(statusCode).json({
         success: false,
-        message: error.message || 'Lỗi khi phê duyệt đơn đăng ký',
+        message: errorMessage,
       });
     }
   }

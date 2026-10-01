@@ -3,11 +3,36 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RoomService } from '../../../core/services/room.service';
 import { Bed, CreateRoomDto, Room, RoomStatsSummary, UpdateRoomDto } from '../../../core/models/room.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideAlertTriangle,
+  lucideBedDouble,
+  lucideBuilding2,
+  lucideCheck,
+  lucideCircleAlert,
+  lucidePlus,
+  lucideRefreshCw,
+  lucideSearch,
+  lucideX,
+} from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-admin-rooms',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NgIcon],
+  providers: [
+    provideIcons({
+      lucideAlertTriangle,
+      lucideBedDouble,
+      lucideBuilding2,
+      lucideCheck,
+      lucideCircleAlert,
+      lucidePlus,
+      lucideRefreshCw,
+      lucideSearch,
+      lucideX,
+    }),
+  ],
   templateUrl: './admin-rooms.component.html',
   styleUrl: './admin-rooms.component.css',
 })
@@ -105,7 +130,7 @@ export class AdminRoomsComponent implements OnInit {
       },
       error: (err: Error) => {
         console.error('[AdminRoomsComponent Error]', err);
-        this.errorMessage.set(err.message || 'Lỗi khi tải danh sách phòng.');
+        this.errorMessage.set('Không thể tải danh sách phòng. Vui lòng thử lại sau.');
         this.isLoading.set(false);
       },
     });
@@ -166,7 +191,7 @@ export class AdminRoomsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert(err.message || 'Lỗi khi tạo phòng mới.');
+        alert('Không thể tạo phòng mới. Vui lòng thử lại sau.');
       },
     });
   }
@@ -219,7 +244,7 @@ export class AdminRoomsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert(err.message || 'Lỗi khi cập nhật phòng.');
+        alert('Không thể cập nhật thông tin phòng. Vui lòng thử lại sau.');
       },
     });
   }
@@ -238,7 +263,7 @@ export class AdminRoomsComponent implements OnInit {
         this.showSuccess(`Phòng ${room.roomNumber} đã ${actionLabel}!`);
         this.loadData();
       },
-      error: (err: Error) => alert(err.message || 'Lỗi khi cập nhật trạng thái phòng.'),
+      error: () => alert('Không thể cập nhật trạng thái phòng. Vui lòng thử lại sau.'),
     });
   }
 
@@ -258,7 +283,7 @@ export class AdminRoomsComponent implements OnInit {
         this.showSuccess(`Đã xóa phòng ${room.roomNumber} khỏi hệ thống!`);
         this.loadData();
       },
-      error: (err: Error) => alert(err.message || 'Lỗi khi xóa phòng.'),
+      error: () => alert('Không thể xóa phòng. Vui lòng thử lại sau.'),
     });
   }
 
@@ -292,7 +317,7 @@ export class AdminRoomsComponent implements OnInit {
         this.selectedRoom.set({ ...room, beds: updatedBeds });
         this.loadData();
       },
-      error: (err: Error) => alert(err.message || 'Lỗi khi cập nhật trạng thái giường.'),
+      error: () => alert('Không thể cập nhật trạng thái giường. Vui lòng thử lại sau.'),
     });
   }
 

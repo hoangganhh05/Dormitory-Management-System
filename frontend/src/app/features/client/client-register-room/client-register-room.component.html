@@ -1,5 +1,5 @@
-<div class="container register-page">
-  <div class="form-wrapper">
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+  <div class="form-wrapper rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
     <div class="form-header">
       <div class="breadcrumb">
         <a routerLink="/client/dashboard" class="breadcrumb-link">Trang chủ</a>
@@ -12,7 +12,7 @@
 
     <!-- Success Message Banner -->
     <div class="success-banner" *ngIf="isSuccess()">
-      <div class="success-icon">✓</div>
+      <ng-icon name="lucideCheckCircle" size="24" class="success-icon"></ng-icon>
       <h2 class="success-title">Nộp hồ sơ đăng ký thành công!</h2>
       <p class="success-desc">
         Hồ sơ đăng ký lưu trú của bạn đã được chuyển tới Ban Quản lý KTX với mã tra cứu:
@@ -29,17 +29,17 @@
 
     <!-- Error Banner -->
     <div class="error-banner" *ngIf="submitError()">
-      <div class="error-banner-icon">⚠️</div>
+      <ng-icon name="lucideAlertTriangle" size="20" class="error-banner-icon"></ng-icon>
       <div class="error-banner-content">
         <h4>Thông báo từ hệ thống</h4>
         <p>{{ submitError() }}</p>
       </div>
-      <button type="button" class="close-error-btn" (click)="submitError.set('')" title="Đóng">✕</button>
+      <button type="button" class="close-error-btn" (click)="submitError.set('')" title="Đóng"><ng-icon name="lucideX" size="16"></ng-icon></button>
     </div>
 
     <!-- Cancel Success Alert -->
     <div class="alert-cancel-success" *ngIf="cancelSuccessMsg()">
-      ✓ {{ cancelSuccessMsg() }}
+      <ng-icon name="lucideCheckCircle" size="16"></ng-icon> {{ cancelSuccessMsg() }}
     </div>
 
     <!-- Registration Form -->

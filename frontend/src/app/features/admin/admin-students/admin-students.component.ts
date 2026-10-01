@@ -9,11 +9,14 @@ import {
   AllocationStatsSummary,
   AvailableBedItem,
 } from '../../../core/models/allocation.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideAlertTriangle, lucideBedDouble, lucideCheck, lucideClipboardList, lucidePlus, lucideSearch, lucideUsers, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-admin-students',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NgIcon],
+  providers: [provideIcons({ lucideAlertTriangle, lucideBedDouble, lucideCheck, lucideClipboardList, lucidePlus, lucideSearch, lucideUsers, lucideX })],
   templateUrl: './admin-students.component.html',
   styleUrl: './admin-students.component.css'
 })
@@ -151,7 +154,7 @@ export class AdminStudentsComponent implements OnInit {
       },
       error: (err: Error) => {
         console.error('[AdminStudentsComponent load Error]', err);
-        this.errorMessage.set(err.message || 'Không thể tải danh sách hồ sơ sinh viên từ API.');
+        this.errorMessage.set('Không thể tải danh sách hồ sơ sinh viên. Vui lòng thử lại sau.');
         this.isLoading.set(false);
       },
     });
@@ -224,7 +227,7 @@ export class AdminStudentsComponent implements OnInit {
         this.loadAllocationStats();
       },
       error: (err: Error) => {
-        alert(err.message || 'Lỗi khi tạo mới hồ sơ sinh viên.');
+        alert('Không thể tạo hồ sơ sinh viên. Vui lòng thử lại sau.');
       },
     });
   }
@@ -281,7 +284,7 @@ export class AdminStudentsComponent implements OnInit {
         this.loadStudents();
       },
       error: (err: Error) => {
-        alert(err.message || 'Lỗi khi cập nhật hồ sơ sinh viên.');
+        alert('Không thể cập nhật hồ sơ sinh viên. Vui lòng thử lại sau.');
       },
     });
   }
@@ -305,7 +308,7 @@ export class AdminStudentsComponent implements OnInit {
         }
         this.isAllocateModalOpen.set(true);
       },
-      error: (err: Error) => alert(err.message || 'Lỗi khi tải danh sách giường trống.'),
+      error: () => alert('Không thể tải danh sách giường trống. Vui lòng thử lại sau.'),
     });
   }
 
@@ -335,7 +338,7 @@ export class AdminStudentsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert(err.message || 'Lỗi khi phân bổ giường.');
+        alert('Không thể phân bổ giường. Vui lòng thử lại sau.');
       },
     });
   }
@@ -357,7 +360,7 @@ export class AdminStudentsComponent implements OnInit {
         }
         this.isTransferModalOpen.set(true);
       },
-      error: (err: Error) => alert(err.message || 'Lỗi khi tải danh sách giường trống.'),
+      error: () => alert('Không thể tải danh sách giường trống. Vui lòng thử lại sau.'),
     });
   }
 
@@ -387,7 +390,7 @@ export class AdminStudentsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert(err.message || 'Lỗi khi chuyển giường.');
+        alert('Không thể điều chuyển giường. Vui lòng thử lại sau.');
       },
     });
   }
@@ -410,7 +413,7 @@ export class AdminStudentsComponent implements OnInit {
         this.loadStudents();
         this.loadAllocationStats();
       },
-      error: (err: Error) => alert(err.message || 'Lỗi khi thực hiện trả phòng.'),
+      error: () => alert('Không thể hoàn tất thủ tục trả phòng. Vui lòng thử lại sau.'),
     });
   }
 

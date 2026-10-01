@@ -8,11 +8,15 @@ import {
   NotificationCategory,
   NotificationPriority,
 } from '../../../core/models/notification.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideBell, lucideCheckCheck, lucideSearch, lucideX } from '@ng-icons/lucide';
+import { catchError, finalize, of } from 'rxjs';
 
 @Component({
   selector: 'app-client-notifications',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIcon],
+  providers: [provideIcons({ lucideBell, lucideCheckCheck, lucideSearch, lucideX })],
   templateUrl: './client-notifications.component.html',
   styleUrl: './client-notifications.component.css',
 })
@@ -28,6 +32,7 @@ export class ClientNotificationsComponent implements OnInit {
   limit = 10;
   totalPages = 1;
   totalItems = 0;
+  errorMessage = '';
 
   // Modal xem chi tiết
   isDetailOpen = false;
@@ -39,6 +44,7 @@ export class ClientNotificationsComponent implements OnInit {
 
   loadNotifications(): void {
     this.isLoading = true;
+    this.errorMessage = '';
     this.notifService
       .getNotifications({
         category: (this.selectedCategory as NotificationCategory) || '',
@@ -46,9 +52,22 @@ export class ClientNotificationsComponent implements OnInit {
         page: this.page,
         limit: this.limit,
       })
+      .pipe(
+        catchError((err) => {
+          console.error('Lỗi khi tải thông báo:', err);
+          return of({
+            success: false,
+            message: 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.',
+            data: [] as NotificationItem[],
+            pagination: { total: 0, page: this.page, limit: this.limit, totalPages: 1 },
+          });
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
       .subscribe({
         next: (res) => {
-          this.isLoading = false;
           if (res.success) {
             this.notifications = res.data;
             if (res.pagination) {
@@ -56,11 +75,21 @@ export class ClientNotificationsComponent implements OnInit {
               this.totalPages = res.pagination.totalPages;
               this.page = res.pagination.page;
             }
+          } else {
+            this.notifications = [];
+            this.totalItems = 0;
+            this.totalPages = 1;
+            this.errorMessage = res.message || 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
           }
+          this.isLoading = false;
         },
         error: (err) => {
-          this.isLoading = false;
           console.error('Lỗi khi tải thông báo:', err);
+          this.notifications = [];
+          this.totalItems = 0;
+          this.totalPages = 1;
+          this.errorMessage = 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
+          this.isLoading = false;
         },
       });
   }

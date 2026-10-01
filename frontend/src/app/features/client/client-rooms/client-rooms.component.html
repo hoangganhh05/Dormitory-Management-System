@@ -1,122 +1,163 @@
-<div class="container rooms-page">
-  <!-- Page Header -->
-  <div class="rooms-header">
-    <div>
-      <h1 class="page-title">Tra Cứu Phòng Ký Túc Xá</h1>
-      <p class="page-subtitle">Xem danh sách các phòng còn chỗ trống, cơ sở vật chất và mức phí theo từng khu tòa nhà.</p>
-    </div>
-    <button class="reload-btn" (click)="reload()" title="Tải lại danh sách">
-      <span>🔄</span> Làm mới
-    </button>
-  </div>
-
-  <!-- Filter Bar -->
-  <div class="filter-card">
-    <div class="filter-group">
-      <label>Khu Tòa Nhà</label>
-      <select [ngModel]="selectedBuilding()" (ngModelChange)="selectedBuilding.set($event)">
-        <option value="ALL">Tất cả khu tòa</option>
-        <option value="Tòa A">Tòa A (Khu Nam)</option>
-        <option value="Tòa B">Tòa B (Khu Nữ)</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label>Loại Phòng</label>
-      <select [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event)">
-        <option value="ALL">Tất cả loại phòng</option>
-        <option value="STANDARD">Tiêu chuẩn (4 người)</option>
-        <option value="VIP">Phòng VIP (2 người - Điều hòa)</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label>Trạng Thái</label>
-      <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
-        <option value="ALL">Tất cả trạng thái</option>
-        <option value="AVAILABLE">Còn giường trống</option>
-        <option value="FULL">Đã kín phòng</option>
-        <option value="MAINTENANCE">Đang bảo trì</option>
-      </select>
-    </div>
-
-    <div class="filter-actions">
-      <button class="reset-filter-btn" (click)="resetFilters()">Đặt lại</button>
-    </div>
-  </div>
-
-  <!-- 1. LOADING STATE -->
-  <div class="state-container loading-state" *ngIf="isLoading()">
-    <div class="spinner"></div>
-    <p>Đang tải danh sách phòng ký túc xá...</p>
-  </div>
-
-  <!-- 2. ERROR STATE -->
-  <div class="state-container error-state" *ngIf="hasError() && !isLoading()">
-    <div class="state-icon">⚠️</div>
-    <h3>Không thể kết nối đến máy chủ</h3>
-    <p>{{ errorMessage() || 'Đã xảy ra lỗi khi tải dữ liệu phòng. Vui lòng thử lại sau.' }}</p>
-    <button class="retry-btn" (click)="reload()">Thử lại</button>
-  </div>
-
-  <!-- 3. EMPTY STATE -->
-  <div class="state-container empty-state" *ngIf="!isLoading() && !hasError() && filteredRooms().length === 0">
-    <div class="state-icon">🔍</div>
-    <h3>Không tìm thấy phòng phù hợp</h3>
-    <p>Không có phòng nào thỏa mãn tiêu chí bộ lọc đã chọn. Bạn hãy thử điều chỉnh lại điều kiện tìm kiếm.</p>
-    <button class="retry-btn" (click)="resetFilters()">Xem tất cả phòng</button>
-  </div>
-
-  <!-- 4. SUCCESS / CONTENT STATE: Rooms Grid -->
-  <div class="rooms-grid" *ngIf="!isLoading() && !hasError() && filteredRooms().length > 0">
-    <div *ngFor="let room of filteredRooms()" class="room-card" [class.full]="room.status === 'FULL'">
-      <div class="room-card-header">
-        <div class="room-title-box">
-          <span class="room-num">{{ room.roomNumber }}</span>
-          <span class="room-bldg">{{ room.building }} - Tầng {{ room.floor }}</span>
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 rooms-page">
+  <div class="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm w-full rooms-container-card">
+    <!-- Page Header -->
+    <div class="rooms-header">
+      <div class="rooms-header-content">
+        <div class="breadcrumb">
+          <a routerLink="/client/dashboard" class="breadcrumb-link">Trang chủ</a>
+          <span class="sep">/</span>
+          <span class="current">Tra cứu phòng</span>
         </div>
-        <span class="room-type-badge" [class.vip]="room.roomType === 'VIP'">
-          {{ room.roomType === 'VIP' ? '★ VIP' : 'Tiêu chuẩn' }}
-        </span>
+        <h1 class="page-title">Tra Cứu Phòng Ký Túc Xá</h1>
+        <p class="page-subtitle">Xem danh sách các phòng còn chỗ trống, cơ sở vật chất và mức phí theo từng khu tòa nhà.</p>
       </div>
-
-      <!-- Capacity & Occupancy -->
-      <div class="occupancy-box">
-        <div class="occ-meta">
-          <span>Tình trạng:</span>
-          <strong>{{ room.currentOccupancy }} / {{ room.capacity }} chỗ đã có người</strong>
+      <div class="rooms-header-actions">
+        <div class="view-toggle" role="group" aria-label="Chuyển chế độ xem phòng">
+          <button
+            type="button"
+            class="view-toggle-btn"
+            [class.active]="viewMode() === '2d'"
+            [attr.aria-pressed]="viewMode() === '2d'"
+            (click)="setViewMode('2d')"
+          >
+            Chế độ danh sách (2D)
+          </button>
+          <button
+            type="button"
+            class="view-toggle-btn"
+            [class.active]="viewMode() === '3d'"
+            [attr.aria-pressed]="viewMode() === '3d'"
+            (click)="setViewMode('3d')"
+          >
+            Mô hình 3D KTX (Three.js)
+          </button>
         </div>
-        <div class="occ-bar-bg">
-          <div class="occ-bar-fill" [style.width.%]="(room.currentOccupancy / room.capacity) * 100"></div>
-        </div>
-        <span class="occ-tag" [ngClass]="room.status.toLowerCase()">
-          {{ room.status === 'AVAILABLE' ? 'Còn ' + (room.capacity - room.currentOccupancy) + ' giường trống' : (room.status === 'FULL' ? 'Phòng đã kín' : 'Đang bảo trì') }}
-        </span>
-      </div>
-
-      <!-- Price -->
-      <div class="price-box">
-        <span class="price-val">{{ room.pricePerMonth | number }} đ</span>
-        <span class="price-unit">/ sinh viên / tháng</span>
-      </div>
-
-      <!-- Amenities -->
-      <div class="amenities-box">
-        <span class="amenity-pill" *ngFor="let am of room.amenities">✓ {{ am }}</span>
-      </div>
-
-      <!-- Action Button -->
-      <div class="room-card-footer">
-        <a *ngIf="room.status === 'AVAILABLE'" routerLink="/client/register-room" class="btn-register-room">
-          Đăng ký phòng này <span>→</span>
-        </a>
-        <button *ngIf="room.status === 'FULL'" class="btn-disabled" disabled>
-          Đã hết chỗ
-        </button>
-        <button *ngIf="room.status === 'MAINTENANCE'" class="btn-disabled maintenance" disabled>
-          Đang tạm dừng bảo trì
+        <button class="reload-btn" (click)="reload()" title="Tải lại danh sách">
+          <ng-icon name="lucideRefreshCw" size="16"></ng-icon> Làm mới
         </button>
       </div>
     </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-card mb-6 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="filter-controls-grid grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="filter-group">
+          <label>Khu Tòa Nhà</label>
+          <select [ngModel]="selectedBuilding()" (ngModelChange)="selectedBuilding.set($event)">
+            <option value="ALL">Tất cả khu tòa</option>
+            <option value="Tòa A">Tòa A (Khu Nam)</option>
+            <option value="Tòa B">Tòa B (Khu Nữ)</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Loại Phòng</label>
+          <select [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event)">
+            <option value="ALL">Tất cả loại phòng</option>
+            <option value="STANDARD">Tiêu chuẩn (4 người)</option>
+            <option value="VIP">Phòng VIP (2 người - Điều hòa)</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Trạng Thái</label>
+          <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+            <option value="ALL">Tất cả trạng thái</option>
+            <option value="AVAILABLE">Còn giường trống</option>
+            <option value="FULL">Đã kín phòng</option>
+            <option value="MAINTENANCE">Đang bảo trì</option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+          <button class="reset-filter-btn h-10 w-full rounded-lg border border-slate-200 text-sm font-medium hover:bg-slate-50" (click)="resetFilters()">Đặt lại</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. LOADING STATE -->
+    <div class="state-container loading-state" *ngIf="isLoading()">
+      <div class="spinner"></div>
+      <p>Đang tải danh sách phòng ký túc xá...</p>
+    </div>
+
+    <!-- 2. ERROR STATE -->
+    <div class="state-container error-state" *ngIf="hasError() && !isLoading()">
+      <ng-icon name="lucideAlertTriangle" size="22" class="state-icon"></ng-icon>
+      <h3>Không thể kết nối đến máy chủ</h3>
+      <p>{{ errorMessage() || 'Đã xảy ra lỗi khi tải dữ liệu phòng. Vui lòng thử lại sau.' }}</p>
+      <button class="retry-btn" (click)="reload()">Thử lại</button>
+    </div>
+
+    <!-- 3. EMPTY STATE -->
+    <div class="state-container empty-state" *ngIf="!isLoading() && !hasError() && filteredRooms().length === 0">
+      <ng-icon name="lucideSearch" size="22" class="state-icon"></ng-icon>
+      <h3>Không tìm thấy phòng phù hợp</h3>
+      <p>Không có phòng nào thỏa mãn tiêu chí bộ lọc đã chọn. Bạn hãy thử điều chỉnh lại điều kiện tìm kiếm.</p>
+      <button class="retry-btn" (click)="resetFilters()">Xem tất cả phòng</button>
+    </div>
+
+    <ng-template #threeViewerHost></ng-template>
+    <div class="three-viewer-loading" *ngIf="viewMode() === '3d' && is3dViewerLoading()">
+      Đang tải mô hình 3D KTX...
+    </div>
+
+    <!-- 4. SUCCESS / CONTENT STATE -->
+    <ng-container *ngIf="!isLoading() && !hasError() && filteredRooms().length > 0">
+      <!-- Existing 2D rooms grid -->
+      <div class="rooms-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-6" *ngIf="viewMode() === '2d'">
+        <div *ngFor="let room of filteredRooms()" class="room-card h-full bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between hover:border-slate-300 hover:shadow-sm transition-all" [class.full]="room.status === 'FULL'">
+        <div class="space-y-4 flex-1">
+          <div class="room-card-header">
+            <div class="room-title-box">
+              <span class="room-num text-lg font-bold text-slate-900">{{ room.roomNumber }}</span>
+              <span class="room-bldg text-xs text-slate-500">{{ room.building }} - Tầng {{ room.floor }}</span>
+            </div>
+            <span class="room-type-badge" [class.vip]="room.roomType === 'VIP'">
+              {{ room.roomType === 'VIP' ? 'Chất lượng cao' : 'Tiêu chuẩn' }}
+            </span>
+          </div>
+
+          <!-- Capacity & Occupancy -->
+          <div class="occupancy-box">
+            <div class="occ-meta">
+              <span>Tình trạng:</span>
+              <strong>{{ room.currentOccupancy }} / {{ room.capacity }} chỗ đã có người</strong>
+            </div>
+            <div class="occ-bar-bg">
+              <div class="occ-bar-fill" [style.width.%]="(room.currentOccupancy / room.capacity) * 100"></div>
+            </div>
+            <span class="occ-tag text-emerald-600 text-xs font-medium" [ngClass]="room.status.toLowerCase()">
+              {{ room.status === 'AVAILABLE' ? 'Còn ' + (room.capacity - room.currentOccupancy) + ' giường trống' : (room.status === 'FULL' ? 'Phòng đã kín' : 'Đang bảo trì') }}
+            </span>
+          </div>
+
+          <!-- Price -->
+          <div class="price-box">
+            <span class="price-val">{{ room.pricePerMonth | number }} đ</span>
+            <span class="price-unit">/ sinh viên / tháng</span>
+          </div>
+
+          <!-- Amenities -->
+          <div class="amenities-box">
+            <span class="amenity-pill text-[11px] bg-slate-100 px-2 py-0.5 rounded" *ngFor="let am of room.amenities">{{ am }}</span>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="room-card-footer mt-6 border-t border-slate-100 pt-4">
+          <a *ngIf="room.status === 'AVAILABLE'" routerLink="/client/register-room" class="btn-register-room block w-full rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700">
+            Đăng ký phòng này <span>→</span>
+          </a>
+          <button *ngIf="room.status === 'FULL'" class="btn-disabled block w-full py-2.5 text-center text-xs font-medium rounded-lg" disabled>
+            Đã hết chỗ
+          </button>
+          <button *ngIf="room.status === 'MAINTENANCE'" class="btn-disabled maintenance block w-full py-2.5 text-center text-xs font-medium rounded-lg" disabled>
+            Đang tạm dừng bảo trì
+          </button>
+        </div>
+        </div>
+      </div>
+    </ng-container>
   </div>
 </div>

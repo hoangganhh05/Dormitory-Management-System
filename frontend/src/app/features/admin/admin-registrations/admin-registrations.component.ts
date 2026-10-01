@@ -3,11 +3,40 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RegistrationService } from '../../../core/services/registration.service';
 import { Registration, RegistrationStatsSummary } from '../../../core/models/registration.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideAlertTriangle,
+  lucideBedDouble,
+  lucideCheck,
+  lucideCheckCircle,
+  lucideCircleAlert,
+  lucideFileText,
+  lucideInfo,
+  lucideRefreshCw,
+  lucideSearch,
+  lucideX,
+  lucideXCircle,
+} from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-admin-registrations',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NgIcon],
+  providers: [
+    provideIcons({
+      lucideAlertTriangle,
+      lucideBedDouble,
+      lucideCheck,
+      lucideCheckCircle,
+      lucideCircleAlert,
+      lucideFileText,
+      lucideInfo,
+      lucideRefreshCw,
+      lucideSearch,
+      lucideX,
+      lucideXCircle,
+    }),
+  ],
   templateUrl: './admin-registrations.component.html',
   styleUrl: './admin-registrations.component.css'
 })
@@ -100,7 +129,7 @@ export class AdminRegistrationsComponent implements OnInit {
       },
       error: (err: Error) => {
         console.error('[AdminRegistrationsComponent Error]', err);
-        this.errorMessage.set(err.message || 'Không thể tải danh sách đơn đăng ký.');
+        this.errorMessage.set('Không thể tải danh sách đơn đăng ký. Vui lòng thử lại sau.');
         this.isLoading.set(false);
       },
     });
@@ -149,7 +178,14 @@ export class AdminRegistrationsComponent implements OnInit {
     if (!reg) return;
 
     this.isSubmitting.set(true);
-    const targetBedId = this.selectedBedId();
+    const selectedBedId = this.selectedBedId();
+    const targetBedId = selectedBedId === null ? null : Number(selectedBedId);
+
+    if (targetBedId !== null && !Number.isInteger(targetBedId)) {
+      this.isSubmitting.set(false);
+      alert('Mã giường được chọn không hợp lệ. Vui lòng chọn lại giường.');
+      return;
+    }
 
     this.registrationService.approveRegistration(reg.id, targetBedId).subscribe({
       next: (res) => {
@@ -158,9 +194,25 @@ export class AdminRegistrationsComponent implements OnInit {
         this.showSuccess(res.message || `Đã phê duyệt đơn đăng ký #${reg.id} cho sinh viên ${reg.user?.fullName}!`);
         this.loadData();
       },
-      error: (err: Error) => {
+      error: (err: unknown) => {
         this.isSubmitting.set(false);
-        alert(err.message || 'Lỗi khi phê duyệt đơn đăng ký.');
+
+        const responseError = err as {
+          error?: { message?: unknown } | string;
+          message?: unknown;
+        };
+        const backendMessage =
+          typeof responseError.error === 'object' && responseError.error !== null
+            ? responseError.error.message
+            : responseError.error;
+        const message =
+          typeof backendMessage === 'string' && backendMessage.trim()
+            ? backendMessage
+            : typeof responseError.message === 'string' && responseError.message.trim()
+              ? responseError.message
+              : 'Không thể phê duyệt đơn đăng ký lúc này. Vui lòng thử lại sau.';
+
+        alert(message);
       },
     });
   }
@@ -205,7 +257,7 @@ export class AdminRegistrationsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert(err.message || 'Lỗi khi từ chối đơn đăng ký.');
+        alert('Không thể cập nhật quyết định cho đơn đăng ký. Vui lòng thử lại sau.');
       },
     });
   }

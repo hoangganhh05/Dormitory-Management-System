@@ -602,7 +602,6 @@
   position: fixed;
   inset: 0;
   background-color: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -869,4 +868,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Solid student administration canvas */
+.students-container { gap: 0; background: #f8fafc; }
+.page-header { padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; }
+.btn-create-student { border-radius: .5rem; box-shadow: var(--shadow-sm); }
+.alert-success, .alert-error { border-radius: .5rem; box-shadow: var(--shadow-sm); }
+.metrics-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; border: 0; padding: 0; }
+.metric-card, .metric-card.emerald, .metric-card.amber, .metric-card.blue, .metric-card.purple { align-items: stretch; border: 1px solid #e2e8f0; border-radius: .75rem; box-shadow: var(--shadow-sm); background: #fff; padding: 1rem; }
+.main-tabs-bar { border-bottom: 1px solid #f1f5f9; padding: .75rem 0 0; }
+.main-tab-btn { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; }
+.main-tab-btn.active { border-bottom-color: #0f172a; background: transparent; color: #0f172a; }
+.toolbar-card, .table-card { border: 1px solid #e2e8f0; border-radius: .75rem; box-shadow: var(--shadow-sm); background: #fff; }
+.toolbar-card { flex-direction: column; align-items: stretch; gap: 0; padding: 1rem; }
+.main-tabs-bar { padding: 0 0 .5rem; }
+.table-header-meta { padding-left: 1.5rem; padding-right: 1.5rem; }
+.table-b2b th { background: #f8fafc; }
+.table-b2b tbody tr { border-bottom: 1px solid #f1f5f9; }
+.table-b2b tbody tr:hover { background: #f8fafc; }
+.table-b2b th { padding: .875rem 1.5rem; }
+.table-b2b td { padding: 1rem 1.5rem; }
+.btn-action { border: 1px solid #e2e8f0; border-radius: .375rem; background: #fff; padding-left: .75rem; padding-right: .75rem; }
+.btn-action:hover { background: #f8fafc; }
+.badge, .code-pill, .room-pill { border-radius: .375rem; }
+.empty-state { border: 1px solid #e2e8f0; border-radius: .75rem; }
+
+@media (min-width: 640px) {
+  .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 768px) {
+  .metrics-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1280px) {
+  .metrics-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }

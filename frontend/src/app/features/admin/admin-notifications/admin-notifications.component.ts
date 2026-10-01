@@ -12,11 +12,15 @@ import {
   CreateNotificationDto,
   UpdateNotificationDto,
 } from '../../../core/models/notification.model';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideAlertTriangle, lucideBell, lucideCheck, lucideEye, lucideFileText, lucidePencil, lucidePin, lucidePlus, lucideSearch, lucideTrash2, lucideX } from '@ng-icons/lucide';
+import { catchError, finalize, of } from 'rxjs';
 
 @Component({
   selector: 'app-admin-notifications',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIcon],
+  providers: [provideIcons({ lucideAlertTriangle, lucideBell, lucideCheck, lucideEye, lucideFileText, lucidePencil, lucidePin, lucidePlus, lucideSearch, lucideTrash2, lucideX })],
   templateUrl: './admin-notifications.component.html',
   styleUrl: './admin-notifications.component.css',
 })
@@ -70,14 +74,30 @@ export class AdminNotificationsComponent implements OnInit {
   }
 
   loadStats(): void {
-    this.notifService.getNotificationStats().subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.stats = res.data;
-        }
-      },
-      error: (err) => console.error('Lỗi khi tải thống kê thông báo:', err),
-    });
+    this.notifService
+      .getNotificationStats()
+      .pipe(
+        catchError((err) => {
+          console.error('Lỗi khi tải thống kê thông báo:', err);
+          return of({
+            success: false,
+            data: { total: 0, published: 0, draft: 0, archived: 0, pinned: 0, urgent: 0, categories: {} } as NotificationStats,
+          });
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res?.success && res.data) {
+            this.stats = res.data;
+          } else {
+            this.stats = { total: 0, published: 0, draft: 0, archived: 0, pinned: 0, urgent: 0, categories: {} };
+          }
+        },
+        error: (err) => {
+          console.error('Lỗi loadStats subscribe:', err);
+          this.stats = { total: 0, published: 0, draft: 0, archived: 0, pinned: 0, urgent: 0, categories: {} };
+        },
+      });
   }
 
   loadNotifications(): void {
@@ -103,9 +123,22 @@ export class AdminNotificationsComponent implements OnInit {
         page: this.page,
         limit: this.limit,
       })
+      .pipe(
+        catchError((err) => {
+          console.error('Lỗi khi tải danh sách thông báo:', err);
+          return of({
+            success: false,
+            message: 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.',
+            data: [] as NotificationItem[],
+            pagination: { total: 0, page: this.page, limit: this.limit, totalPages: 1 },
+          });
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
       .subscribe({
         next: (res) => {
-          this.isLoading = false;
           if (res.success) {
             this.notifications = res.data;
             if (res.pagination) {
@@ -113,11 +146,21 @@ export class AdminNotificationsComponent implements OnInit {
               this.totalPages = res.pagination.totalPages;
               this.page = res.pagination.page;
             }
+          } else {
+            this.notifications = [];
+            this.totalItems = 0;
+            this.totalPages = 1;
+            this.errorMessage = res.message || 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
           }
+          this.isLoading = false;
         },
         error: (err) => {
+          console.error('Lỗi khi tải thông báo subscribe:', err);
+          this.notifications = [];
+          this.totalItems = 0;
+          this.totalPages = 1;
+          this.errorMessage = 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
           this.isLoading = false;
-          this.errorMessage = err.error?.message || 'Không thể tải danh sách thông báo';
         },
       });
   }
@@ -217,7 +260,7 @@ export class AdminNotificationsComponent implements OnInit {
         },
         error: (err) => {
           this.isSaving = false;
-          alert(err.error?.message || 'Lỗi khi cập nhật thông báo');
+          alert('Không thể cập nhật thông báo. Vui lòng thử lại sau.');
         },
       });
     } else {
@@ -233,7 +276,7 @@ export class AdminNotificationsComponent implements OnInit {
         },
         error: (err) => {
           this.isSaving = false;
-          alert(err.error?.message || 'Lỗi khi đăng thông báo');
+          alert('Không thể đăng thông báo. Vui lòng thử lại sau.');
         },
       });
     }
@@ -252,7 +295,7 @@ export class AdminNotificationsComponent implements OnInit {
           this.loadStats();
         }
       },
-      error: (err) => alert(err.error?.message || 'Lỗi khi thay đổi ghim'),
+      error: () => alert('Không thể thay đổi trạng thái ghim. Vui lòng thử lại sau.'),
     });
   }
 
@@ -301,7 +344,7 @@ export class AdminNotificationsComponent implements OnInit {
       },
       error: (err) => {
         this.closeDeleteConfirm();
-        alert(err.error?.message || 'Lỗi khi xóa thông báo');
+        alert('Không thể xóa thông báo. Vui lòng thử lại sau.');
       },
     });
   }
