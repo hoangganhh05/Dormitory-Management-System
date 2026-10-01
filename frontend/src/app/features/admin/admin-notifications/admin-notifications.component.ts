@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -26,6 +26,7 @@ import { catchError, finalize, of } from 'rxjs';
 })
 export class AdminNotificationsComponent implements OnInit {
   private notifService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Danh sách dữ liệu & Trạng thái tải
   notifications: NotificationItem[] = [];
@@ -92,10 +93,12 @@ export class AdminNotificationsComponent implements OnInit {
           } else {
             this.stats = { total: 0, published: 0, draft: 0, archived: 0, pinned: 0, urgent: 0, categories: {} };
           }
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Lỗi loadStats subscribe:', err);
           this.stats = { total: 0, published: 0, draft: 0, archived: 0, pinned: 0, urgent: 0, categories: {} };
+          this.cdr.markForCheck();
         },
       });
   }
@@ -103,6 +106,7 @@ export class AdminNotificationsComponent implements OnInit {
   loadNotifications(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.markForCheck();
 
     let statusParam: NotificationStatus | '' = '';
     let priorityParam: NotificationPriority | '' = '';
@@ -135,6 +139,7 @@ export class AdminNotificationsComponent implements OnInit {
         }),
         finalize(() => {
           this.isLoading = false;
+          this.cdr.markForCheck();
         }),
       )
       .subscribe({
@@ -153,6 +158,7 @@ export class AdminNotificationsComponent implements OnInit {
             this.errorMessage = res.message || 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
           }
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Lỗi khi tải thông báo subscribe:', err);
@@ -161,6 +167,7 @@ export class AdminNotificationsComponent implements OnInit {
           this.totalPages = 1;
           this.errorMessage = 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
