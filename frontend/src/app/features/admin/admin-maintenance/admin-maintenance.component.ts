@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaintenanceService } from '../../../core/services/maintenance.service';
@@ -27,6 +27,7 @@ import {
 export class AdminMaintenanceComponent implements OnInit {
   private maintenanceService = inject(MaintenanceService);
   private aiClassifier = inject(AiMaintenanceClassifierService);
+  private cdr = inject(ChangeDetectorRef);
 
   requests: MaintenanceRequest[] = [];
   stats: MaintenanceStats | null = null;
@@ -79,10 +80,12 @@ export class AdminMaintenanceComponent implements OnInit {
           } else {
             this.stats = { total: 0, pending: 0, processing: 0, resolved: 0, rejected: 0, highUrgency: 0 };
           }
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Lỗi loadStats subscribe:', err);
           this.stats = { total: 0, pending: 0, processing: 0, resolved: 0, rejected: 0, highUrgency: 0 };
+          this.cdr.markForCheck();
         },
       });
   }
@@ -90,6 +93,7 @@ export class AdminMaintenanceComponent implements OnInit {
   loadRequests(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.markForCheck();
 
     let statusParam = '';
     let urgencyParam = this.selectedUrgency;
@@ -121,6 +125,7 @@ export class AdminMaintenanceComponent implements OnInit {
         }),
         finalize(() => {
           this.isLoading = false;
+          this.cdr.markForCheck();
         }),
       )
       .subscribe({
@@ -139,6 +144,7 @@ export class AdminMaintenanceComponent implements OnInit {
             this.errorMessage = res.message || 'Không thể tải danh sách yêu cầu. Vui lòng thử lại sau.';
           }
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Lỗi loadRequests subscribe:', err);
@@ -147,6 +153,7 @@ export class AdminMaintenanceComponent implements OnInit {
           this.totalPages = 1;
           this.errorMessage = 'Không thể tải danh sách yêu cầu. Vui lòng thử lại sau.';
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -175,17 +182,20 @@ export class AdminMaintenanceComponent implements OnInit {
     this.formStatus = item.status === 'PENDING' ? 'PROCESSING' : item.status;
     this.formFeedback = item.adminFeedback || '';
     this.isModalOpen = true;
+    this.cdr.markForCheck();
   }
 
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedRequest = null;
     this.isSaving = false;
+    this.cdr.markForCheck();
   }
 
   saveProcess(): void {
     if (!this.selectedRequest) return;
     this.isSaving = true;
+    this.cdr.markForCheck();
 
     this.maintenanceService
       .updateStatus(this.selectedRequest.id, this.formStatus, this.formFeedback)
@@ -198,9 +208,11 @@ export class AdminMaintenanceComponent implements OnInit {
             this.loadRequests();
             this.loadStats();
           }
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.isSaving = false;
+          this.cdr.markForCheck();
           alert('Không thể cập nhật trạng thái. Vui lòng thử lại sau.');
         },
       });
@@ -210,11 +222,13 @@ export class AdminMaintenanceComponent implements OnInit {
   confirmDelete(item: MaintenanceRequest): void {
     this.deletingRequest = item;
     this.isDeleteConfirmOpen = true;
+    this.cdr.markForCheck();
   }
 
   closeDeleteConfirm(): void {
     this.isDeleteConfirmOpen = false;
     this.deletingRequest = null;
+    this.cdr.markForCheck();
   }
 
   executeDelete(): void {
@@ -227,9 +241,11 @@ export class AdminMaintenanceComponent implements OnInit {
           this.loadRequests();
           this.loadStats();
         }
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.closeDeleteConfirm();
+        this.cdr.markForCheck();
         alert('Không thể xóa yêu cầu lúc này. Vui lòng thử lại sau.');
       },
     });
@@ -339,8 +355,10 @@ export class AdminMaintenanceComponent implements OnInit {
 
   private showSuccess(msg: string): void {
     this.successMessage = msg;
+    this.cdr.markForCheck();
     setTimeout(() => {
       this.successMessage = '';
+      this.cdr.markForCheck();
     }, 3500);
   }
 }
