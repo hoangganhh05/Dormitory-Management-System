@@ -1,4 +1,4 @@
-<div class="mx-auto flex max-w-[1600px] flex-col gap-6">
+<div class="w-full space-y-6 pb-12">
   <!-- Page header -->
   <section class="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 lg:flex-row lg:items-end">
     <div>
@@ -12,7 +12,7 @@
     >
       <ng-icon name="lucideClipboardCheck" class="h-4 w-4"></ng-icon>
       <span>Duyệt đơn đăng ký</span>
-      <span class="border-l border-white/20 pl-2 text-xs text-slate-300">{{ stats()[2]?.value || '0 Đơn' }}</span>
+      <span class="border-l border-white/20 pl-2 text-xs text-slate-300">{{ stats()[2]?.value || '0' }} {{ stats()[2]?.unit || 'Đơn' }}</span>
     </a>
   </section>
 
@@ -33,10 +33,10 @@
   </div>
 
   <!-- KPI metrics -->
-  <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Chỉ số vận hành">
-    <article *ngFor="let item of stats()" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-slate-300">
-      <div class="mb-5 flex items-start justify-between gap-3">
-        <span class="text-xs font-medium uppercase tracking-wider text-slate-500">{{ item.label }}</span>
+  <section class="grid grid-cols-2 items-stretch gap-4 md:grid-cols-4" aria-label="Chỉ số vận hành">
+    <article *ngFor="let item of stats()" class="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs transition-colors hover:border-slate-300">
+      <div class="mb-1.5 flex items-start justify-between gap-3">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{{ item.label }}</span>
         <span class="text-slate-500">
           <ng-container [ngSwitch]="item.label">
             <ng-icon *ngSwitchCase="'Tổng số phòng KTX'" name="lucideBuilding2" class="h-5 w-5"></ng-icon>
@@ -46,8 +46,11 @@
           </ng-container>
         </span>
       </div>
-      <p class="text-2xl font-bold tracking-tight text-slate-900">{{ item.value }}</p>
-      <p class="mt-2 text-xs text-slate-500">{{ item.sub }}</p>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="text-2xl font-bold tracking-tight text-slate-900">{{ item.value }}</span>
+        <span class="text-sm font-medium text-slate-500">{{ item.unit }}</span>
+      </div>
+      <p class="mt-2 truncate text-[11px] text-slate-400">{{ item.sub }}</p>
     </article>
   </section>
 
@@ -55,7 +58,7 @@
   <section class="grid grid-cols-1 gap-6 xl:grid-cols-12">
     <!-- Operational tables -->
     <div class="space-y-6 xl:col-span-8">
-      <article class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <article class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div class="flex flex-col justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center">
           <div>
             <div class="flex items-center gap-2">
@@ -74,21 +77,21 @@
           <table class="min-w-full text-left text-sm">
             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-600">
               <tr>
-                <th class="whitespace-nowrap px-5 py-3">Sinh viên</th>
-                <th class="whitespace-nowrap px-5 py-3">Mã sinh viên</th>
-                <th class="whitespace-nowrap px-5 py-3">Phòng đăng ký</th>
-                <th class="whitespace-nowrap px-5 py-3">Thời gian</th>
-                <th class="whitespace-nowrap px-5 py-3">Trạng thái</th>
-                <th class="whitespace-nowrap px-5 py-3 text-right">Thao tác</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Sinh viên</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Mã sinh viên</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Phòng đăng ký</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Thời gian</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Trạng thái</th>
+                <th class="whitespace-nowrap px-6 py-3.5 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr *ngFor="let reg of recentRegistrations()" class="transition-colors hover:bg-slate-50/70">
-                <td class="whitespace-nowrap px-5 py-3.5 font-medium text-slate-900">{{ reg.student }}</td>
-                <td class="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-slate-600">{{ reg.code }}</td>
-                <td class="whitespace-nowrap px-5 py-3.5 text-slate-600">{{ reg.room }}</td>
-                <td class="whitespace-nowrap px-5 py-3.5 text-xs text-slate-500">{{ reg.date }}</td>
-                <td class="whitespace-nowrap px-5 py-3.5">
+              <tr *ngFor="let reg of recentRegistrations()" class="transition-colors hover:bg-slate-50">
+                <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ reg.student }}</td>
+                <td class="whitespace-nowrap px-6 py-4 font-mono text-xs text-slate-600">{{ reg.code }}</td>
+                <td class="whitespace-nowrap px-6 py-4 text-slate-600">{{ reg.room }}</td>
+                <td class="whitespace-nowrap px-6 py-4 text-xs text-slate-500">{{ reg.date }}</td>
+                <td class="whitespace-nowrap px-6 py-4">
                   <span
                     class="inline-flex rounded-full border px-2 py-0.5 text-xs font-medium"
                     [ngClass]="{
@@ -100,7 +103,7 @@
                     {{ reg.status === 'PENDING' ? 'Chờ duyệt' : reg.status === 'APPROVED' ? 'Đã duyệt' : 'Từ chối' }}
                   </span>
                 </td>
-                <td class="whitespace-nowrap px-5 py-3.5 text-right">
+                <td class="whitespace-nowrap px-6 py-4 text-right">
                   <a routerLink="/admin/registrations" class="text-xs font-medium text-blue-600 transition-colors hover:text-blue-800">Xét duyệt</a>
                 </td>
               </tr>
@@ -113,7 +116,7 @@
         </div>
       </article>
 
-      <article class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <article class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div class="flex flex-col justify-between gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center">
           <div>
             <div class="flex items-center gap-2">
@@ -132,18 +135,18 @@
           <table class="min-w-full text-left text-sm">
             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-600">
               <tr>
-                <th class="whitespace-nowrap px-5 py-3">Vị trí</th>
-                <th class="whitespace-nowrap px-5 py-3">Nội dung sự cố</th>
-                <th class="whitespace-nowrap px-5 py-3">Mức độ</th>
-                <th class="whitespace-nowrap px-5 py-3">Trạng thái</th>
-                <th class="whitespace-nowrap px-5 py-3">Thời gian</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Vị trí</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Nội dung sự cố</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Mức độ</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Trạng thái</th>
+                <th class="whitespace-nowrap px-6 py-3.5">Thời gian</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr *ngFor="let issue of recentIssues()" class="transition-colors hover:bg-slate-50/70">
-                <td class="whitespace-nowrap px-5 py-3.5 font-medium text-slate-900">{{ issue.room }}</td>
-                <td class="min-w-48 px-5 py-3.5 text-slate-600">{{ issue.title }}</td>
-                <td class="whitespace-nowrap px-5 py-3.5">
+              <tr *ngFor="let issue of recentIssues()" class="transition-colors hover:bg-slate-50">
+                <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ issue.room }}</td>
+                <td class="min-w-48 px-6 py-4 text-slate-600">{{ issue.title }}</td>
+                <td class="whitespace-nowrap px-6 py-4">
                   <span
                     class="inline-flex rounded-full border px-2 py-0.5 text-xs font-medium"
                     [ngClass]="{
@@ -155,7 +158,7 @@
                     {{ issue.urgency === 'HIGH' ? 'Khẩn cấp' : issue.urgency === 'MEDIUM' ? 'Bình thường' : 'Thấp' }}
                   </span>
                 </td>
-                <td class="whitespace-nowrap px-5 py-3.5">
+                <td class="whitespace-nowrap px-6 py-4">
                   <span
                     class="inline-flex rounded-full border px-2 py-0.5 text-xs font-medium"
                     [ngClass]="{
@@ -168,7 +171,7 @@
                     {{ issue.status === 'PENDING' ? 'Chờ tiếp nhận' : issue.status === 'PROCESSING' ? 'Đang xử lý' : issue.status === 'RESOLVED' ? 'Hoàn thành' : 'Từ chối' }}
                   </span>
                 </td>
-                <td class="whitespace-nowrap px-5 py-3.5 text-xs text-slate-500">{{ issue.date }}</td>
+                <td class="whitespace-nowrap px-6 py-4 text-xs text-slate-500">{{ issue.date }}</td>
               </tr>
             </tbody>
           </table>
@@ -182,7 +185,7 @@
 
     <!-- Occupancy analytics -->
     <aside class="xl:col-span-4">
-      <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="mb-6 flex items-start justify-between gap-4">
           <div>
             <h2 class="text-sm font-semibold text-slate-900">Công suất theo tòa</h2>

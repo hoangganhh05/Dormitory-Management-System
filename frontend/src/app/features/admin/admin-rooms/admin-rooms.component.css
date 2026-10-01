@@ -645,7 +645,6 @@
   position: fixed;
   inset: 0;
   background-color: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1010,30 +1009,302 @@
   border-color: #fde68a;
 }
 
-/* Seamless canvas overrides: the working area is intentionally flat and full width. */
-.rooms-container { gap: 0; background: #fff; }
+/* Solid enterprise canvas and card surfaces. */
+.rooms-container { gap: 1.5rem; background: #f8fafc; padding: 0; }
 .page-header { padding: 0 0 1.25rem; border-bottom-color: #f1f5f9; }
 .page-title { font-size: 1.5rem; }
-.btn-create-room { border-radius: 0; box-shadow: none; }
-.alert-success, .alert-error { border-radius: 0; box-shadow: none; }
-.metrics-grid { gap: 0; border-bottom: 1px solid #f1f5f9; padding: 1.25rem 0; }
-.metric-card { border: 0; border-radius: 0; box-shadow: none; padding: 0 1rem; border-right: 1px solid #f1f5f9; }
-.metric-card:first-child { padding-left: 0; }
-.metric-card:last-child { border-right: 0; }
+.btn-create-room { border-radius: .5rem; box-shadow: var(--shadow-sm); }
+.alert-success, .alert-error { border-radius: .5rem; box-shadow: var(--shadow-sm); }
+.metrics-grid { gap: 1rem; border: 0; padding: 0; }
+.metric-card { border: 1px solid #e2e8f0; border-radius: .75rem; box-shadow: var(--shadow-sm); background: #fff; padding: 1.5rem; }
+.metric-card:first-child, .metric-card:last-child { padding-left: 1.5rem; padding-right: 1.5rem; }
 .metric-icon { display: none; }
 .metric-value { letter-spacing: -0.02em; }
 .building-chips-row { border-bottom: 1px solid #f1f5f9; padding: 1rem 0; }
-.building-card { border: 0; border-radius: 0; background: transparent; padding: 0; }
-.toolbar-card { border: 0; border-radius: 0; background: #fff; padding: 1rem 0; border-bottom: 1px solid #f1f5f9; }
-.table-card { border: 0; border-radius: 0; box-shadow: none; }
-.table-header-meta { padding-left: 0; padding-right: 0; }
-.table-b2b th, .table-b2b td { padding-left: .75rem; padding-right: .75rem; }
-.table-b2b th:first-child, .table-b2b td:first-child { padding-left: 0; }
-.table-b2b th:last-child, .table-b2b td:last-child { padding-right: 0; }
-.room-pill { border: 0; border-radius: 0; background: transparent; padding-left: 0; padding-right: 0; }
-.badge, .btn-table-action, .btn-reset, .btn-reset-empty { border-radius: .125rem; }
-.action-btn-group { gap: 0; }
-.btn-table-action { border: 0; background: transparent; padding-left: .5rem; padding-right: .5rem; }
-.btn-table-action.primary, .btn-table-action.secondary, .btn-table-action.accent-orange, .btn-table-action.accent-green, .btn-table-action.danger { background: transparent; border-color: transparent; }
-.btn-table-action:hover { background: transparent; text-decoration: underline; }
+.building-card { border: 1px solid #e2e8f0; border-radius: .75rem; background: #fff; padding: 1rem; box-shadow: var(--shadow-sm); }
+.toolbar-card { border: 1px solid #e2e8f0; border-radius: .75rem; background: #fff; padding: 1rem; box-shadow: var(--shadow-sm); }
+.table-card { border: 1px solid #e2e8f0; border-radius: .75rem; box-shadow: var(--shadow-sm); background: #fff; }
+.table-header-meta { padding-left: 1.5rem; padding-right: 1.5rem; }
+.table-b2b th, .table-b2b td { padding-left: 1.5rem; padding-right: 1.5rem; }
+.room-pill { border: 1px solid #e2e8f0; border-radius: .375rem; background: #f8fafc; padding-left: .5rem; padding-right: .5rem; }
+.badge, .btn-table-action, .btn-reset, .btn-reset-empty { border-radius: .375rem; }
+.action-btn-group { gap: .5rem; }
+.btn-table-action { border: 1px solid #e2e8f0; background: #fff; padding-left: .75rem; padding-right: .75rem; }
+.btn-table-action:hover { background: #f8fafc; }
 .empty-icon { color: #94a3b8; font-size: 1.5rem; }
+
+/* Room directory refinement: segmented building filter and enterprise table toolbar. */
+.rooms-container {
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: transparent;
+}
+
+.building-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.building-filter-label {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.building-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.building-filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.building-filter-tab:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.building-filter-tab.active {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.building-filter-count {
+  color: #047857;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.toolbar-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 0;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  border-radius: 0.75rem;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.rooms-container .toolbar-card {
+  padding: 1rem !important;
+  background: #ffffff !important;
+}
+
+.toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.toolbar-controls .search-box {
+  flex: 1 1 220px;
+  min-width: 220px;
+}
+
+.toolbar-controls .filter-group {
+  flex: 0 1 auto;
+}
+
+.toolbar-controls .search-input,
+.toolbar-controls .filter-select,
+.toolbar-controls .btn-reset {
+  height: 2.5rem;
+}
+
+.toolbar-controls .search-input,
+.toolbar-controls .filter-select {
+  border-radius: 0.5rem;
+  border-color: #e2e8f0;
+  background: #ffffff;
+  font-size: 0.875rem;
+}
+
+.toolbar-controls .filter-select {
+  min-width: 9.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.toolbar-controls .btn-reset {
+  padding: 0 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.toolbar-controls .btn-reset:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.table-card {
+  overflow: hidden;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.rooms-container .table-card {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  background: #ffffff !important;
+  border-radius: 1rem !important;
+}
+
+.table-header-meta {
+  min-height: 3.75rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-b2b th,
+.table-b2b td {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.table-b2b th:first-child,
+.table-b2b td:first-child {
+  padding-left: 1.5rem;
+}
+
+.table-b2b th:last-child,
+.table-b2b td:last-child {
+  padding-right: 1.5rem;
+}
+
+.table-b2b tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-b2b tbody tr:last-child {
+  border-bottom: 0;
+}
+
+/* KPI cards: generous breathing room and consistent equal-height layout. */
+.metrics-grid {
+  align-items: stretch;
+}
+
+.rooms-container .metric-card,
+.rooms-container .kpi-card {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+  min-height: 9.5rem;
+  padding: 1rem !important;
+  gap: 0.75rem;
+}
+
+.rooms-container .metric-title {
+  margin-bottom: 0.375rem;
+  color: #64748b;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.rooms-container .metric-value,
+.rooms-container .kpi-value {
+  color: #0f172a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.rooms-container .metric-value .unit {
+  margin-left: 0.375rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  vertical-align: baseline;
+}
+
+.rooms-container .metric-sub {
+  margin-top: 0.5rem;
+  color: #94a3b8;
+  font-size: 0.6875rem;
+  line-height: 1.35;
+}
+
+.rooms-container .occupancy-progress-bar {
+  width: 100%;
+  height: 0.375rem;
+  margin-top: 0.75rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: #f1f5f9;
+}
+
+@media (min-width: 640px) {
+  .rooms-container .metric-card,
+  .rooms-container .kpi-card {
+    padding: 1rem !important;
+  }
+
+  .rooms-container .metric-value,
+  .rooms-container .kpi-value {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .rooms-container {
+    padding: 1rem;
+  }
+
+  .building-filter,
+  .toolbar-controls,
+  .toolbar-controls .filter-group {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar-controls .search-box,
+  .toolbar-controls .filter-group,
+  .toolbar-controls .select-wrapper,
+  .toolbar-controls .filter-select,
+  .toolbar-controls .btn-reset {
+    width: 100%;
+  }
+
+  .building-filter-tabs {
+    width: 100%;
+  }
+}

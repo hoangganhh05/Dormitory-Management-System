@@ -1,4 +1,4 @@
-<div class="flex h-screen overflow-hidden bg-white text-slate-800">
+<div class="admin-shell pointer-events-auto flex h-screen overflow-hidden bg-slate-50 text-slate-800">
   <!-- Mobile backdrop -->
   <div
     *ngIf="isMobileSidebarOpen()"
@@ -213,16 +213,18 @@
         </div>
       </div>
 
-      <a
-        routerLink="/admin/notifications"
-        class="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        title="Xem thông báo"
-      >
-        <ng-icon name="lucideBell" class="h-[18px] w-[18px]"></ng-icon>
-      </a>
+      <div class="pointer-events-auto flex items-center gap-2">
+        <a
+          routerLink="/admin/notifications"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+          title="Xem thông báo"
+        >
+          <ng-icon name="lucideBell" class="h-[18px] w-[18px]"></ng-icon>
+        </a>
+      </div>
     </header>
 
-    <main class="min-w-0 flex-1 overflow-y-auto bg-white p-4 md:p-6 xl:p-8">
+    <main class="min-w-0 flex-1 overflow-y-auto bg-slate-50 p-4 md:p-6 xl:p-8">
       <router-outlet></router-outlet>
     </main>
   </div>

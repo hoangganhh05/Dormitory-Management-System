@@ -246,11 +246,11 @@ input:focus, select:focus, textarea:focus {
   font-size: 13px;
 }
 
-/* Subtle service cards on a slate-50 workspace */
+/* Solid service cards on a slate-50 workspace */
 .maintenance-page { background: transparent; }
 .page-header { border-bottom: 1px solid #f1f5f9; padding-bottom: 1.25rem; margin-bottom: 0; }
 .maintenance-grid { gap: 1.5rem; }
-.maint-card { border: 1px solid rgba(226, 232, 240, 0.6); border-radius: .75rem; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); padding: 1.5rem; }
+.maint-card { border: 1px solid #e2e8f0; border-radius: .75rem; background: #fff; box-shadow: 0 1px 2px rgb(15 23 42 / .05); padding: 1.5rem; }
 .maint-card + .maint-card { padding-top: 1.5rem; }
 .alert-success, .alert-error { border-radius: 0; box-shadow: none; display: flex; align-items: center; gap: .5rem; }
 .request-list { gap: 0; }

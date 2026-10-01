@@ -1,0 +1,47 @@
+<div #viewerHost class="dormitory-3d-viewer">
+  <canvas #canvas3d class="dormitory-3d-canvas" aria-label="Mô hình 3D phòng ký túc xá"></canvas>
+
+  <div class="viewer-toolbar">
+    <span class="viewer-caption">Mô hình 3D KTX</span>
+    <span class="viewer-hint">Kéo để xoay · Cuộn để phóng to · Nhấp vào phòng để xem chi tiết</span>
+  </div>
+
+  <div class="viewer-hover-card" *ngIf="hoveredRoom() as room">
+    <strong>Phòng {{ room.roomNumber }}</strong>
+    <span>{{ statusLabel(room.status) }}</span>
+  </div>
+
+  <aside class="room-detail-card" *ngIf="selectedRoom() as room" aria-live="polite">
+    <button type="button" class="room-detail-close" (click)="closeRoomDetails()" aria-label="Đóng thông tin phòng">×</button>
+    <span class="detail-eyebrow">{{ room.building }} · Tầng {{ room.floor }}</span>
+    <h2>Phòng {{ room.roomNumber }}</h2>
+    <span class="detail-type">{{ room.roomType === 'VIP' ? 'Chất lượng cao' : 'Tiêu chuẩn' }}</span>
+
+    <dl class="room-detail-list">
+      <div>
+        <dt>Tình trạng</dt>
+        <dd>{{ statusLabel(room.status) }}</dd>
+      </div>
+      <div>
+        <dt>Chỗ trống</dt>
+        <dd>{{ availableBeds(room) }} / {{ room.capacity }}</dd>
+      </div>
+      <div>
+        <dt>Chi phí</dt>
+        <dd>{{ room.pricePerMonth | number }} đ / tháng</dd>
+      </div>
+    </dl>
+
+    <a routerLink="/client/register-room" class="register-room-link" [class.disabled-link]="room.status !== 'AVAILABLE'" [attr.aria-disabled]="room.status !== 'AVAILABLE' ? 'true' : null">
+      {{ room.status === 'AVAILABLE' ? 'Đăng ký phòng này' : 'Phòng chưa thể đăng ký' }}
+    </a>
+  </aside>
+
+  <div class="viewer-error" *ngIf="viewerError()">
+    {{ viewerError() }}
+  </div>
+
+  <div class="viewer-empty" *ngIf="rooms.length === 0 && !viewerError()">
+    Chưa có dữ liệu phòng để hiển thị mô hình 3D.
+  </div>
+</div>

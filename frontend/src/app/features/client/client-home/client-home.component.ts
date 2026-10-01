@@ -23,6 +23,7 @@ import {
   lucideX,
   lucideAlertCircle,
 } from '@ng-icons/lucide';
+import { catchError, finalize, of } from 'rxjs';
 
 @Component({
   selector: 'app-client-home',
@@ -115,18 +116,32 @@ export class ClientHomeComponent implements OnInit {
 
   loadAnnouncements(): void {
     this.isLoadingAnnouncements = true;
-    this.notifService.getNotifications({ limit: 4 }).subscribe({
-      next: (res) => {
-        this.isLoadingAnnouncements = false;
-        if (res.success) {
-          this.announcements = res.data;
-        }
-      },
-      error: (err) => {
-        this.isLoadingAnnouncements = false;
-        console.error('Lỗi khi tải thông báo trang chủ:', err);
-      },
-    });
+    this.notifService
+      .getNotifications({ limit: 4 })
+      .pipe(
+        catchError((err) => {
+          console.error('Lỗi khi tải thông báo trang chủ:', err);
+          return of({ success: false, data: [] as NotificationItem[] });
+        }),
+        finalize(() => {
+          this.isLoadingAnnouncements = false;
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.announcements = res.data;
+          } else {
+            this.announcements = [];
+          }
+          this.isLoadingAnnouncements = false;
+        },
+        error: (err) => {
+          console.error('Lỗi loadAnnouncements subscribe:', err);
+          this.announcements = [];
+          this.isLoadingAnnouncements = false;
+        },
+      });
   }
 
   loadRecentRequests(): void {
@@ -135,23 +150,33 @@ export class ClientHomeComponent implements OnInit {
       ? this.maintenanceService.getMyRequests()
       : this.maintenanceService.getRequests({ limit: 4 });
 
-    request$.subscribe({
-      next: (res) => {
-        this.isLoadingRequests = false;
-        const list = res.data || [];
-        if (list.length > 0) {
-          this.recentRequests = list.slice(0, 4);
-          this.pendingRequestsCount = list.filter(r => r.status === 'PENDING' || r.status === 'PROCESSING').length;
-        } else {
+    request$
+      .pipe(
+        catchError((err) => {
+          console.error('Lỗi khi tải yêu cầu cơ sở vật chất trang chủ:', err);
+          return of({ success: false, data: [] as MaintenanceRequest[] });
+        }),
+        finalize(() => {
+          this.isLoadingRequests = false;
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          const list = res.success ? res.data || [] : [];
+          if (list.length > 0) {
+            this.recentRequests = list.slice(0, 4);
+            this.pendingRequestsCount = list.filter(r => r.status === 'PENDING' || r.status === 'PROCESSING').length;
+          } else {
+            this.setFallbackRequests();
+          }
+          this.isLoadingRequests = false;
+        },
+        error: (err) => {
+          console.error('Lỗi loadRecentRequests subscribe:', err);
           this.setFallbackRequests();
-        }
-      },
-      error: (err) => {
-        this.isLoadingRequests = false;
-        console.error('Lỗi khi tải yêu cầu cơ sở vật chất trang chủ:', err);
-        this.setFallbackRequests();
-      }
-    });
+          this.isLoadingRequests = false;
+        },
+      });
   }
 
   private setFallbackRequests(): void {

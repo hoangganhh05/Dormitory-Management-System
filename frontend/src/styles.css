@@ -55,3 +55,92 @@ button {
   margin: 0 auto;
   padding: 0 20px;
 }
+
+/* Solid enterprise surfaces: white cards on a slate application canvas. */
+.app-shell,
+.app-shell main,
+.admin-shell,
+.admin-shell main {
+  background-color: #f8fafc;
+}
+
+.app-shell button,
+.app-shell a,
+.app-shell input,
+.app-shell select,
+.app-shell textarea,
+.app-shell table {
+  pointer-events: auto;
+}
+
+.shadow-xs {
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+}
+
+.app-shell .card,
+.app-shell [class*="-card"],
+.app-shell .maint-card,
+.app-shell .metric-card,
+.app-shell .toolbar-card,
+.app-shell .table-card,
+.app-shell .table-container,
+.app-shell .filter-wrapper,
+.app-shell .form-wrapper,
+.app-shell .notifications-content-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05) !important;
+}
+
+.app-shell .rooms-container,
+.app-shell .students-container,
+.app-shell .admin-maintenance-page,
+.app-shell .admin-notifications-page {
+  background: #f8fafc !important;
+}
+
+.app-shell .table-card,
+.app-shell .table-container {
+  overflow: hidden;
+}
+
+.app-shell .form-wrapper,
+.app-shell .notifications-content-card {
+  padding: 1.5rem !important;
+}
+
+@media (min-width: 640px) {
+  .app-shell .form-wrapper,
+  .app-shell .notifications-content-card {
+    padding: 2rem !important;
+  }
+}
+
+.app-shell .table-card thead,
+.app-shell .table-container thead,
+.app-shell .data-table thead tr,
+.app-shell .table-b2b th {
+  background: #f8fafc !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+.app-shell .table-card tbody tr:hover,
+.app-shell .table-container tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+.app-shell .modal-backdrop {
+  background: rgb(15 23 42 / 0.4) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

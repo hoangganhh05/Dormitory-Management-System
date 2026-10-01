@@ -40,8 +40,7 @@ import {
       lucideX,
     }),
   ],
-  templateUrl: './admin-layout.component.html',
-  styleUrl: './admin-layout.component.css'
+  templateUrl: './admin-layout.component.html'
 })
 export class AdminLayoutComponent {
   authService = inject(AuthService);

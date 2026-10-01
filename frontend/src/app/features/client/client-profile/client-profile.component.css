@@ -655,11 +655,11 @@
   background-color: #f8fafc;
 }
 
-/* Subtle profile cards on a slate-50 workspace */
+/* Solid enterprise profile cards on a slate-50 workspace */
 .profile-container { background: transparent; }
 .page-header { border-bottom: 1px solid #f1f5f9; }
 .profile-grid { gap: 1.5rem; }
-.card, .card-identity, .card-housing, .card-history { border: 1px solid rgba(226, 232, 240, 0.6); border-radius: .75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); background: #fff; }
+.card, .card-identity, .card-housing, .card-history { border: 1px solid #e2e8f0; border-radius: .75rem; box-shadow: 0 1px 2px rgb(15 23 42 / .05); background: #fff; }
 .card-header, .card-body { padding-left: 0; padding-right: 0; }
 .card-header { border-bottom: 1px solid #f1f5f9; padding-top: 0; }
 .card-body { padding-bottom: 0; }

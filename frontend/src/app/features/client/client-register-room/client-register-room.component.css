@@ -17,10 +17,10 @@
   max-width: none;
   margin: 0;
   background-color: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.6);
+  border: 1px solid #e2e8f0;
   border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 2px rgb(15 23 42 / .05);
 }
 
 @media (min-width: 640px) {
@@ -398,9 +398,9 @@ input.invalid, select.invalid, textarea.invalid {
   background-color: #fef2f2;
 }
 
-/* Subtle registration card */
+/* Solid enterprise registration surfaces */
 .register-page { background: transparent; }
-.form-wrapper { border: 1px solid rgba(226, 232, 240, 0.6); border-radius: .75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); background: #fff; }
+.form-wrapper { border: 1px solid #e2e8f0; border-radius: .75rem; box-shadow: 0 1px 2px rgb(15 23 42 / .05); background: #fff; }
 .form-header { border-bottom: 1px solid #f1f5f9; }
 .register-form { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; box-shadow: none; }
 .history-card { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; box-shadow: none; }

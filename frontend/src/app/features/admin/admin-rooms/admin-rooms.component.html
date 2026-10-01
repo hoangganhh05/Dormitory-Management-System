@@ -31,66 +31,93 @@
   </div>
 
   <!-- Metric Summary Cards Grid -->
-  <div class="metrics-grid" *ngIf="stats() as st">
-    <div class="metric-card">
+  <div class="metrics-grid grid grid-cols-2 items-stretch gap-4 md:grid-cols-4 xl:grid-cols-5" *ngIf="stats() as st">
+    <div class="metric-card kpi-card flex h-full flex-col justify-between p-4">
       <div class="metric-head">
-        <span class="metric-title">Tổng số phòng</span>
+        <span class="metric-title mb-1.5 block text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Tổng số phòng</span>
       </div>
-      <div class="metric-value">{{ st.totalRooms }}</div>
-      <div class="metric-sub">Bao gồm tất cả các khu nhà</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-value kpi-value text-2xl font-bold tracking-tight text-slate-900">{{ st.totalRooms }}</span>
+        <span class="text-sm font-medium text-slate-500">Phòng</span>
+      </div>
+      <div class="metric-sub mt-2 truncate text-[11px] text-slate-400">Bao gồm tất cả các khu nhà</div>
     </div>
 
-    <div class="metric-card">
+    <div class="metric-card kpi-card flex h-full flex-col justify-between p-4">
       <div class="metric-head">
-        <span class="metric-title">Tổng sức chứa</span>
+        <span class="metric-title mb-1.5 block text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Tổng sức chứa</span>
       </div>
-      <div class="metric-value">{{ st.totalCapacity }} <span class="unit">giường</span></div>
-      <div class="metric-sub">Quy mô phục vụ toàn trường</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-value kpi-value text-2xl font-bold tracking-tight text-slate-900">{{ st.totalCapacity }}</span>
+        <span class="unit text-sm font-medium text-slate-500">giường</span>
+      </div>
+      <div class="metric-sub mt-2 truncate text-[11px] text-slate-400">Quy mô phục vụ toàn trường</div>
     </div>
 
-    <div class="metric-card">
+    <div class="metric-card kpi-card flex h-full flex-col justify-between p-4">
       <div class="metric-head">
-        <span class="metric-title">Đang lưu trú</span>
+        <span class="metric-title mb-1.5 block text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Đang lưu trú</span>
       </div>
-      <div class="metric-value font-mono text-blue-600">{{ st.totalOccupancy }} <span class="unit">sinh viên</span></div>
-      <div class="metric-sub">Hợp đồng lưu trú đang hiệu lực</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-value kpi-value font-mono text-2xl font-bold tracking-tight text-blue-600">{{ st.totalOccupancy }}</span>
+        <span class="unit text-sm font-medium text-slate-500">sinh viên</span>
+      </div>
+      <div class="metric-sub mt-2 truncate text-[11px] text-slate-400">Hợp đồng lưu trú đang hiệu lực</div>
     </div>
 
-    <div class="metric-card">
+    <div class="metric-card kpi-card flex h-full flex-col justify-between p-4">
       <div class="metric-head">
-        <span class="metric-title">Chỗ còn trống</span>
+        <span class="metric-title mb-1.5 block text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Chỗ còn trống</span>
       </div>
-      <div class="metric-value font-mono text-emerald-600">{{ st.totalVacantBeds }} <span class="unit">chỗ</span></div>
-      <div class="metric-sub">Sẵn sàng tiếp nhận đăng ký</div>
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-value kpi-value font-mono text-2xl font-bold tracking-tight text-emerald-600">{{ st.totalVacantBeds }}</span>
+        <span class="unit text-sm font-medium text-slate-500">chỗ</span>
+      </div>
+      <div class="metric-sub mt-2 truncate text-[11px] text-slate-400">Sẵn sàng tiếp nhận đăng ký</div>
     </div>
 
-    <div class="metric-card">
+    <div class="metric-card kpi-card flex h-full flex-col justify-between p-4">
       <div class="metric-head">
-        <span class="metric-title">Tỷ lệ lấp đầy</span>
+        <span class="metric-title mb-1.5 block text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Tỷ lệ lấp đầy</span>
       </div>
-      <div class="metric-value font-mono">{{ st.occupancyRate }}%</div>
-      <div class="occupancy-progress-bar">
+      <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+        <span class="metric-value kpi-value font-mono text-2xl font-bold tracking-tight text-slate-900">{{ st.occupancyRate }}%</span>
+      </div>
+      <div class="occupancy-progress-bar mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
         <div class="progress-fill" [style.width.%]="st.occupancyRate"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Building Breakdown Mini Cards -->
-  <div class="building-chips-row" *ngIf="stats()?.buildings?.length">
-    <div class="building-card" *ngFor="let b of stats()!.buildings">
-      <div class="building-name"><ng-icon name="lucideBuilding2" size="16" class="mr-1.5 align-middle text-slate-400"></ng-icon>{{ b.building }}</div>
-      <div class="building-details">
-        <span><strong>{{ b.totalRooms }}</strong> phòng</span>
-        <span class="dot">•</span>
-        <span>Sức chứa: <strong>{{ b.capacity }}</strong></span>
-        <span class="dot">•</span>
-        <span class="text-emerald-700 font-semibold">Còn trống: {{ b.availableBeds }} chỗ</span>
       </div>
     </div>
   </div>
 
   <!-- Filter & Search Toolbar -->
   <div class="toolbar-card">
+    <div class="building-filter" *ngIf="stats()?.buildings?.length" role="tablist" aria-label="Lọc theo tòa nhà">
+      <span class="building-filter-label">Khu / Tòa nhà</span>
+      <div class="building-filter-tabs">
+        <button
+          type="button"
+          class="building-filter-tab"
+          [class.active]="selectedBuilding() === 'ALL'"
+          [attr.aria-selected]="selectedBuilding() === 'ALL'"
+          (click)="selectedBuilding.set('ALL')"
+        >
+          Tất cả tòa
+        </button>
+        <button
+          *ngFor="let b of stats()!.buildings"
+          type="button"
+          class="building-filter-tab"
+          [class.active]="selectedBuilding() === b.building"
+          [attr.aria-selected]="selectedBuilding() === b.building"
+          (click)="selectedBuilding.set(b.building)"
+        >
+          {{ b.building }}
+          <span class="building-filter-count">{{ b.availableBeds }} trống</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="toolbar-controls">
     <div class="search-box">
       <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
       <input
@@ -104,19 +131,6 @@
     </div>
 
     <div class="filter-group">
-      <!-- Building Filter -->
-      <div class="select-wrapper">
-        <label class="select-label">Khu / Tòa nhà:</label>
-        <select
-          [value]="selectedBuilding()"
-          (change)="selectedBuilding.set($any($event.target).value)"
-          class="filter-select"
-        >
-          <option value="ALL">Tất cả các tòa</option>
-          <option *ngFor="let b of buildingList()" [value]="b">{{ b }}</option>
-        </select>
-      </div>
-
       <!-- Status Filter -->
       <div class="select-wrapper">
         <label class="select-label">Trạng thái:</label>
@@ -149,6 +163,7 @@
       <button class="btn-reset" (click)="resetFilters()" title="Đặt lại bộ lọc">
         Đặt lại
       </button>
+    </div>
     </div>
   </div>
 
@@ -185,7 +200,7 @@
             <th class="text-right">Thao tác</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-slate-100">
           <tr *ngFor="let room of filteredRooms()" [class.row-maintenance]="room.status === 'MAINTENANCE'">
             <!-- Room Number -->
             <td class="font-bold text-slate-900 font-mono text-sm">

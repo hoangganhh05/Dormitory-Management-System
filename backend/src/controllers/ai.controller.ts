@@ -133,24 +133,27 @@ export class AIController {
   }
 
   /**
-   * POST /api/ai/ask
+   * POST /api/ai/chat hoặc POST /api/ai/ask
    * Nhận câu hỏi từ client, gọi GeminiService và trả về câu trả lời.
-   * Body: { prompt: string, history?: Array<{ role: string, content: string }> }
+   * Body: { message?: string, prompt?: string, history?: Array<{ role: string, content: string }> }
    */
   static async ask(req: Request, res: Response): Promise<void> {
-    const { prompt, history } = req.body;
+    const rawMessage = req.body.message || req.body.prompt;
+    const history = req.body.history;
 
     // Validate input
-    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+    if (!rawMessage || typeof rawMessage !== 'string' || rawMessage.trim().length === 0) {
       res.status(400).json({
         success: false,
-        message: 'Thiếu tham số bắt buộc: "prompt" phải là chuỗi ký tự không rỗng.',
+        message: 'Thiếu tham số bắt buộc: "message" hoặc "prompt" phải là chuỗi ký tự không rỗng.',
       });
       return;
     }
 
+    const prompt = rawMessage.trim();
+
     // Giới hạn độ dài câu hỏi để chống lạm dụng
-    if (prompt.trim().length > 1000) {
+    if (prompt.length > 1000) {
       res.status(400).json({
         success: false,
         message: 'Câu hỏi quá dài. Vui lòng giới hạn trong 1000 ký tự.',
@@ -173,7 +176,7 @@ export class AIController {
           data: {
             userId: userContext?.userId ? Number(userContext.userId) : null,
             sessionId: `${aiResponse.source}|${aiResponse.modelUsed}`,
-            userMessage: prompt.trim(),
+            userMessage: prompt,
             botReply: aiResponse.answer,
           },
         });
@@ -183,6 +186,7 @@ export class AIController {
 
       res.status(200).json({
         success: true,
+        reply: aiResponse.answer,
         data: aiResponse,
       });
     } catch (error: any) {
@@ -333,6 +337,37 @@ export class AIController {
       res.status(500).json({
         success: false,
         message: 'Không thể lấy số liệu thống kê AI.',
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * POST /api/ai/classify-maintenance
+   * Phân loại mức độ khẩn cấp sự cố báo hỏng cơ sở vật chất (Smart Ticketing)
+   * Body: { title: string, description: string }
+   */
+  static async classifyMaintenance(req: Request, res: Response): Promise<void> {
+    try {
+      const { title, description } = req.body;
+      const result = await GeminiService.classifyMaintenanceIssue(
+        String(title || ''),
+        String(description || '')
+      );
+
+      res.status(200).json({
+        success: true,
+        data: result,
+        severity: result.severity,
+        urgency: result.urgency,
+        category: result.category,
+        reason: result.reason,
+      });
+    } catch (error: any) {
+      console.error('[AIController.classifyMaintenance Error]', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi phân tích và phân loại sự cố bằng AI',
         error: error.message,
       });
     }

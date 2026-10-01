@@ -2,12 +2,12 @@
 
 .notifications-page {
   width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0 0 3.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding-bottom: 3.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 1.5rem;
 }
 
 /* Header */
@@ -526,26 +526,80 @@
   }
 }
 
-/* Unified bulletin canvas */
+/* Solid bulletin canvas */
 .notifications-page { background: transparent; }
-.page-header { border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 0; }
+.page-header { border: 1px solid #e2e8f0; border-radius: .75rem; background: #fff; box-shadow: 0 1px 2px rgb(15 23 42 / .05); padding: 1.5rem; }
 .notifications-content-card {
   background: #fff;
-  border: 1px solid rgba(226, 232, 240, 0.6);
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: .75rem;
+  box-shadow: 0 1px 2px rgb(15 23 42 / .05);
+  padding: 1.5rem !important;
+  padding-inline: 1.5rem !important;
+  padding-block: 1.5rem !important;
+  box-sizing: border-box;
 }
-@media (min-width: 640px) {
-  .notifications-content-card { padding: 2rem; }
+.notifications-content-card > .filter-card,
+.notifications-content-card > .notification-filter-card,
+.notifications-content-card > .pt-6 {
+  width: 100%;
+  min-width: 0;
 }
-.filter-card { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; background: #fff; box-shadow: none; padding: 1rem 0; }
-.category-pills { border-top: 0; padding-top: 0; }
+.notification-filter-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+.notification-filter-card .category-pills {
+  margin-top: 0;
+  border-top: 0;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 0 0 .75rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.notification-filter-card .search-input {
+  height: 2.5rem;
+  padding: 0 1rem 0 2.5rem;
+  font-size: .875rem;
+}
+.notification-filter-card .btn-search {
+  height: 2.5rem;
+}
+.filter-card { display: block; border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; background: transparent; box-shadow: none; padding: 0 0 1.25rem; }
+.search-bar-row { width: 100%; gap: .5rem; }
+.category-pills { width: 100%; margin-top: 0; border-top: 0; border-bottom: 1px solid #f1f5f9; padding: 0 0 .75rem; flex-wrap: nowrap; overflow-x: auto; }
 .pill-btn { border-radius: 0; background: transparent; padding-left: 0; padding-right: 0; }
 .pill-btn.active { border-bottom-color: #0f172a; background: transparent; color: #0f172a; }
-.notifications-list-wrap { border: 0; border-radius: 0; box-shadow: none; }
-.notif-card, .notif-card.pinned-card, .notif-card.unread-card { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; background: #fff; box-shadow: none; padding: 1rem 0; }
-.notif-card:hover { background: #f8fafc; }
-.badge, .priority-tag, .pinned-indicator, .building-scope-tag { border-radius: .125rem; }
-.empty-box { border: 0; border-bottom: 1px solid #f1f5f9; border-radius: 0; }
-.pagination-bar { border-radius: 0; border-left: 0; border-right: 0; }
+.notifications-list-wrap { width: 100%; border: 0; border-radius: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
+.items-list { width: 100%; gap: 1rem; padding-left: 0; padding-right: 0; }
+.notif-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.notif-card:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+.notif-card.pinned-card {
+  background-color: #fffdf5;
+  border-color: #fef08a;
+}
+.notif-card.pinned-card:hover {
+  border-color: #fde047;
+}
+.notif-card.unread-card {
+  border-left: 4px solid #0f172a;
+}
+.badge, .priority-tag, .pinned-indicator, .building-scope-tag { border-radius: .25rem; }
+.empty-box { border: 1px solid #e2e8f0; border-radius: .75rem; padding: 2.5rem; text-align: center; }
+.pagination-bar { border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem 1.5rem; }

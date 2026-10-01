@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { DormAiChatbotComponent } from '../../../shared/components/dorm-ai-chatbot/dorm-ai-chatbot.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideBuilding2,
@@ -22,7 +23,7 @@ import {
 @Component({
   selector: 'app-client-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NgIcon],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NgIcon, DormAiChatbotComponent],
   providers: [
     provideIcons({
       lucideBuilding2,
@@ -40,8 +41,7 @@ import {
       lucidePanelLeftOpen,
     }),
   ],
-  templateUrl: './client-layout.component.html',
-  styleUrl: './client-layout.component.css'
+  templateUrl: './client-layout.component.html'
 })
 export class ClientLayoutComponent {
   authService = inject(AuthService);

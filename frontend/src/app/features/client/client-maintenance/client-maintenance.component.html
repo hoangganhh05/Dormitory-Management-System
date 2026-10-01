@@ -1,4 +1,4 @@
-<div class="w-full space-y-6">
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
   <div class="page-header">
     <h1 class="page-title">Báo Hỏng Cơ Sở Vật Chất KTX</h1>
     <p class="page-subtitle">Sinh viên phản ánh sự cố kỹ thuật, hỏng hóc thiết bị điện nước tại phòng để Ban Quản lý điều phối sửa chữa.</p>
@@ -6,7 +6,7 @@
 
   <div class="maintenance-grid grid w-full grid-cols-1 gap-6 lg:grid-cols-12">
     <!-- Form gửi phiếu báo hỏng -->
-    <div class="maint-card w-full rounded-xl border border-slate-200/60 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] sm:p-8 lg:col-span-5">
+    <div class="maint-card w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:col-span-5">
       <h2 class="card-title">Tạo phiếu báo hỏng mới</h2>
 
       <div class="alert-success" *ngIf="submitSuccess()">
@@ -57,6 +57,8 @@
           <input 
             type="text" 
             [(ngModel)]="title" 
+            (input)="onInputChange()"
+            (blur)="runAiClassification()"
             name="title" 
             placeholder="Ví dụ: Bóng đèn bàn học bị chập cháy" 
             required 
@@ -67,11 +69,25 @@
           <label>Mô tả chi tiết vị trí và biểu hiện sự cố <span class="req">*</span></label>
           <textarea 
             [(ngModel)]="description" 
+            (input)="onInputChange()"
+            (blur)="runAiClassification()"
             name="description" 
             rows="4" 
             placeholder="Mô tả cụ thể để thợ kỹ thuật mang đúng dụng cụ và linh kiện thay thế..." 
             required
           ></textarea>
+
+          <!-- Smart AI Recommendation Badge -->
+          <div *ngIf="aiSuggestion()" class="ai-badge-box mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">
+            <div class="flex items-center gap-1.5 font-semibold text-slate-900">
+              <ng-icon name="lucideSparkles" class="text-slate-900 shrink-0" size="14"></ng-icon>
+              <span>✨ AI Đề xuất: {{ getSeverityLabel(aiSuggestion()!.severity) }}</span>
+              <span [ngClass]="getSeverityTagClass(aiSuggestion()!.severity)" class="rounded border px-1.5 py-0.5 text-[10px] font-bold">
+                {{ aiSuggestion()!.severity }}
+              </span>
+            </div>
+            <p class="mt-1 text-slate-600 pl-5">Lý do: {{ aiSuggestion()!.aiReason }}</p>
+          </div>
         </div>
 
         <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
@@ -82,7 +98,7 @@
     </div>
 
     <!-- Lịch sử các phiếu báo hỏng -->
-    <div class="maint-card w-full rounded-xl border border-slate-200/60 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)] sm:p-8 lg:col-span-7">
+    <div class="maint-card w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:col-span-7">
       <div class="history-header">
         <h2 class="card-title">Lịch sử yêu cầu đã gửi ({{ myRequests().length }})</h2>
       </div>
@@ -124,7 +140,7 @@
         </div>
       </div>
 
-      <div class="empty-requests" *ngIf="!isLoading() && !loadError() && myRequests().length === 0">
+      <div class="empty-requests" *ngIf="!isLoading() && myRequests().length === 0">
         <p>Bạn chưa gửi yêu cầu báo hỏng nào.</p>
       </div>
     </div>

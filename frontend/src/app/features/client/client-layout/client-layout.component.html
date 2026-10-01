@@ -1,4 +1,4 @@
-<div class="flex h-screen overflow-hidden bg-[#f8fafc] font-sans text-slate-800 antialiased">
+<div class="flex h-screen overflow-hidden bg-slate-50 font-sans text-slate-800 antialiased">
   <!-- Mobile sidebar backdrop -->
   <div
     *ngIf="isMobileMenuOpen()"
@@ -209,7 +209,7 @@
         <span class="hidden text-sm font-semibold text-slate-800 sm:inline">Cổng thông tin sinh viên</span>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="pointer-events-auto flex items-center gap-3">
         <a
           routerLink="/client/notifications"
           aria-label="Mở thông báo"
@@ -229,14 +229,14 @@
       </div>
     </header>
 
-    <main class="min-h-0 flex-1 bg-[#f8fafc]">
-      <div class="w-full px-6 py-6 lg:px-8">
+    <main class="min-h-0 flex-1 bg-slate-50">
+      <div class="w-full">
         <router-outlet></router-outlet>
       </div>
 
       <!-- Footer -->
-      <footer class="mt-12 border-t border-slate-200 bg-white px-4 py-6 text-xs text-slate-500 sm:px-6 lg:px-8">
-        <div class="flex w-full flex-col items-center justify-between gap-4 md:flex-row">
+      <footer class="mt-12 flex w-full flex-wrap items-center justify-between border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-500">
+        <div class="flex w-full flex-wrap items-center justify-between gap-4">
           <div>
             <span class="font-semibold text-slate-700">HỆ THỐNG QUẢN LÝ KÝ TÚC XÁ - TRƯỜNG ĐẠI HỌC CNTT &amp; TT (ICTU)</span>
             <span class="hidden md:inline mx-2 text-slate-300">•</span>
@@ -251,4 +251,6 @@
       </footer>
     </main>
   </div>
+
+  <app-dorm-ai-chatbot></app-dorm-ai-chatbot>
 </div>

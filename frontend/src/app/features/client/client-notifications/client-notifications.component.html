@@ -1,4 +1,4 @@
-<div class="w-full space-y-6 notifications-page">
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 notifications-page">
   <!-- Page header -->
   <header class="page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div class="header-content">
@@ -15,145 +15,157 @@
   </header>
 
   <!-- Search, filters and notification list -->
-  <section class="notifications-content-card bg-white rounded-2xl border border-slate-200/70 p-6 sm:p-8 shadow-xs">
-    <div class="filter-card">
-      <div class="search-bar-row">
-        <div class="search-input-wrap">
+  <section class="notifications-content">
+    <!-- Filter toolbar: tabs first, search second, matching the Admin layout. -->
+    <div class="notification-filter-card mb-6 space-y-4 rounded-xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs">
+      <!-- Category filters -->
+      <div class="category-pills flex items-center gap-6 overflow-x-auto border-b border-slate-100 pb-3 text-sm">
+        <button
+          type="button"
+          class="pill-btn border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+          [class.border-b-2]="selectedCategory === ''"
+          [class.border-slate-900]="selectedCategory === ''"
+          [class.font-semibold]="selectedCategory === ''"
+          [class.text-slate-900]="selectedCategory === ''"
+          (click)="setCategory('')"
+        >Tất cả thông báo</button>
+        <button
+          type="button"
+          class="pill-btn border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+          [class.border-b-2]="selectedCategory === 'URGENT'"
+          [class.border-slate-900]="selectedCategory === 'URGENT'"
+          [class.font-semibold]="selectedCategory === 'URGENT'"
+          [class.text-slate-900]="selectedCategory === 'URGENT'"
+          (click)="setCategory('URGENT')"
+        >Khẩn cấp</button>
+        <button
+          type="button"
+          class="pill-btn border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+          [class.border-b-2]="selectedCategory === 'REGULATION'"
+          [class.border-slate-900]="selectedCategory === 'REGULATION'"
+          [class.font-semibold]="selectedCategory === 'REGULATION'"
+          [class.text-slate-900]="selectedCategory === 'REGULATION'"
+          (click)="setCategory('REGULATION')"
+        >Nội quy KTX</button>
+        <button
+          type="button"
+          class="pill-btn border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+          [class.border-b-2]="selectedCategory === 'FINANCE'"
+          [class.border-slate-900]="selectedCategory === 'FINANCE'"
+          [class.font-semibold]="selectedCategory === 'FINANCE'"
+          [class.text-slate-900]="selectedCategory === 'FINANCE'"
+          (click)="setCategory('FINANCE')"
+        >Tài chính &amp; Lệ phí</button>
+        <button
+          type="button"
+          class="pill-btn border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+          [class.border-b-2]="selectedCategory === 'MAINTENANCE'"
+          [class.border-slate-900]="selectedCategory === 'MAINTENANCE'"
+          [class.font-semibold]="selectedCategory === 'MAINTENANCE'"
+          [class.text-slate-900]="selectedCategory === 'MAINTENANCE'"
+          (click)="setCategory('MAINTENANCE')"
+        >Lịch bảo trì</button>
+        <button
+          type="button"
+          class="pill-btn border-b-2 border-transparent pb-3 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+          [class.border-b-2]="selectedCategory === 'EVENT'"
+          [class.border-slate-900]="selectedCategory === 'EVENT'"
+          [class.font-semibold]="selectedCategory === 'EVENT'"
+          [class.text-slate-900]="selectedCategory === 'EVENT'"
+          (click)="setCategory('EVENT')"
+        >Sự kiện</button>
+      </div>
+
+      <!-- Search row -->
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="search-input-wrap relative min-w-[260px] flex-1">
           <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
           <input
             type="text"
-            class="search-input"
             placeholder="Tìm kiếm thông báo theo tiêu đề, nội dung tóm tắt..."
+            class="search-input h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10"
             [(ngModel)]="searchKeyword"
             (keyup.enter)="onFilterChange()"
           />
         </div>
-        <button class="btn-search" (click)="onFilterChange()">Tìm kiếm</button>
-      </div>
-
-      <!-- Category filters -->
-      <div class="category-pills flex items-center gap-6 border-b border-slate-200 mt-6">
-        <button
-          class="pill-btn"
-          [ngClass]="selectedCategory === ''
-            ? 'pb-3 text-sm font-semibold text-slate-900 border-b-2 border-slate-900 -mb-[1px]'
-            : 'pb-3 text-sm font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent transition-colors'"
-          (click)="setCategory('')"
-        >
-          Tất cả
-        </button>
-        <button
-          class="pill-btn"
-          [ngClass]="selectedCategory === 'URGENT'
-            ? 'pb-3 text-sm font-semibold text-slate-900 border-b-2 border-slate-900 -mb-[1px]'
-            : 'pb-3 text-sm font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent transition-colors'"
-          (click)="setCategory('URGENT')"
-        >
-          Khẩn cấp
-        </button>
-        <button
-          class="pill-btn"
-          [ngClass]="selectedCategory === 'REGULATION'
-            ? 'pb-3 text-sm font-semibold text-slate-900 border-b-2 border-slate-900 -mb-[1px]'
-            : 'pb-3 text-sm font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent transition-colors'"
-          (click)="setCategory('REGULATION')"
-        >
-          Nội quy KTX
-        </button>
-        <button
-          class="pill-btn"
-          [ngClass]="selectedCategory === 'FINANCE'
-            ? 'pb-3 text-sm font-semibold text-slate-900 border-b-2 border-slate-900 -mb-[1px]'
-            : 'pb-3 text-sm font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent transition-colors'"
-          (click)="setCategory('FINANCE')"
-        >
-          Tài chính & Lệ phí
-        </button>
-        <button
-          class="pill-btn"
-          [ngClass]="selectedCategory === 'MAINTENANCE'
-            ? 'pb-3 text-sm font-semibold text-slate-900 border-b-2 border-slate-900 -mb-[1px]'
-            : 'pb-3 text-sm font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent transition-colors'"
-          (click)="setCategory('MAINTENANCE')"
-        >
-          Lịch bảo trì
-        </button>
-        <button
-          class="pill-btn"
-          [ngClass]="selectedCategory === 'EVENT'
-            ? 'pb-3 text-sm font-semibold text-slate-900 border-b-2 border-slate-900 -mb-[1px]'
-            : 'pb-3 text-sm font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent transition-colors'"
-          (click)="setCategory('EVENT')"
-        >
-          Sự kiện
+        <button type="button" class="btn-search h-10 rounded-lg bg-slate-900 px-5 text-sm font-medium text-white hover:bg-slate-800" (click)="onFilterChange()">
+          Tìm kiếm
         </button>
       </div>
     </div>
 
     <!-- Notifications list -->
-    <div class="notifications-list-wrap">
-      <div class="loading-state" *ngIf="isLoading">
-        <div class="spinner"></div>
-        <span class="mt-2 text-sm text-slate-500">Đang tra cứu dữ liệu bảng tin...</span>
+    <div class="notifications-list-container space-y-4">
+      <div *ngIf="errorMessage && !isLoading" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        {{ errorMessage }}
       </div>
 
-      <div class="items-list" *ngIf="!isLoading">
-        <div
-          *ngFor="let item of notifications"
-          class="notif-card"
-          [class.pinned-card]="item.isPinned"
-          [class.unread-card]="!item.isRead && authService.currentUser()"
-          (click)="openDetail(item)"
-        >
-          <div class="card-top-row">
-            <div class="top-left-badges">
-              <span class="badge" [ngClass]="getCategoryBadgeClass(item.category)">
-                {{ getCategoryLabel(item.category) }}
-              </span>
-              <span class="priority-tag" *ngIf="item.priority === 'URGENT'">Khẩn cấp</span>
-              <span class="pinned-indicator" *ngIf="item.isPinned">Đã ghim</span>
-              <span class="building-scope-tag" *ngIf="item.targetBuilding">{{ item.targetBuilding }}</span>
+      <div class="notifications-list-wrap space-y-4">
+        <div class="loading-state rounded-xl border border-slate-200/80 bg-white p-8 text-center" *ngIf="isLoading">
+          <div class="spinner"></div>
+          <span class="mt-2 text-sm text-slate-500">Đang tra cứu dữ liệu bảng tin...</span>
+        </div>
+
+        <div class="items-list space-y-4" *ngIf="!isLoading">
+          <div
+            *ngFor="let item of notifications"
+            class="notif-card group rounded-xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer space-y-3"
+            [class.pinned-card]="item.isPinned"
+            [class.unread-card]="!item.isRead && authService.currentUser()"
+            (click)="openDetail(item)"
+          >
+            <div class="card-top-row flex items-center justify-between gap-4">
+              <div class="top-left-badges flex flex-wrap items-center gap-2">
+                <span class="badge" [ngClass]="getCategoryBadgeClass(item.category)">
+                  {{ getCategoryLabel(item.category) }}
+                </span>
+                <span class="priority-tag" *ngIf="item.priority === 'URGENT'">Khẩn cấp</span>
+                <span class="pinned-indicator" *ngIf="item.isPinned">Đã ghim</span>
+                <span class="building-scope-tag" *ngIf="item.targetBuilding">{{ item.targetBuilding }}</span>
+              </div>
+              <div class="top-right-meta flex items-center gap-3 shrink-0">
+                <span class="unread-dot" *ngIf="!item.isRead && authService.currentUser()" title="Thông báo mới chưa đọc">● Mới</span>
+                <span class="item-time text-xs text-slate-400 font-mono">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
             </div>
-            <div class="top-right-meta">
-              <span class="unread-dot" *ngIf="!item.isRead && authService.currentUser()" title="Thông báo mới chưa đọc">● Mới</span>
-              <span class="item-time">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+
+            <h3 class="card-title text-base font-semibold text-slate-900 group-hover:text-slate-700 transition-colors">{{ item.title }}</h3>
+            <p class="card-summary text-sm text-slate-600 leading-relaxed">{{ item.summary || item.content }}</p>
+
+            <div class="card-footer-row flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
+              <div class="author-info">
+                <span>Phát hành bởi: <strong class="text-slate-700">{{ item.author?.fullName || 'Ban Quản lý Ký túc xá' }}</strong></span>
+              </div>
+              <div class="views-info flex items-center gap-4 shrink-0">
+                <span>{{ item.viewCount }} lượt xem</span>
+                <span class="read-more-text font-semibold text-slate-900 group-hover:text-slate-700 inline-flex items-center gap-1">
+                  Xem chi tiết →
+                </span>
+              </div>
             </div>
           </div>
 
-          <h3 class="card-title">{{ item.title }}</h3>
-          <p class="card-summary">{{ item.summary || item.content }}</p>
-
-          <div class="card-footer-row">
-            <div class="author-info">
-              <span>Phát hành bởi: <strong>{{ item.author?.fullName || 'Ban Quản lý Ký túc xá' }}</strong></span>
-            </div>
-            <div class="views-info">
-              <span>{{ item.viewCount }} lượt xem</span>
-              <span class="read-more-text">Xem chi tiết →</span>
-            </div>
+          <!-- Empty State -->
+          <div class="empty-box rounded-xl border border-slate-200/80 bg-white p-8 sm:p-12 text-center" *ngIf="notifications.length === 0">
+            <ng-icon name="lucideBell" size="28" class="empty-icon-circle"></ng-icon>
+            <h4 class="empty-title text-base font-semibold text-slate-900 mt-3">Không tìm thấy thông báo phù hợp</h4>
+            <p class="empty-desc text-sm text-slate-500 mt-1">Hiện không có thông báo nào trong chuyên mục này hoặc từ khóa tìm kiếm không khớp.</p>
+            <button class="btn-reset mt-4 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition-colors" (click)="searchKeyword = ''; selectedCategory = ''; onFilterChange()">
+              Xem tất cả thông báo
+            </button>
           </div>
         </div>
 
-        <!-- Empty State -->
-        <div class="empty-box" *ngIf="notifications.length === 0">
-          <ng-icon name="lucideBell" size="24" class="empty-icon-circle"></ng-icon>
-          <h4 class="empty-title">Không tìm thấy thông báo phù hợp</h4>
-          <p class="empty-desc">Hiện không có thông báo nào trong chuyên mục này hoặc từ khóa tìm kiếm không khớp.</p>
-          <button class="btn-reset" (click)="searchKeyword = ''; selectedCategory = ''; onFilterChange()">
-            Xem tất cả thông báo
-          </button>
-        </div>
-      </div>
-
-      <!-- Pagination -->
-      <div class="pagination-bar" *ngIf="totalItems > 0 && !isLoading">
-        <span class="page-info">
-          Hiển thị <strong>{{ (page - 1) * limit + 1 }} - {{ page * limit > totalItems ? totalItems : page * limit }}</strong> / <strong>{{ totalItems }}</strong> thông báo
-        </span>
-        <div class="page-btns">
-          <button class="p-btn" [disabled]="page <= 1" (click)="goToPage(page - 1)">Trang trước</button>
-          <span class="p-num">{{ page }} / {{ totalPages }}</span>
-          <button class="p-btn" [disabled]="page >= totalPages" (click)="goToPage(page + 1)">Trang sau</button>
+        <!-- Pagination -->
+        <div class="pagination-bar rounded-xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-4" *ngIf="totalItems > 0 && !isLoading">
+          <span class="page-info text-xs sm:text-sm text-slate-600">
+            Hiển thị <strong>{{ (page - 1) * limit + 1 }} - {{ page * limit > totalItems ? totalItems : page * limit }}</strong> / <strong>{{ totalItems }}</strong> thông báo
+          </span>
+          <div class="page-btns flex items-center gap-2">
+            <button class="p-btn rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50" [disabled]="page <= 1" (click)="goToPage(page - 1)">Trang trước</button>
+            <span class="p-num text-xs font-semibold text-slate-900 px-2">{{ page }} / {{ totalPages }}</span>
+            <button class="p-btn rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50" [disabled]="page >= totalPages" (click)="goToPage(page + 1)">Trang sau</button>
+          </div>
         </div>
       </div>
     </div>

@@ -40,10 +40,10 @@ export class AdminDashboardComponent implements OnInit {
   errorMessage = signal('');
 
   stats = signal([
-    { label: 'Tổng số phòng KTX', value: '0 Phòng', sub: 'Đang tải dữ liệu...', icon: 'lucideBuilding2', color: 'blue' },
-    { label: 'Sức chứa / Đã ở', value: '0 / 0 Giường', sub: 'Tỷ lệ lấp đầy: 0%', icon: 'lucideBedDouble', color: 'green' },
-    { label: 'Đơn đăng ký chờ duyệt', value: '0 Đơn', sub: 'Cần ban quản lý duyệt', icon: 'lucideClipboardCheck', color: 'amber' },
-    { label: 'Sự cố cần sửa chữa', value: '0 Yêu cầu', sub: 'Đang phân công xử lý', icon: 'lucideWrench', color: 'danger' },
+    { label: 'Tổng số phòng KTX', value: '0', unit: 'Phòng', sub: 'Đang tải dữ liệu...', icon: 'lucideBuilding2', color: 'blue' },
+    { label: 'Sức chứa / Đã ở', value: '0 / 0', unit: 'Giường', sub: 'Tỷ lệ lấp đầy: 0%', icon: 'lucideBedDouble', color: 'green' },
+    { label: 'Đơn đăng ký chờ duyệt', value: '0', unit: 'Đơn', sub: 'Cần ban quản lý duyệt', icon: 'lucideClipboardCheck', color: 'amber' },
+    { label: 'Sự cố cần sửa chữa', value: '0', unit: 'Yêu cầu', sub: 'Đang phân công xử lý', icon: 'lucideWrench', color: 'danger' },
   ]);
 
   recentRegistrations = signal<any[]>([]);
@@ -64,28 +64,32 @@ export class AdminDashboardComponent implements OnInit {
         this.stats.set([
           {
             label: 'Tổng số phòng KTX',
-            value: `${data.totalRooms} Phòng`,
+            value: `${data.totalRooms}`,
+            unit: 'Phòng',
             sub: '100% Sẵn sàng hoạt động',
             icon: 'lucideBuilding2',
             color: 'blue'
           },
           {
             label: 'Sức chứa / Đã ở',
-            value: `${data.occupiedBeds} / ${data.totalBeds} Giường`,
+            value: `${data.occupiedBeds} / ${data.totalBeds}`,
+            unit: 'Giường',
             sub: `Tỷ lệ lấp đầy: ${data.occupancyRate}%`,
             icon: 'lucideBedDouble',
             color: 'green'
           },
           {
             label: 'Đơn đăng ký chờ duyệt',
-            value: `${data.pendingRegistrations} Đơn`,
+            value: `${data.pendingRegistrations}`,
+            unit: 'Đơn',
             sub: 'Cần ban quản lý duyệt',
             icon: 'lucideClipboardCheck',
             color: 'amber'
           },
           {
             label: 'Sự cố cần sửa chữa',
-            value: `${data.urgentIssues} Yêu cầu`,
+            value: `${data.urgentIssues}`,
+            unit: 'Yêu cầu',
             sub: 'Đang phân công xử lý',
             icon: 'lucideWrench',
             color: 'danger'

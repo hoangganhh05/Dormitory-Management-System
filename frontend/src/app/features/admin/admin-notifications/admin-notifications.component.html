@@ -1,4 +1,4 @@
-<div class="admin-notifications-page">
+<div class="admin-notifications-page w-full space-y-6 pb-12">
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
@@ -21,56 +21,73 @@
     <ng-icon name="lucideCheck" size="18" class="flex-shrink-0"></ng-icon>
     <span>{{ successMessage }}</span>
   </div>
+  <div class="toast-alert toast-error" *ngIf="errorMessage && !isLoading">
+    <ng-icon name="lucideAlertTriangle" size="18" class="flex-shrink-0"></ng-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
 
   <!-- KPI Metrics Cards -->
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-info">
-        <span class="metric-label">Tổng số bài thông báo</span>
-        <span class="metric-value">{{ stats?.total || 0 }}</span>
-      </div>
-      <div class="metric-icon bg-slate-100 text-slate-700">
-        <ng-icon name="lucideFileText" size="18"></ng-icon>
-      </div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-info">
-        <span class="metric-label">Đang công khai</span>
-        <span class="metric-value text-emerald-700">{{ stats?.published || 0 }}</span>
-      </div>
-      <div class="metric-icon bg-emerald-50 text-emerald-600">
-        <ng-icon name="lucideCheck" size="18"></ng-icon>
-      </div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-info">
-        <span class="metric-label">Khẩn cấp & Đang ghim</span>
-        <div class="metric-split-values">
-          <span class="metric-value text-red-600">{{ stats?.urgent || 0 }}</span>
-          <span class="metric-sub">/ {{ stats?.pinned || 0 }} ghim</span>
+  <div class="metrics-grid grid w-full grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="metric-card flex h-full w-full items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="metric-info min-w-0 flex-1">
+        <p class="metric-label mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Tổng số bài thông báo</p>
+        <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span class="metric-value text-2xl font-bold leading-none tracking-tight text-slate-900">{{ stats?.total || 0 }}</span>
+          <span class="text-xs font-medium text-slate-500">bài</span>
         </div>
+        <p class="metric-desc mt-2 truncate text-xs text-slate-400">Tổng bài viết trong hệ thống</p>
       </div>
-      <div class="metric-icon bg-red-50 text-red-600">
-        <ng-icon name="lucideAlertTriangle" size="18"></ng-icon>
+      <div class="metric-icon shrink-0 rounded-lg bg-slate-50 p-2.5 text-slate-600">
+        <ng-icon name="lucideFileText" size="18" class="block"></ng-icon>
       </div>
     </div>
 
-    <div class="metric-card">
-      <div class="metric-info">
-        <span class="metric-label">Bản nháp lưu trữ</span>
-        <span class="metric-value text-slate-500">{{ (stats?.draft || 0) + (stats?.archived || 0) }}</span>
+    <div class="metric-card flex h-full w-full items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="metric-info min-w-0 flex-1">
+        <p class="metric-label mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Đang công khai</p>
+        <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span class="metric-value text-2xl font-bold leading-none tracking-tight text-emerald-700">{{ stats?.published || 0 }}</span>
+          <span class="text-xs font-medium text-slate-500">bài</span>
+        </div>
+        <p class="metric-desc mt-2 truncate text-xs text-slate-400">Đang hiển thị tới sinh viên</p>
       </div>
-      <div class="metric-icon bg-slate-100 text-slate-600">
-        <ng-icon name="lucidePencil" size="18"></ng-icon>
+      <div class="metric-icon shrink-0 rounded-lg bg-emerald-50 p-2.5 text-emerald-600">
+        <ng-icon name="lucideCheck" size="18" class="block"></ng-icon>
+      </div>
+    </div>
+
+    <div class="metric-card flex h-full w-full items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="metric-info min-w-0 flex-1">
+        <p class="metric-label mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Khẩn cấp & Đang ghim</p>
+        <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span class="metric-value text-2xl font-bold leading-none tracking-tight text-red-600">{{ stats?.urgent || 0 }}</span>
+          <span class="metric-sub text-xs font-medium text-slate-500">/ {{ stats?.pinned || 0 }} ghim</span>
+        </div>
+        <p class="metric-desc mt-2 truncate text-xs text-slate-400">Ưu tiên và đang ghim</p>
+      </div>
+      <div class="metric-icon shrink-0 rounded-lg bg-red-50 p-2.5 text-red-600">
+        <ng-icon name="lucideAlertTriangle" size="18" class="block"></ng-icon>
+      </div>
+    </div>
+
+    <div class="metric-card flex h-full w-full items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs">
+      <div class="metric-info min-w-0 flex-1">
+        <p class="metric-label mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Bản nháp lưu trữ</p>
+        <div class="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span class="metric-value text-2xl font-bold leading-none tracking-tight text-slate-500">{{ (stats?.draft || 0) + (stats?.archived || 0) }}</span>
+          <span class="text-xs font-medium text-slate-500">bài</span>
+        </div>
+        <p class="metric-desc mt-2 truncate text-xs text-slate-400">Bản nháp và lưu trữ</p>
+      </div>
+      <div class="metric-icon shrink-0 rounded-lg bg-slate-50 p-2.5 text-slate-600">
+        <ng-icon name="lucidePencil" size="18" class="block"></ng-icon>
       </div>
     </div>
   </div>
 
   <!-- Tab Bar & Filter Controls -->
-  <div class="filter-wrapper">
-    <div class="tab-list">
+  <div class="filter-wrapper bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs space-y-4">
+    <div class="tab-list flex gap-6 border-b border-slate-100 pb-2 text-sm">
       <button class="tab-btn" [class.active]="activeTab === 'ALL'" (click)="switchTab('ALL')">
         Tất cả thông báo
       </button>
@@ -88,13 +105,13 @@
       </button>
     </div>
 
-    <div class="filter-controls-row">
+    <div class="filter-controls-row flex flex-wrap items-center gap-3">
       <!-- Search Input -->
       <div class="search-box">
         <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
-          class="form-input search-input"
+          class="form-input search-input h-10 min-w-[240px] flex-1 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
           placeholder="Tìm tiêu đề, nội dung tóm tắt..."
           [(ngModel)]="searchKeyword"
           (keyup.enter)="onFilterChange()"
@@ -102,7 +119,7 @@
       </div>
 
       <!-- Select Category -->
-      <select class="form-select" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
         <option value="">Tất cả chuyên mục</option>
         <option value="GENERAL">Chung</option>
         <option value="URGENT">Khẩn cấp</option>
@@ -113,7 +130,7 @@
       </select>
 
       <!-- Select Target Audience -->
-      <select class="form-select" [(ngModel)]="selectedTargetRole" (change)="onFilterChange()">
+      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedTargetRole" (change)="onFilterChange()">
         <option value="">Tất cả đối tượng</option>
         <option value="ALL">Toàn bộ KTX</option>
         <option value="STUDENT">Chỉ sinh viên</option>
@@ -121,21 +138,21 @@
       </select>
 
       <!-- Select Building Scope -->
-      <select class="form-select" [(ngModel)]="selectedBuilding" (change)="onFilterChange()">
+      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedBuilding" (change)="onFilterChange()">
         <option value="">Tất cả các tòa</option>
         <option value="Tòa A">Tòa A (Nam)</option>
         <option value="Tòa B">Tòa B (Nữ)</option>
       </select>
 
       <!-- Apply filter button -->
-      <button class="btn btn-secondary" (click)="onFilterChange()">
+      <button class="btn btn-secondary h-10 rounded-lg px-3 text-sm" (click)="onFilterChange()">
         Lọc
       </button>
     </div>
   </div>
 
   <!-- Data Table Container -->
-  <div class="table-container">
+  <div class="table-container mt-6 overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-xs">
     <div class="loading-overlay" *ngIf="isLoading">
       <div class="spinner"></div>
       <span class="mt-2 text-sm text-slate-500 font-medium">Đang tải dữ liệu thông báo...</span>
@@ -155,7 +172,7 @@
           <th style="width: 140px;" class="text-right">Thao tác</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-slate-100">
         <tr *ngFor="let item of notifications" [class.pinned-row]="item.isPinned">
           <!-- Pin Toggle -->
           <td class="text-center">
