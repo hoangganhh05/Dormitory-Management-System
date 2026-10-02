@@ -905,3 +905,51 @@
 @media (min-width: 1280px) {
   .metrics-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
+
+/* Students toolbar follows the same mobile-first filter pattern as the other
+   admin data screens. */
+.students-container .main-tabs-bar {
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.students-container .main-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.students-container .toolbar-card .search-box {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.students-container .toolbar-card .filter-group {
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .students-container .toolbar-card .filter-group {
+    align-items: stretch;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .students-container .toolbar-card .select-wrapper,
+  .students-container .toolbar-card .filter-select,
+  .students-container .toolbar-card .btn-reset {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .students-container .toolbar-card .select-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  .students-container .toolbar-card .filter-select {
+    flex: 1 1 auto;
+  }
+}

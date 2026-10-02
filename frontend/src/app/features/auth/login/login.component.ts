@@ -1,24 +1,29 @@
-import { Component, signal, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, signal, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { GoogleIdentityService } from '../../../core/services/google-identity.service';
+import { environment } from '../../../../environments/environment';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideAlertTriangle, lucideBuilding2, lucideCheckCircle, lucideEye, lucideEyeOff, lucideLockKeyhole, lucideShieldCheck, lucideUser } from '@ng-icons/lucide';
+import { lucideAlertTriangle, lucideCheckCircle, lucideEye, lucideEyeOff, lucideLockKeyhole, lucideShieldCheck, lucideUser } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIcon],
-  providers: [provideIcons({ lucideAlertTriangle, lucideBuilding2, lucideCheckCircle, lucideEye, lucideEyeOff, lucideLockKeyhole, lucideShieldCheck, lucideUser })],
+  providers: [provideIcons({ lucideAlertTriangle, lucideCheckCircle, lucideEye, lucideEyeOff, lucideLockKeyhole, lucideShieldCheck, lucideUser })],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private googleIdentityService = inject(GoogleIdentityService);
+
+  @ViewChild('googleButton') googleButton?: ElementRef<HTMLElement>;
 
   // Active view: 'login' | 'forgot'
   currentView = signal<'login' | 'forgot'>('login');
@@ -28,6 +33,9 @@ export class LoginComponent {
   isLoading = signal(false);
   errorMessage = signal('');
   successMessage = signal('');
+  googleLoginAvailable = Boolean(
+    environment.googleClientId && !environment.googleClientId.startsWith('YOUR_GOOGLE_CLIENT_ID')
+  );
 
   loginForm: FormGroup;
   forgotForm: FormGroup;
@@ -48,6 +56,18 @@ export class LoginComponent {
       if (params['error']) {
         this.errorMessage.set(params['error']);
       }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    if (!this.googleLoginAvailable) return;
+
+    const element = this.googleButton?.nativeElement;
+    if (!element) return;
+
+    this.googleIdentityService.renderButton(element, (idToken) => this.onGoogleCredential(idToken)).catch((error: Error) => {
+      // Client ID có thể chưa được cấp ở môi trường local; không làm hỏng đăng nhập mật khẩu.
+      console.warn('[Google login]', error.message);
     });
   }
 
@@ -124,6 +144,27 @@ export class LoginComponent {
         this.isLoading.set(false);
         this.errorMessage.set('Không thể khôi phục mật khẩu. Vui lòng kiểm tra lại thông tin.');
       }
+    });
+  }
+
+  private onGoogleCredential(idToken: string): void {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    this.authService.googleLogin(idToken).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.router.navigate(['/client/home']);
+      },
+      error: (err: Error) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(
+          err.message.includes('@ictu.edu.vn')
+            ? 'Vui lòng chọn tài khoản có đuôi @ictu.edu.vn.'
+            : err.message || 'Không thể đăng nhập bằng Google ICTU.'
+        );
+      },
     });
   }
 

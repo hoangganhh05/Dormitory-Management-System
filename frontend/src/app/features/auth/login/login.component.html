@@ -5,12 +5,8 @@
   <div class="auth-card">
     <!-- Brand Header -->
     <div class="brand-header">
-      <div class="brand-badge">
-        <ng-icon name="lucideBuilding2" size="16" class="brand-icon"></ng-icon>
-        <span class="brand-title">ICTU DORMITORY SYSTEM</span>
-      </div>
-      <h1 class="auth-heading">Đăng nhập Cổng Ký Túc Xá</h1>
-      <p class="auth-subtext">Hệ thống Quản lý Lưu trú &amp; Dịch vụ Sinh viên ICTU</p>
+      <h1 class="text-2xl sm:text-[1.75rem] font-extrabold text-slate-900 tracking-tight leading-tight sm:whitespace-nowrap">Đăng nhập Cổng Ký Túc Xá</h1>
+      <p class="mt-2 text-sm text-slate-500">Hệ thống Quản lý Lưu trú &amp; Dịch vụ Sinh viên ICTU</p>
     </div>
 
     <!-- Feedback Alerts -->
@@ -112,6 +108,12 @@
           </span>
         </button>
       </form>
+
+      <div *ngIf="googleLoginAvailable" class="google-login-section" [class.google-login-hidden]="activeRole() === 'ADMIN'">
+        <div class="google-divider"><span>hoặc</span></div>
+        <p class="google-login-label">Đăng nhập bằng Email ICTU (@ictu.edu.vn)</p>
+        <div #googleButton class="google-button"></div>
+      </div>
     </div>
 
     <!-- VIEW 2: FORGOT PASSWORD -->

@@ -1,7 +1,8 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { SettingsService, DormitorySettings } from '../../../core/services/settings.service';
 import { DormAiChatbotComponent } from '../../../shared/components/dorm-ai-chatbot/dorm-ai-chatbot.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -43,8 +44,9 @@ import {
   ],
   templateUrl: './client-layout.component.html'
 })
-export class ClientLayoutComponent {
+export class ClientLayoutComponent implements OnInit {
   authService = inject(AuthService);
+  private settingsService = inject(SettingsService);
 
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
@@ -53,6 +55,16 @@ export class ClientLayoutComponent {
   isMobileMenuOpen = signal(false);
   isSidebarCollapsed = signal(false);
   isLogoutConfirmOpen = signal(false);
+  hotline = '';
+  closingHour = '';
+
+  ngOnInit(): void {
+    this.settingsService.getPublicSettings().subscribe((response) => {
+      const settings: DormitorySettings = response.success ? response.data : {};
+      this.hotline = settings['HOTLINE'] || '';
+      this.closingHour = settings['CLOSING_HOUR'] || '';
+    });
+  }
 
   toggleSidebar(): void {
     this.isSidebarCollapsed.update(v => !v);

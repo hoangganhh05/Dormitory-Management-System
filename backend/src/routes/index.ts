@@ -9,6 +9,7 @@ import studentRoutes from './student.routes';
 import allocationRoutes from './allocation.routes';
 import notificationRoutes from './notification.routes';
 import aiRoutes from './ai.routes';
+import settingsRoutes from './settings.routes';
 
 const router = Router();
 
@@ -29,5 +30,6 @@ router.use('/dashboard', dashboardRoutes);
 
 // AI Services
 router.use('/ai', aiRoutes);
+router.use('/settings', settingsRoutes);
 
 export default router;

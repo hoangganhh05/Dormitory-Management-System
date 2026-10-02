@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { StudentService } from '../../../core/services/student.service';
+import { SettingsService, DormitorySettings } from '../../../core/services/settings.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { StudentProfile } from '../../../core/models/student.model';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -18,6 +19,7 @@ import { lucideBedDouble, lucideBuilding2, lucideCheckCircle, lucideClipboardLis
 })
 export class ClientProfileComponent implements OnInit {
   private studentService = inject(StudentService);
+  private settingsService = inject(SettingsService);
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
@@ -28,6 +30,9 @@ export class ClientProfileComponent implements OnInit {
   updateSuccessMsg = signal('');
   isUpdatingPhone = signal(false);
   isEditingPhone = signal(false);
+  openingHour = '';
+  closingHour = '';
+  currentTermLabel = '';
 
   phoneForm: FormGroup;
 
@@ -39,6 +44,18 @@ export class ClientProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+    this.loadSettings();
+  }
+
+  private loadSettings(): void {
+    this.settingsService.getPublicSettings().subscribe((response) => {
+      const settings: DormitorySettings = response.success ? response.data : {};
+      this.openingHour = settings['OPENING_HOUR'] || '';
+      this.closingHour = settings['CLOSING_HOUR'] || '';
+      this.currentTermLabel = [settings['CURRENT_SEMESTER'], settings['CURRENT_ACADEMIC_YEAR']]
+        .filter(Boolean)
+        .join(' ');
+    });
   }
 
   loadProfile(): void {

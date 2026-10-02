@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthUser, LoginResponse } from '../models/auth.model';
+import { AuthUser, GoogleLoginResponse, LoginResponse } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root',
@@ -52,18 +52,29 @@ export class AuthService {
         }
         return res.data;
       }),
-      tap(({ token, user }) => {
-        this.token.set(token);
-        this.currentUser.set(user);
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem(this.TOKEN_KEY, token);
-          localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-        }
-      }),
+      tap(({ token, user }) => this.persistSession(token, user)),
       map(({ user }) => user),
       catchError((error) => {
         console.error('[AuthService.login Error]', error);
         return throwError(() => new Error(error.error?.message || 'Không thể đăng nhập. Vui lòng kiểm tra lại thông tin.'));
+      })
+    );
+  }
+
+  googleLogin(idToken: string): Observable<AuthUser> {
+    return this.http.post<GoogleLoginResponse>(`${this.apiUrl}/google-login`, { idToken }).pipe(
+      map((res) => {
+        const session = res.data ?? (res.token && res.user ? { token: res.token, user: res.user } : null);
+        if (!res.success || !session) {
+          throw new Error(res.message || 'Đăng nhập Google không thành công');
+        }
+        return session;
+      }),
+      tap(({ token, user }) => this.persistSession(token, user)),
+      map(({ user }) => user),
+      catchError((error) => {
+        console.error('[AuthService.googleLogin Error]', error);
+        return throwError(() => new Error(error.error?.message || 'Không thể đăng nhập bằng Google ICTU.'));
       })
     );
   }
@@ -110,6 +121,15 @@ export class AuthService {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
+    }
+  }
+
+  private persistSession(token: string, user: AuthUser): void {
+    this.token.set(token);
+    this.currentUser.set(user);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(this.TOKEN_KEY, token);
+      localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     }
   }
 }

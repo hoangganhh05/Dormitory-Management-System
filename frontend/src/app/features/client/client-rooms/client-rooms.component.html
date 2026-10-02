@@ -106,9 +106,9 @@
     <ng-container *ngIf="!isLoading() && !hasError() && filteredRooms().length > 0">
       <!-- Existing 2D rooms grid -->
       <div class="rooms-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-6" *ngIf="viewMode() === '2d'">
-        <div *ngFor="let room of filteredRooms()" class="room-card h-full bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between hover:border-slate-300 hover:shadow-sm transition-all" [class.full]="room.status === 'FULL'">
+        <div *ngFor="let room of filteredRooms()" class="room-card h-full overflow-hidden bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between hover:border-slate-300 hover:shadow-sm transition-all" [class.available]="room.status === 'AVAILABLE'" [class.full]="room.status === 'FULL'" [class.maintenance]="room.status === 'MAINTENANCE'">
         <div class="space-y-4 flex-1">
-          <div class="room-card-header">
+          <div class="room-card-heading">
             <div class="room-title-box">
               <span class="room-num text-lg font-bold text-slate-900">{{ room.roomNumber }}</span>
               <span class="room-bldg text-xs text-slate-500">{{ room.building }} - Tầng {{ room.floor }}</span>

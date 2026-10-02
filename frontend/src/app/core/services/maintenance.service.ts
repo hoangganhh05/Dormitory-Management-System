@@ -10,6 +10,7 @@ import {
   MaintenanceStatus,
 } from '../models/maintenance.model';
 import { environment } from '../../../environments/environment';
+import { getApiErrorMessage } from '../utils/api-error.util';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,7 @@ export class MaintenanceService {
    */
   getMaintenanceStats(): Observable<MaintenanceApiResponse<MaintenanceStats>> {
     return this.http.get<MaintenanceApiResponse<MaintenanceStats>>(`${this.apiUrl}/stats`).pipe(
-      timeout(15000),
+      timeout(4000),
       catchError((err) => {
         console.error('[MaintenanceService] getMaintenanceStats failed:', err);
         return of({
@@ -56,7 +57,7 @@ export class MaintenanceService {
       if (params.limit) httpParams = httpParams.set('limit', String(params.limit));
     }
     return this.http.get<MaintenanceApiResponse<MaintenanceRequest[]>>(this.apiUrl, { params: httpParams }).pipe(
-      timeout(15000),
+      timeout(4000),
       catchError((err) => {
         console.error('[MaintenanceService] getRequests failed:', err);
         return of({
@@ -79,7 +80,7 @@ export class MaintenanceService {
    */
   getMyRequests(): Observable<MaintenanceApiResponse<MaintenanceRequest[]>> {
     return this.http.get<MaintenanceApiResponse<MaintenanceRequest[]>>(`${this.apiUrl}/my`).pipe(
-      timeout(15000),
+      timeout(4000),
       catchError((err) => {
         console.error('[MaintenanceService] getMyRequests failed:', err);
         return of({
@@ -96,7 +97,7 @@ export class MaintenanceService {
    */
   getRequestById(id: number): Observable<MaintenanceApiResponse<MaintenanceRequest>> {
     return this.http.get<MaintenanceApiResponse<MaintenanceRequest>>(`${this.apiUrl}/${id}`).pipe(
-      timeout(15000),
+      timeout(4000),
       catchError((err) => {
         console.error(`[MaintenanceService] getRequestById(${id}) failed:`, err);
         return of({
@@ -112,20 +113,38 @@ export class MaintenanceService {
    * Gửi yêu cầu sửa chữa mới
    */
   createRequest(dto: CreateMaintenanceDto): Observable<any> {
-    return this.http.post<any>(this.apiUrl, dto);
+    return this.http.post<any>(this.apiUrl, dto).pipe(
+      timeout(30000),
+      catchError((error) => {
+        console.error('[MaintenanceService.createRequest] failed:', error);
+        return throwError(() => new Error(getApiErrorMessage(error, 'Không thể gửi yêu cầu báo hỏng.')));
+      }),
+    );
   }
 
   /**
    * Cập nhật trạng thái xử lý & phản hồi kỹ thuật
    */
   updateStatus(id: number, status: MaintenanceStatus, adminFeedback?: string): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/${id}/status`, { status, adminFeedback });
+    return this.http.patch<any>(`${this.apiUrl}/${id}/status`, { status, adminFeedback }).pipe(
+      timeout(30000),
+      catchError((error) => {
+        console.error('[MaintenanceService.updateStatus] failed:', error);
+        return throwError(() => new Error(getApiErrorMessage(error, 'Không thể cập nhật trạng thái yêu cầu.')));
+      }),
+    );
   }
 
   /**
    * Xóa yêu cầu sửa chữa
    */
   deleteRequest(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+    return this.http.delete<any>(`${this.apiUrl}/${id}`).pipe(
+      timeout(30000),
+      catchError((error) => {
+        console.error('[MaintenanceService.deleteRequest] failed:', error);
+        return throwError(() => new Error(getApiErrorMessage(error, 'Không thể xóa yêu cầu bảo trì.')));
+      }),
+    );
   }
 }

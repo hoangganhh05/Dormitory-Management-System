@@ -172,7 +172,7 @@
               Quy định quyền lợi người lưu trú
             </div>
             <p class="guidance-desc">
-              Sinh viên có trách nhiệm bảo quản tài sản tại vị trí giường được phân công, tuân thủ giờ mở cửa (05h30 - 23h00) và quy chế an ninh trật tự KTX. Khi gặp sự cố kỹ thuật, vui lòng gửi yêu cầu báo hỏng cơ sở vật chất.
+              Sinh viên có trách nhiệm bảo quản tài sản tại vị trí giường được phân công, tuân thủ giờ mở cửa ({{ openingHour || 'chưa cập nhật' }} - {{ closingHour || 'chưa cập nhật' }}) và quy chế an ninh trật tự KTX. Khi gặp sự cố kỹ thuật, vui lòng gửi yêu cầu báo hỏng cơ sở vật chất.
             </p>
             <div class="guidance-actions">
               <a routerLink="/client/maintenance" class="btn-action-outline">
@@ -213,7 +213,7 @@
     </div>
 
     <div class="card-body p-0">
-      <div class="table-responsive" *ngIf="profile()?.registrations && profile()!.registrations!.length > 0; else noRegistrations">
+      <div class="table-responsive w-full overflow-x-auto" *ngIf="profile()?.registrations && profile()!.registrations!.length > 0; else noRegistrations">
         <table class="table-b2b">
           <thead>
             <tr>
@@ -227,7 +227,7 @@
           <tbody>
             <tr *ngFor="let reg of profile()!.registrations">
               <td class="font-mono text-xs font-semibold">#REG-{{ reg.id }}</td>
-              <td class="font-medium text-slate-900">{{ reg.semester || 'Học kỳ I 2026-2027' }}</td>
+              <td class="font-medium text-slate-900">{{ reg.semester || currentTermLabel || 'Chưa cập nhật' }}</td>
               <td>
                 <span *ngIf="reg.preferredRoom">Phòng {{ reg.preferredRoom.roomNumber }} - Tòa {{ reg.preferredRoom.building }}</span>
                 <span *ngIf="!reg.preferredRoom" class="text-slate-400">Không chỉ định</span>

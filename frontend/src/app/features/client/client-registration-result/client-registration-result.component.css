@@ -1,0 +1,81 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.registration-item {
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.registration-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgb(15 23 42 / 0.05);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge.pending {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.status-badge.approved {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.status-badge.rejected {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.status-badge.cancelled {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.field-label {
+  color: #64748b;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.field-value {
+  margin-top: 0.35rem;
+  color: #1e293b;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.cancel-button {
+  min-height: 2.25rem;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  color: #b91c1c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-button:hover {
+  background: #fef2f2;
+}

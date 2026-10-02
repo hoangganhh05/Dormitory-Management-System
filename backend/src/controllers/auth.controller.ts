@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { randomBytes } from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
 import { prisma } from '../config/prisma';
 import { ENV } from '../config/env';
 
@@ -75,6 +77,114 @@ export class AuthController {
         success: false,
         message: 'Lỗi hệ thống khi đăng nhập',
         error: error.message,
+      });
+    }
+  }
+
+  // Đăng nhập bằng Google Identity Services, chỉ chấp nhận email ICTU.
+  static async googleLogin(req: Request, res: Response): Promise<void> {
+    try {
+      const idToken = typeof req.body?.idToken === 'string' ? req.body.idToken.trim() : '';
+
+      if (!idToken) {
+        res.status(400).json({ success: false, message: 'Thiếu Google ID token' });
+        return;
+      }
+
+      if (!ENV.GOOGLE_CLIENT_ID || ENV.GOOGLE_CLIENT_ID.startsWith('YOUR_GOOGLE_CLIENT_ID')) {
+        res.status(503).json({
+          success: false,
+          message: 'Đăng nhập Google chưa được cấu hình trên hệ thống',
+        });
+        return;
+      }
+
+      const client = new OAuth2Client(ENV.GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: ENV.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      if (!payload || payload.email_verified !== true) {
+        res.status(401).json({ success: false, message: 'Google ID token không có thông tin tài khoản' });
+        return;
+      }
+      const email = payload?.email?.trim().toLowerCase();
+
+      if (!email || !email.endsWith('@ictu.edu.vn')) {
+        res.status(403).json({
+          success: false,
+          message: 'Chỉ chấp nhận tài khoản Google Mail do trường ICTU cấp (@ictu.edu.vn)',
+        });
+        return;
+      }
+
+      const studentCode = email.slice(0, email.indexOf('@')).toUpperCase();
+      if (!studentCode) {
+        res.status(400).json({ success: false, message: 'Email ICTU không có mã sinh viên hợp lệ' });
+        return;
+      }
+
+      let user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        user = await prisma.user.findUnique({ where: { studentCode } });
+      }
+
+      if (user?.role === 'ADMIN') {
+        res.status(403).json({
+          success: false,
+          message: 'Tài khoản Google ICTU không được dùng để đăng nhập tài khoản quản trị',
+        });
+        return;
+      }
+
+      const userData = {
+        email,
+        studentCode,
+        fullName: payload.name?.trim() || user?.fullName || studentCode,
+        avatar: payload.picture || user?.avatar || null,
+      };
+
+      if (user) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: userData,
+        });
+      } else {
+        const password = await bcrypt.hash(randomBytes(32).toString('hex'), 12);
+        user = await prisma.user.create({
+          data: {
+            ...userData,
+            password,
+            role: 'STUDENT',
+          },
+        });
+      }
+
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          studentCode: user.studentCode,
+        },
+        ENV.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      const { password: _, ...userInfo } = user;
+
+      res.status(200).json({
+        success: true,
+        message: 'Đăng nhập Google ICTU thành công!',
+        token,
+        user: userInfo,
+        data: { token, user: userInfo },
+      });
+    } catch (error: any) {
+      console.error('[AuthController.googleLogin Error]', error);
+      res.status(401).json({
+        success: false,
+        message: 'Google ID token không hợp lệ hoặc đã hết hạn',
       });
     }
   }

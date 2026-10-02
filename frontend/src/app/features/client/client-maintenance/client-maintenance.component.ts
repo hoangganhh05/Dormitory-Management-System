@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaintenanceService } from '../../../core/services/maintenance.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { StudentService } from '../../../core/services/student.service';
+import { StudentProfile } from '../../../core/models/student.model';
 import { MaintenanceRequest } from '../../../core/models/maintenance.model';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertTriangle, lucideCheck, lucideClock3, lucideMessageCircle, lucideWrench, lucideSparkles } from '@ng-icons/lucide';
@@ -34,13 +36,14 @@ export interface MaintenanceItem {
 export class ClientMaintenanceComponent implements OnInit {
   private maintenanceService = inject(MaintenanceService);
   authService = inject(AuthService);
+  private studentService = inject(StudentService);
   private aiClassifier = inject(AiMaintenanceClassifierService);
 
   aiSuggestion = signal<MaintenanceClassificationResult | null>(null);
   private debounceTimer: any = null;
 
   // Form fields
-  roomNumber = 'B101';
+  roomNumber = '';
   title = '';
   category = 'Điện & Quạt';
   urgency: 'LOW' | 'MEDIUM' | 'HIGH' = 'MEDIUM';
@@ -51,19 +54,48 @@ export class ClientMaintenanceComponent implements OnInit {
   submitSuccess = signal(false);
   errorMessage = signal('');
   loadError = signal('');
+  roomContextError = signal('');
+  isRoomContextLoading = signal(true);
+  hasAssignedRoom = signal(false);
 
   // Maintenance history from API
   myRequests = signal<MaintenanceItem[]>([]);
 
   ngOnInit(): void {
-    const user = this.authService.currentUser();
-    if (user && user.studentCode) {
-      // Tự động gán phòng nếu sinh viên đang ở
-      if (user.studentCode === 'DTC235200050') {
-        this.roomNumber = 'B101';
-      }
-    }
+    this.loadResidentContext();
     this.loadRequests();
+  }
+
+  private loadResidentContext(): void {
+    const user = this.authService.currentUser();
+    if (!user) {
+      this.roomNumber = '';
+      this.hasAssignedRoom.set(false);
+      this.isRoomContextLoading.set(false);
+      this.roomContextError.set('Bạn cần đăng nhập để gửi yêu cầu báo hỏng.');
+      return;
+    }
+
+    this.isRoomContextLoading.set(true);
+    this.studentService
+      .getMyProfile()
+      .pipe(
+        catchError((err) => {
+          console.error('[ClientMaintenanceComponent loadResidentContext Error]', err);
+          return of(null as StudentProfile | null);
+        }),
+        finalize(() => this.isRoomContextLoading.set(false)),
+      )
+      .subscribe((profile) => {
+        const room = profile?.occupiedBed?.room?.roomNumber?.trim() || '';
+        this.roomNumber = room;
+        this.hasAssignedRoom.set(Boolean(room));
+        this.roomContextError.set(
+          room
+            ? ''
+            : 'Bạn chưa được xếp phòng lưu trú. Vui lòng đăng ký phòng trước khi gửi báo hỏng.',
+        );
+      });
   }
 
   loadRequests(): void {
@@ -125,6 +157,16 @@ export class ClientMaintenanceComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.isRoomContextLoading()) {
+      this.errorMessage.set('Đang tải thông tin phòng lưu trú, vui lòng thử lại sau giây lát.');
+      return;
+    }
+
+    if (!this.hasAssignedRoom() || !this.roomNumber.trim()) {
+      this.errorMessage.set(this.roomContextError() || 'Bạn chưa được xếp phòng lưu trú.');
+      return;
+    }
+
     if (!this.title.trim() || !this.description.trim()) {
       this.errorMessage.set('Vui lòng nhập đầy đủ tiêu đề và mô tả sự cố hỏng hóc!');
       return;
@@ -140,7 +182,7 @@ export class ClientMaintenanceComponent implements OnInit {
       title: `[${this.category}] ${this.title.trim()}`,
       description: this.description.trim(),
       urgency: this.urgency,
-      studentCode: user?.studentCode || 'DTC235200050',
+      studentCode: user?.studentCode || undefined,
     };
 
     this.maintenanceService.createRequest(payload).subscribe({

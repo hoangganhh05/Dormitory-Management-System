@@ -4,8 +4,11 @@ import { RouterLink } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { MaintenanceService } from '../../../core/services/maintenance.service';
+import { StudentService } from '../../../core/services/student.service';
+import { SettingsService, DormitorySettings } from '../../../core/services/settings.service';
 import { NotificationItem, NotificationCategory } from '../../../core/models/notification.model';
 import { MaintenanceRequest, MaintenanceStatus, MaintenanceUrgency } from '../../../core/models/maintenance.model';
+import { StudentProfile } from '../../../core/models/student.model';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideDoorClosed,
@@ -53,14 +56,20 @@ import { catchError, finalize, of } from 'rxjs';
 export class ClientHomeComponent implements OnInit {
   private notifService = inject(NotificationService);
   private maintenanceService = inject(MaintenanceService);
+  private studentService = inject(StudentService);
+  private settingsService = inject(SettingsService);
   private cdr = inject(ChangeDetectorRef);
   authService = inject(AuthService);
 
-  studentName = 'Phạm Thị Ngọc Ánh';
-  studentCode = 'DTC235200050';
-  currentRoom = 'Phòng A101';
-  currentBed = 'Giường G2 (Tầng 1 - Tòa A)';
-  stayStatus = 'Đang lưu trú';
+  studentName = '';
+  studentCode = '';
+  currentRoom = '';
+  currentBed = '';
+  stayStatus = '';
+
+  hotline = '';
+  closingHour = '';
+  dutyRoom = '';
 
   quickActions = [
     {
@@ -97,22 +106,67 @@ export class ClientHomeComponent implements OnInit {
   isLoadingAnnouncements = false;
 
   // Maintenance Requests Data
-  recentRequests: any[] = [];
+  recentRequests: MaintenanceRequest[] = [];
   isLoadingRequests = false;
-  pendingRequestsCount = 1;
+  pendingRequestsCount = 0;
 
   // Modal chi tiết thông báo
   isDetailOpen = false;
   selectedNotification: NotificationItem | null = null;
 
   ngOnInit(): void {
-    const user = this.authService.currentUser();
-    if (user) {
-      this.studentName = user.fullName;
-      this.studentCode = user.studentCode || 'DTC235200050';
-    }
+    this.loadStudentProfile();
+    this.loadSettings();
     this.loadAnnouncements();
     this.loadRecentRequests();
+  }
+
+  private loadStudentProfile(): void {
+    const user = this.authService.currentUser();
+    if (!user) {
+      this.applyStudentProfile(null);
+      return;
+    }
+
+    this.studentService
+      .getMyProfile()
+      .pipe(
+        catchError((err) => {
+          console.error('Lỗi khi tải thông tin lưu trú trang chủ:', err);
+          return of(null as StudentProfile | null);
+        }),
+      )
+      .subscribe((profile) => this.applyStudentProfile(profile));
+  }
+
+  private applyStudentProfile(profile: StudentProfile | null): void {
+    const authUser = this.authService.currentUser();
+    const occupiedBed = profile?.occupiedBed;
+    const room = occupiedBed?.room;
+
+    this.studentName = profile?.fullName || authUser?.fullName || '';
+    this.studentCode = profile?.studentCode || authUser?.studentCode || '';
+
+    if (room && occupiedBed) {
+      this.currentRoom = `Phòng ${room.roomNumber}`;
+      this.currentBed = `Giường ${occupiedBed.bedNumber} (Tầng ${room.floor} - ${room.building})`;
+      this.stayStatus = 'Đang lưu trú';
+    } else {
+      this.currentRoom = '';
+      this.currentBed = '';
+      this.stayStatus = '';
+    }
+    this.cdr.markForCheck();
+  }
+
+  private loadSettings(): void {
+    this.settingsService.getPublicSettings().subscribe((response) => {
+      const settings: DormitorySettings = response.success ? response.data : {};
+      this.hotline = settings['HOTLINE'] || '';
+      this.closingHour = settings['CLOSING_HOUR'] || '';
+      this.dutyRoom = settings['DUTY_ROOM'] || '';
+      this.cdr.markForCheck();
+    });
   }
 
   loadAnnouncements(): void {
@@ -151,7 +205,8 @@ export class ClientHomeComponent implements OnInit {
 
   loadRecentRequests(): void {
     if (!this.authService.currentUser()) {
-      this.setFallbackRequests();
+      this.recentRequests = [];
+      this.pendingRequestsCount = 0;
       this.isLoadingRequests = false;
       this.cdr.markForCheck();
       return;
@@ -173,49 +228,19 @@ export class ClientHomeComponent implements OnInit {
       .subscribe({
         next: (res) => {
           const list = res.success ? res.data || [] : [];
-          if (list.length > 0) {
-            this.recentRequests = list.slice(0, 4);
-            this.pendingRequestsCount = list.filter(r => r.status === 'PENDING' || r.status === 'PROCESSING').length;
-          } else {
-            this.setFallbackRequests();
-          }
+          this.recentRequests = list.slice(0, 4);
+          this.pendingRequestsCount = list.filter(r => r.status === 'PENDING' || r.status === 'PROCESSING').length;
           this.isLoadingRequests = false;
           this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Lỗi loadRecentRequests subscribe:', err);
-          this.setFallbackRequests();
+          this.recentRequests = [];
+          this.pendingRequestsCount = 0;
           this.isLoadingRequests = false;
           this.cdr.markForCheck();
         },
       });
-  }
-
-  private setFallbackRequests(): void {
-    this.recentRequests = [
-      {
-        id: 101,
-        title: 'Bảo dưỡng quạt trần quay chậm phòng A101',
-        createdAt: new Date().toISOString(),
-        urgency: 'MEDIUM',
-        status: 'PENDING',
-      },
-      {
-        id: 98,
-        title: 'Sửa vòi nước bồn rửa mặt bị rò rỉ',
-        createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-        urgency: 'HIGH',
-        status: 'PROCESSING',
-      },
-      {
-        id: 84,
-        title: 'Thay bóng tuýp LED bàn tự học tầng 1',
-        createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-        urgency: 'LOW',
-        status: 'RESOLVED',
-      },
-    ];
-    this.pendingRequestsCount = 1;
   }
 
   openDetail(item: NotificationItem): void {

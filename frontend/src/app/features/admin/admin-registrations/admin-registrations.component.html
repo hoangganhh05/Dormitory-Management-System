@@ -66,51 +66,53 @@
 
     <!-- Underline tabs and filters -->
     <section class="bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs space-y-4">
-      <div class="flex gap-6 overflow-x-auto border-b border-slate-100 pb-2 text-sm">
+      <div class="flex min-w-0 items-center gap-6 overflow-x-auto whitespace-nowrap border-b border-slate-100 pb-2 text-sm no-scrollbar">
         <button type="button" (click)="currentTab.set('PENDING')" [class.border-slate-900]="currentTab() === 'PENDING'" [class.text-slate-900]="currentTab() === 'PENDING'" class="shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
           Chờ duyệt <span class="ml-1 text-xs text-slate-400">{{ stats()?.pending ?? 0 }}</span>
         </button>
-        <button type="button" (click)="currentTab.set('APPROVED')" [class.border-slate-900]="currentTab() === 'APPROVED'" [class.text-slate-900]="currentTab() === 'APPROVED'" class="ml-6 shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+        <button type="button" (click)="currentTab.set('APPROVED')" [class.border-slate-900]="currentTab() === 'APPROVED'" [class.text-slate-900]="currentTab() === 'APPROVED'" class="shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
           Đã duyệt <span class="ml-1 text-xs text-slate-400">{{ stats()?.approved ?? 0 }}</span>
         </button>
-        <button type="button" (click)="currentTab.set('REJECTED')" [class.border-slate-900]="currentTab() === 'REJECTED'" [class.text-slate-900]="currentTab() === 'REJECTED'" class="ml-6 shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+        <button type="button" (click)="currentTab.set('REJECTED')" [class.border-slate-900]="currentTab() === 'REJECTED'" [class.text-slate-900]="currentTab() === 'REJECTED'" class="shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
           Từ chối <span class="ml-1 text-xs text-slate-400">{{ stats()?.rejected ?? 0 }}</span>
         </button>
-        <button type="button" (click)="currentTab.set('CANCELLED')" [class.border-slate-900]="currentTab() === 'CANCELLED'" [class.text-slate-900]="currentTab() === 'CANCELLED'" class="ml-6 shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+        <button type="button" (click)="currentTab.set('CANCELLED')" [class.border-slate-900]="currentTab() === 'CANCELLED'" [class.text-slate-900]="currentTab() === 'CANCELLED'" class="shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
           Đã hủy <span class="ml-1 text-xs text-slate-400">{{ stats()?.cancelled ?? 0 }}</span>
         </button>
-        <button type="button" (click)="currentTab.set('ALL')" [class.border-slate-900]="currentTab() === 'ALL'" [class.text-slate-900]="currentTab() === 'ALL'" class="ml-6 shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+        <button type="button" (click)="currentTab.set('ALL')" [class.border-slate-900]="currentTab() === 'ALL'" [class.text-slate-900]="currentTab() === 'ALL'" class="shrink-0 border-b-2 border-transparent px-1 py-3.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
           Tất cả <span class="ml-1 text-xs text-slate-400">{{ stats()?.total ?? 0 }}</span>
         </button>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="relative min-w-0 flex-1 md:max-w-md">
+      <div class="flex w-full flex-col gap-3 md:flex-row md:items-center">
+        <div class="relative w-full min-w-0 flex-1 md:max-w-none">
           <ng-icon name="lucideSearch" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></ng-icon>
           <input
             type="text"
             [value]="searchTerm()"
             (input)="searchTerm.set($any($event.target).value)"
             placeholder="Tìm sinh viên, mã SV, số phòng..."
-            class="h-10 w-full min-w-[240px] rounded-lg border border-slate-200 bg-slate-50/50 pl-9 pr-9 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-slate-500"
+             class="h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 pl-9 pr-9 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-slate-500"
           />
           <button *ngIf="searchTerm()" type="button" (click)="searchTerm.set('')" class="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center text-slate-400 hover:text-slate-900" title="Xóa tìm kiếm">
             <ng-icon name="lucideX" class="h-3.5 w-3.5"></ng-icon>
           </button>
         </div>
 
+        <div class="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:flex md:w-auto md:items-center">
         <select
           [value]="selectedSemester()"
           (change)="selectedSemester.set($any($event.target).value)"
-          class="h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm text-slate-700 outline-none focus:border-slate-500"
+          class="h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm text-slate-700 outline-none focus:border-slate-500 md:w-44"
         >
           <option value="ALL">Tất cả học kỳ</option>
           <option *ngFor="let sem of semesterList()" [value]="sem">{{ sem === 'H?c k? 1' ? 'Học kỳ 1' : sem }}</option>
         </select>
 
-        <button type="button" (click)="resetFilters()" class="h-10 rounded-lg px-3 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+        <button type="button" (click)="resetFilters()" class="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 md:w-auto">
           Đặt lại
         </button>
+        </div>
       </div>
     </section>
 
@@ -132,14 +134,14 @@
       </div>
 
       <div *ngIf="filteredList().length > 0" class="overflow-x-auto">
-        <table class="min-w-[1200px] w-full table-fixed text-left text-sm">
+      <table class="min-w-[1500px] w-full table-auto text-left text-sm">
           <thead class="bg-slate-50 text-xs font-medium uppercase tracking-wider text-slate-500">
             <tr>
               <th class="w-20 px-6 py-3.5 align-middle font-semibold">Mã đơn</th>
               <th class="w-56 px-6 py-3.5 align-middle font-semibold">Sinh viên nộp đơn</th>
               <th class="w-44 px-6 py-3.5 align-middle font-semibold">Phòng nguyện vọng</th>
-              <th class="w-40 whitespace-nowrap px-6 py-3.5 align-middle font-semibold">Học kỳ</th>
-              <th class="w-32 whitespace-nowrap px-6 py-3.5 align-middle font-semibold">Ngày gửi</th>
+              <th class="w-56 min-w-[14rem] whitespace-nowrap px-6 py-3.5 align-middle font-semibold">Học kỳ</th>
+              <th class="w-40 min-w-[10rem] whitespace-nowrap px-6 py-3.5 align-middle font-semibold">Ngày gửi</th>
               <th class="w-28 px-6 py-3.5 align-middle font-semibold">Trạng thái</th>
               <th class="w-64 px-6 py-3.5 align-middle font-semibold">Kết quả / Lý do</th>
               <th class="w-24 px-6 py-3.5 text-right align-middle font-semibold">Thao tác</th>
@@ -164,8 +166,8 @@
                 </div>
                 <ng-template #noRoomTemplate><span class="text-xs text-slate-400">Chưa chọn phòng</span></ng-template>
               </td>
-              <td class="w-40 whitespace-nowrap px-6 py-4 align-middle text-xs text-slate-600">{{ reg.semester === 'H?c k? 1' ? 'Học kỳ 1' : reg.semester }}</td>
-              <td class="w-32 whitespace-nowrap px-6 py-4 align-middle font-mono text-xs text-slate-500">{{ reg.createdAt | date: 'HH:mm dd/MM/yyyy' }}</td>
+              <td class="w-56 min-w-[14rem] max-w-[14rem] break-words px-6 py-4 align-middle text-xs leading-5 text-slate-600">{{ formatSemester(reg.semester) }}</td>
+              <td class="w-40 min-w-[10rem] whitespace-nowrap px-6 py-4 align-middle font-mono text-xs text-slate-500">{{ reg.createdAt | date: 'HH:mm dd/MM/yyyy' }}</td>
               <td class="w-28 whitespace-nowrap px-6 py-4 align-middle">
                 <span
                   class="inline-flex rounded-full border px-2 py-0.5 text-xs font-medium"
@@ -222,7 +224,7 @@
 </div>
 
 <!-- Approve registration modal -->
-<div *ngIf="isApproveModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4" (click)="closeApproveModal()">
+<div *ngIf="isApproveModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4">
   <div class="flex max-h-[90vh] w-full max-w-xl flex-col overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-xl" (click)="$event.stopPropagation()">
     <div class="flex items-start justify-between border-b border-slate-100 px-5 py-4">
       <div>
@@ -277,7 +279,7 @@
 </div>
 
 <!-- Reject registration modal -->
-<div *ngIf="isRejectModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4" (click)="closeRejectModal()">
+<div *ngIf="isRejectModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4">
   <div class="w-full max-w-xl rounded-lg border border-slate-200 bg-white shadow-xl" (click)="$event.stopPropagation()">
     <div class="flex items-start justify-between border-b border-slate-100 px-5 py-4">
       <div>
@@ -319,7 +321,7 @@
 </div>
 
 <!-- Registration detail modal -->
-<div *ngIf="isDetailModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4" (click)="closeDetailModal()">
+<div *ngIf="isDetailModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4">
   <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-xl" (click)="$event.stopPropagation()">
     <div class="flex items-start justify-between border-b border-slate-100 px-5 py-4">
       <div class="flex items-start gap-3">

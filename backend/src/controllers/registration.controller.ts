@@ -136,7 +136,17 @@ export class RegistrationController {
       const registration = await prisma.registration.findUnique({
         where: { id },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              studentCode: true,
+              email: true,
+              phone: true,
+              gender: true,
+              role: true,
+            },
+          },
           preferredRoom: {
             include: {
               beds: {
@@ -318,6 +328,17 @@ export class RegistrationController {
         return;
       }
 
+      const hasVacantBed = room.beds.some(
+        (bed) => bed.status === BedStatus.VACANT && bed.occupiedById === null
+      );
+      if (!hasVacantBed) {
+        res.status(409).json({
+          success: false,
+          message: `Phòng ${room.roomNumber} hiện đã hết chỗ trống, không thể tiếp nhận đăng ký mới`,
+        });
+        return;
+      }
+
       // Kiểm tra xem sinh viên đã có đơn PENDING cho cùng học kỳ chưa
       const existingPending = await prisma.registration.findFirst({
         where: {
@@ -334,8 +355,27 @@ export class RegistrationController {
         return;
       }
 
-      const defaultSemester = semester || 'Học kỳ 1 (2026 - 2027)';
-      const defaultAcademicYear = academicYear || '2026-2027';
+      const termSettings = await prisma.dormitorySetting.findMany({
+        where: { key: { in: ['CURRENT_SEMESTER', 'CURRENT_ACADEMIC_YEAR'] } },
+        select: { key: true, value: true },
+      });
+      const termSettingsMap = termSettings.reduce<Record<string, string>>((result, setting) => {
+        result[setting.key] = setting.value;
+        return result;
+      }, {});
+      const configuredSemester = termSettingsMap['CURRENT_SEMESTER'] && termSettingsMap['CURRENT_ACADEMIC_YEAR']
+        ? `${termSettingsMap['CURRENT_SEMESTER']} (${termSettingsMap['CURRENT_ACADEMIC_YEAR']})`
+        : termSettingsMap['CURRENT_SEMESTER'] || '';
+      const defaultSemester = semester || configuredSemester;
+      const defaultAcademicYear = academicYear || termSettingsMap['CURRENT_ACADEMIC_YEAR'] || '';
+
+      if (!defaultSemester || !defaultAcademicYear) {
+        res.status(503).json({
+          success: false,
+          message: 'Hệ thống chưa cấu hình học kỳ hiện tại. Vui lòng liên hệ Ban Quản lý KTX.',
+        });
+        return;
+      }
       const parsedStart = startDate ? new Date(startDate) : new Date();
       const parsedEnd = endDate ? new Date(endDate) : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000);
 
@@ -415,6 +455,37 @@ export class RegistrationController {
         return;
       }
 
+      // Requests can be retried after a network timeout. Treat an already
+      // approved registration as success so the admin does not see a false
+      // failure after the database transaction has already committed.
+      if (registration.status === RegistrationStatus.APPROVED) {
+        const approvedRegistration = await prisma.registration.findUnique({
+          where: { id },
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                studentCode: true,
+                email: true,
+                phone: true,
+                gender: true,
+                role: true,
+              },
+            },
+            preferredRoom: true,
+            allocatedBed: true,
+          },
+        });
+
+        res.status(200).json({
+          success: true,
+          message: `Đơn đăng ký #${id} đã được phê duyệt trước đó.`,
+          data: approvedRegistration,
+        });
+        return;
+      }
+
       if (registration.status !== RegistrationStatus.PENDING) {
         res.status(400).json({
           success: false,
@@ -431,6 +502,13 @@ export class RegistrationController {
         if (vacantBed) {
           targetBedId = vacantBed.id;
         }
+      }
+
+      if (targetBedId === null) {
+        throw createRegistrationApprovalError(
+          `Phòng nguyện vọng của đơn đăng ký #${id} hiện không còn giường trống.`,
+          409
+        );
       }
 
       // Thực hiện phê duyệt trong database transaction
@@ -527,13 +605,29 @@ export class RegistrationController {
             allocatedBedId: targetBedId,
           },
           include: {
-            user: true,
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                studentCode: true,
+                email: true,
+                phone: true,
+                gender: true,
+                role: true,
+              },
+            },
             preferredRoom: true,
             allocatedBed: true,
           },
         });
 
         return { updatedReg, assignedBedNumber };
+      }, {
+        // The database is remote in local development/Render. The default
+        // Prisma transaction timeout (5s) is too short for the sequential bed,
+        // room and registration updates below.
+        maxWait: 10000,
+        timeout: 30000,
       });
 
       res.status(200).json({
@@ -547,9 +641,21 @@ export class RegistrationController {
       const isOccupiedBedConstraint =
         error?.code === 'P2002' &&
         (constraintTarget.includes('occupiedById') || rawErrorMessage.includes('beds_occupiedById_key'));
-      const statusCode = isOccupiedBedConstraint ? 400 : Number(error?.statusCode) || 500;
+      const isTransactionTimeout = error?.code === 'P2028';
+      const isForeignKeyError = error?.code === 'P2003';
+      const statusCode = isOccupiedBedConstraint
+        ? 400
+        : isTransactionTimeout
+          ? 503
+          : isForeignKeyError
+            ? 400
+            : Number(error?.statusCode) || 500;
       const errorMessage = isOccupiedBedConstraint
         ? 'Sinh viên này đang được gán một giường khác trong ký túc xá. Vui lòng kiểm tra và chuyển giường cũ trước khi phê duyệt.'
+        : isTransactionTimeout
+          ? 'Máy chủ xử lý quá lâu nên chưa thể xác nhận kết quả. Vui lòng tải lại danh sách và kiểm tra trạng thái đơn trước khi thao tác lại.'
+          : isForeignKeyError
+            ? 'Dữ liệu giường hoặc phòng không còn hợp lệ. Vui lòng tải lại danh sách và chọn lại giường.'
         : Number(error?.statusCode)
           ? rawErrorMessage
           : 'Không thể phê duyệt đơn đăng ký. Vui lòng kiểm tra lại giường được chọn và thử lại.';

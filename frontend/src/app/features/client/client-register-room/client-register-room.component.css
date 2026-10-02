@@ -439,3 +439,27 @@ input.invalid, select.invalid, textarea.invalid {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* Keep the history heading away from the outer card border. */
+.history-card {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.history-header {
+  margin-bottom: 1.25rem;
+}
+
+.history-table-wrap {
+  border-radius: 0.75rem;
+}
+
+@media (max-width: 639px) {
+  .history-card {
+    padding: 1rem;
+  }
+}

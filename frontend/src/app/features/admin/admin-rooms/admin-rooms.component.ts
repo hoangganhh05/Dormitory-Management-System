@@ -191,7 +191,7 @@ export class AdminRoomsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert('Không thể tạo phòng mới. Vui lòng thử lại sau.');
+        alert(err.message || 'Không thể tạo phòng mới. Vui lòng thử lại sau.');
       },
     });
   }
@@ -244,7 +244,7 @@ export class AdminRoomsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert('Không thể cập nhật thông tin phòng. Vui lòng thử lại sau.');
+        alert(err.message || 'Không thể cập nhật thông tin phòng. Vui lòng thử lại sau.');
       },
     });
   }
@@ -263,7 +263,7 @@ export class AdminRoomsComponent implements OnInit {
         this.showSuccess(`Phòng ${room.roomNumber} đã ${actionLabel}!`);
         this.loadData();
       },
-      error: () => alert('Không thể cập nhật trạng thái phòng. Vui lòng thử lại sau.'),
+      error: (err: Error) => alert(err.message || 'Không thể cập nhật trạng thái phòng. Vui lòng thử lại sau.'),
     });
   }
 
@@ -283,7 +283,7 @@ export class AdminRoomsComponent implements OnInit {
         this.showSuccess(`Đã xóa phòng ${room.roomNumber} khỏi hệ thống!`);
         this.loadData();
       },
-      error: () => alert('Không thể xóa phòng. Vui lòng thử lại sau.'),
+      error: (err: Error) => alert(err.message || 'Không thể xóa phòng. Vui lòng thử lại sau.'),
     });
   }
 
@@ -317,7 +317,7 @@ export class AdminRoomsComponent implements OnInit {
         this.selectedRoom.set({ ...room, beds: updatedBeds });
         this.loadData();
       },
-      error: () => alert('Không thể cập nhật trạng thái giường. Vui lòng thử lại sau.'),
+      error: (err: Error) => alert(err.message || 'Không thể cập nhật trạng thái giường. Vui lòng thử lại sau.'),
     });
   }
 

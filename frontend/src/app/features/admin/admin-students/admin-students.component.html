@@ -82,7 +82,7 @@
   <ng-container *ngIf="activeViewTab() === 'STUDENTS'">
     <!-- Filter Toolbar -->
     <div class="toolbar-card bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs space-y-4">
-      <div class="main-tabs-bar flex gap-6 border-b border-slate-100 pb-2 text-sm">
+      <div class="main-tabs-bar flex min-w-0 gap-6 overflow-x-auto whitespace-nowrap border-b border-slate-100 pb-2 text-sm no-scrollbar">
         <button class="main-tab-btn" [class.active]="activeViewTab() === 'STUDENTS'" (click)="switchTab('STUDENTS')">
           Danh sách hồ sơ sinh viên ({{ students().length }})
         </button>
@@ -90,7 +90,7 @@
           Nhật ký điều chuyển & Lưu trú ({{ allocationStats()?.totalHistories ?? 0 }})
         </button>
       </div>
-      <div class="search-box flex-1 min-w-[240px]">
+      <div class="search-box relative w-full min-w-0 flex-1">
         <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
@@ -102,14 +102,14 @@
         <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')" title="Xóa tìm kiếm"><ng-icon name="lucideX" size="14"></ng-icon></button>
       </div>
 
-      <div class="filter-group">
+      <div class="filter-group flex w-full flex-col gap-3 md:flex-row md:items-center">
         <!-- Gender Filter -->
         <div class="select-wrapper">
           <label class="select-label">Giới tính:</label>
           <select
             [value]="selectedGender()"
             (change)="selectedGender.set($any($event.target).value)"
-            class="filter-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
+             class="filter-select h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm md:w-44"
           >
             <option value="ALL">Tất cả</option>
             <option value="FEMALE">Nữ</option>
@@ -123,7 +123,7 @@
           <select
             [value]="selectedStatus()"
             (change)="selectedStatus.set($any($event.target).value)"
-            class="filter-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
+             class="filter-select h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm md:w-44"
           >
             <option value="ALL">Tất cả tình trạng</option>
             <option value="HOUSED">Đã có giường lưu trú</option>
@@ -131,7 +131,7 @@
           </select>
         </div>
 
-        <button class="btn-reset" (click)="resetFilters()" title="Đặt lại bộ lọc">
+        <button class="btn-reset h-10 w-full md:w-auto" (click)="resetFilters()" title="Đặt lại bộ lọc">
           Đặt lại
         </button>
       </div>
@@ -155,7 +155,7 @@
         </div>
       </div>
 
-      <div class="table-responsive" *ngIf="filteredStudents().length > 0">
+      <div class="table-responsive w-full overflow-x-auto" *ngIf="filteredStudents().length > 0">
         <table class="table-b2b">
           <thead>
             <tr>
@@ -293,7 +293,7 @@
   <!-- ================= VIEW 2: GLOBAL ALLOCATION & TRACKING HISTORY ================= -->
   <ng-container *ngIf="activeViewTab() === 'HISTORY'">
     <div class="toolbar-card bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs space-y-4">
-      <div class="main-tabs-bar flex gap-6 border-b border-slate-100 pb-2 text-sm">
+      <div class="main-tabs-bar flex min-w-0 gap-6 overflow-x-auto whitespace-nowrap border-b border-slate-100 pb-2 text-sm no-scrollbar">
         <button class="main-tab-btn" [class.active]="activeViewTab() === 'STUDENTS'" (click)="switchTab('STUDENTS')">
           Danh sách hồ sơ sinh viên ({{ students().length }})
         </button>
@@ -301,7 +301,7 @@
           Nhật ký điều chuyển & Lưu trú ({{ allocationStats()?.totalHistories ?? 0 }})
         </button>
       </div>
-      <div class="search-box flex-1 min-w-[240px]">
+      <div class="search-box relative w-full min-w-0 flex-1">
         <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
@@ -313,13 +313,13 @@
         <button class="clear-btn" *ngIf="historySearchTerm()" (click)="historySearchTerm.set('')" title="Xóa tìm kiếm"><ng-icon name="lucideX" size="14"></ng-icon></button>
       </div>
 
-      <div class="filter-group">
+      <div class="filter-group flex w-full flex-col gap-3 md:flex-row md:items-center">
         <div class="select-wrapper">
           <label class="select-label">Loại thao tác:</label>
           <select
             [value]="historyActionFilter()"
             (change)="historyActionFilter.set($any($event.target).value)"
-            class="filter-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
+             class="filter-select h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm md:w-44"
           >
             <option value="ALL">Tất cả thao tác</option>
             <option value="CHECK_IN">Tiếp nhận lưu trú (Check-in)</option>
@@ -328,7 +328,7 @@
           </select>
         </div>
 
-        <button class="btn-reset" (click)="historyActionFilter.set('ALL'); historySearchTerm.set('')">
+        <button class="btn-reset h-10 w-full md:w-auto" (click)="historyActionFilter.set('ALL'); historySearchTerm.set('')">
           Đặt lại
         </button>
       </div>
@@ -342,7 +342,7 @@
         </div>
       </div>
 
-      <div class="table-responsive" *ngIf="filteredHistories().length > 0">
+      <div class="table-responsive w-full overflow-x-auto" *ngIf="filteredHistories().length > 0">
         <table class="table-b2b">
           <thead>
             <tr>
@@ -417,7 +417,7 @@
   </ng-container>
 
   <!-- ================= MODAL 1: ALLOCATE BED (Check-in) ================= -->
-  <div class="modal-backdrop" *ngIf="isAllocateModalOpen()" (click)="closeAllocateModal()">
+  <div class="modal-backdrop" *ngIf="isAllocateModalOpen()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -477,7 +477,7 @@
   </div>
 
   <!-- ================= MODAL 2: TRANSFER BED ================= -->
-  <div class="modal-backdrop" *ngIf="isTransferModalOpen()" (click)="closeTransferModal()">
+  <div class="modal-backdrop" *ngIf="isTransferModalOpen()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -536,7 +536,7 @@
   </div>
 
   <!-- ================= MODAL 3: STUDENT HISTORY TIMELINE ================= -->
-  <div class="modal-backdrop" *ngIf="isHistoryModalOpen()" (click)="closeHistoryModal()">
+  <div class="modal-backdrop" *ngIf="isHistoryModalOpen()">
     <div class="modal-card wide" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -587,7 +587,7 @@
   </div>
 
   <!-- ================= MODAL 4: CREATE STUDENT MODAL ================= -->
-  <div class="modal-backdrop" *ngIf="isCreateModalOpen()" (click)="closeCreateModal()">
+  <div class="modal-backdrop" *ngIf="isCreateModalOpen()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -629,15 +629,15 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn-cancel" (click)="closeCreateModal()">Hủy bỏ</button>
-          <button type="submit" class="btn-submit" [disabled]="createForm.invalid">Tạo hồ sơ</button>
+          <button type="button" class="btn-cancel" (click)="closeCreateModal()" [disabled]="isSubmitting()">Hủy bỏ</button>
+          <button type="submit" class="btn-submit" [disabled]="createForm.invalid || isSubmitting()">{{ isSubmitting() ? 'Đang lưu...' : 'Tạo hồ sơ' }}</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ================= MODAL 5: EDIT STUDENT MODAL ================= -->
-  <div class="modal-backdrop" *ngIf="isEditModalOpen()" (click)="closeEditModal()">
+  <div class="modal-backdrop" *ngIf="isEditModalOpen()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -675,15 +675,15 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn-cancel" (click)="closeEditModal()">Hủy bỏ</button>
-          <button type="submit" class="btn-submit" [disabled]="editForm.invalid">Lưu thay đổi</button>
+          <button type="button" class="btn-cancel" (click)="closeEditModal()" [disabled]="isSubmitting()">Hủy bỏ</button>
+          <button type="submit" class="btn-submit" [disabled]="editForm.invalid || isSubmitting()">{{ isSubmitting() ? 'Đang lưu...' : 'Lưu thay đổi' }}</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ================= MODAL 6: VIEW DETAIL MODAL ================= -->
-  <div class="modal-backdrop" *ngIf="isDetailModalOpen()" (click)="closeDetailModal()">
+  <div class="modal-backdrop" *ngIf="isDetailModalOpen()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="flex items-center gap-3">
