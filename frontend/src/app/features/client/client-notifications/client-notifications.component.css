@@ -604,3 +604,54 @@
 .badge, .priority-tag, .pinned-indicator, .building-scope-tag { border-radius: .25rem; }
 .empty-box { border: 1px solid #e2e8f0; border-radius: .75rem; padding: 2.5rem; text-align: center; }
 .pagination-bar { border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem 1.5rem; }
+
+/* Responsive notification cards: metadata and actions stack before they can touch the viewport edge. */
+@media (max-width: 639px) {
+  .notifications-page {
+    gap: 1rem;
+  }
+
+  .page-header,
+  .notifications-content-card {
+    padding: 1rem !important;
+  }
+
+  .notification-filter-card {
+    padding: 1rem;
+  }
+
+  .notification-filter-card .btn-search {
+    width: 100%;
+  }
+
+  .notif-card {
+    padding: 1rem !important;
+  }
+
+  .card-top-row,
+  .card-footer-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .top-right-meta,
+  .views-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .card-title,
+  .card-summary,
+  .author-info {
+    overflow-wrap: anywhere;
+  }
+
+  .pagination-bar {
+    padding: .75rem 0;
+  }
+
+  .page-btns {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

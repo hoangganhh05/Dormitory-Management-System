@@ -678,3 +678,57 @@
 }
 .badge, .status-badge, .btn-action-primary, .action-btn { border-radius: .125rem; }
 .pagination-footer { border-radius: 0; border-left: 0; border-right: 0; }
+
+@media (max-width: 639px) {
+  .admin-maintenance-page {
+    gap: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+
+  .page-subtitle {
+    line-height: 1.5;
+  }
+
+  .metric-card {
+    padding: 1rem;
+  }
+
+  .filter-wrapper {
+    padding: .75rem;
+  }
+
+  .tab-list {
+    gap: 1rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .filter-controls-row,
+  .search-box,
+  .form-select,
+  .filter-controls-row .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .table-container {
+    overflow: hidden;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .summary-line {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+}

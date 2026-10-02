@@ -408,3 +408,34 @@ input.invalid, select.invalid, textarea.invalid {
 .form-section-title { border-bottom: 1px solid #f1f5f9; }
 .history-table th { background: #f8fafc; }
 .badge, .btn-primary, .btn-secondary, .submit-btn, .btn-cancel-reg { border-radius: .25rem; }
+
+@media (max-width: 639px) {
+  .form-wrapper {
+    padding: 1rem;
+  }
+
+  .form-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.375rem;
+    line-height: 1.35;
+  }
+
+  .success-actions,
+  .form-submit-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .success-actions > *,
+  .submit-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .history-table-wrap {
+    -webkit-overflow-scrolling: touch;
+  }
+}

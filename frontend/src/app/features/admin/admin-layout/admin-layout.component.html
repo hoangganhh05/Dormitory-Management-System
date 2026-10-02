@@ -2,7 +2,7 @@
   <!-- Mobile backdrop -->
   <div
     *ngIf="isMobileSidebarOpen()"
-    class="fixed inset-0 z-40 bg-slate-950/20 md:hidden"
+    class="fixed inset-0 z-40 bg-slate-950/20 xl:hidden"
     (click)="closeMobileSidebar()"
   ></div>
 
@@ -14,7 +14,7 @@
       'translate-x-0': isMobileSidebarOpen(),
       '-translate-x-full': !isMobileSidebarOpen()
     }"
-    class="group/admin-sidebar fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out md:static md:translate-x-0"
+    class="group/admin-sidebar fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out xl:static xl:translate-x-0"
   >
     <!-- Brand -->
     <div class="relative flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-3">
@@ -47,7 +47,7 @@
           'relative': !isSidebarCollapsed(),
           'absolute left-1/2 top-1/2 z-10 h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border border-slate-200 bg-white shadow-sm': isSidebarCollapsed()
         }"
-        class="inline-flex shrink-0 p-1.5 text-slate-500 opacity-100 pointer-events-auto transition-opacity duration-200 hover:bg-slate-100 hover:text-slate-900 md:pointer-events-none md:opacity-0 md:group-hover/admin-sidebar:pointer-events-auto md:group-hover/admin-sidebar:opacity-100"
+        class="pointer-events-auto inline-flex shrink-0 p-1.5 text-slate-500 opacity-100 transition-opacity duration-200 hover:bg-slate-100 hover:text-slate-900 xl:pointer-events-none xl:opacity-0 xl:group-hover/admin-sidebar:pointer-events-auto xl:group-hover/admin-sidebar:opacity-100"
       >
         <ng-icon [name]="isSidebarCollapsed() ? 'lucidePanelLeftOpen' : 'lucidePanelLeftClose'" class="h-4 w-4"></ng-icon>
       </button>
@@ -57,7 +57,7 @@
         (click)="closeMobileSidebar()"
         aria-label="Đóng thanh menu"
         title="Đóng thanh menu"
-        class="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 md:hidden"
+        class="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-md p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 xl:hidden"
       >
         <ng-icon name="lucideX" class="h-4 w-4"></ng-icon>
       </button>
@@ -202,7 +202,7 @@
         <button
           type="button"
           (click)="toggleMobileSidebar()"
-          class="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 md:hidden"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 xl:hidden"
           title="Mở menu"
         >
           <ng-icon name="lucideMenu" class="h-5 w-5"></ng-icon>
@@ -224,7 +224,7 @@
       </div>
     </header>
 
-    <main class="min-w-0 flex-1 overflow-y-auto bg-slate-50 p-4 md:p-6 xl:p-8">
+    <main class="min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-4 sm:p-6 xl:p-8">
       <router-outlet></router-outlet>
     </main>
   </div>
