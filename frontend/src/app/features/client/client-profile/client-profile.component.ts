@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -7,13 +7,13 @@ import { SettingsService, DormitorySettings } from '../../../core/services/setti
 import { AuthService } from '../../../core/services/auth.service';
 import { StudentProfile } from '../../../core/models/student.model';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideBedDouble, lucideBuilding2, lucideCheckCircle, lucideClipboardList, lucideFileText, lucideHouse, lucideTriangleAlert, lucideUsers, lucideWrench, lucideX } from '@ng-icons/lucide';
+import { lucideBedDouble, lucideBuilding2, lucideCamera, lucideCheckCircle, lucideClipboardList, lucideFileText, lucideHouse, lucideTriangleAlert, lucideUsers, lucideWrench, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-client-profile',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, NgIcon],
-  providers: [provideIcons({ lucideBedDouble, lucideBuilding2, lucideCheckCircle, lucideClipboardList, lucideFileText, lucideHouse, lucideTriangleAlert, lucideUsers, lucideWrench, lucideX })],
+  providers: [provideIcons({ lucideBedDouble, lucideBuilding2, lucideCamera, lucideCheckCircle, lucideClipboardList, lucideFileText, lucideHouse, lucideTriangleAlert, lucideUsers, lucideWrench, lucideX })],
   templateUrl: './client-profile.component.html',
   styleUrl: './client-profile.component.css',
 })
@@ -30,11 +30,16 @@ export class ClientProfileComponent implements OnInit {
   updateSuccessMsg = signal('');
   isUpdatingPhone = signal(false);
   isEditingPhone = signal(false);
+  isUploadingAvatar = signal(false);
+  avatarError = signal('');
+  avatarSuccess = signal('');
   openingHour = '';
   closingHour = '';
   currentTermLabel = '';
 
   phoneForm: FormGroup;
+
+  @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
 
   constructor() {
     this.phoneForm = this.fb.group({
@@ -65,6 +70,9 @@ export class ClientProfileComponent implements OnInit {
     this.studentService.getMyProfile().subscribe({
       next: (data) => {
         this.profile.set(data);
+        if (data.avatar !== this.currentUser()?.avatar) {
+          this.authService.updateCurrentUser({ avatar: data.avatar || null });
+        }
         this.phoneForm.patchValue({ phone: data.phone || '' });
         this.isLoading.set(false);
       },
@@ -74,6 +82,63 @@ export class ClientProfileComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    this.avatarError.set('');
+    this.avatarSuccess.set('');
+
+    if (!file) return;
+
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    if (!allowedTypes.has(file.type)) {
+      this.avatarError.set('Vui lòng chọn ảnh JPG, PNG hoặc WEBP.');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      this.avatarError.set('Dung lượng ảnh không được vượt quá 2MB.');
+      return;
+    }
+
+    const previousAvatar = this.profile()?.avatar || this.currentUser()?.avatar || null;
+    const reader = new FileReader();
+
+    reader.onerror = () => {
+      this.avatarError.set('Không thể đọc tệp ảnh. Vui lòng chọn lại.');
+    };
+
+    reader.onload = () => {
+      const preview = reader.result;
+      if (typeof preview !== 'string') {
+        this.avatarError.set('Ảnh không hợp lệ. Vui lòng chọn lại.');
+        return;
+      }
+
+      this.profile.update((current) => (current ? { ...current, avatar: preview } : current));
+      this.isUploadingAvatar.set(true);
+
+      this.studentService.updateMyAvatar(preview).subscribe({
+        next: (response) => {
+          const savedAvatar = response.avatar || preview;
+          this.profile.update((current) => (current ? { ...current, avatar: savedAvatar } : current));
+          this.authService.updateCurrentUser({ avatar: savedAvatar });
+          this.isUploadingAvatar.set(false);
+          this.avatarSuccess.set(response.message || 'Cập nhật ảnh đại diện thành công.');
+          setTimeout(() => this.avatarSuccess.set(''), 4000);
+        },
+        error: (error: Error) => {
+          this.profile.update((current) => (current ? { ...current, avatar: previousAvatar } : current));
+          this.isUploadingAvatar.set(false);
+          this.avatarError.set(error.message || 'Không thể cập nhật ảnh đại diện.');
+        },
+      });
+    };
+
+    reader.readAsDataURL(file);
   }
 
   toggleEditPhone(): void {

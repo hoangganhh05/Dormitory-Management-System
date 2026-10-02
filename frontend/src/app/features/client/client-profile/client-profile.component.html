@@ -55,15 +55,38 @@
       </div>
 
       <div class="card-body">
-        <div class="avatar-strip">
-          <div class="avatar-large">
-            {{ profile()?.fullName ? profile()!.fullName[0] : 'S' }}
+          <div class="avatar-strip">
+          <div class="avatar-large avatar-upload">
+            <img
+              *ngIf="profile()?.avatar as avatar; else avatarInitial"
+              [src]="avatar"
+              [alt]="'Ảnh đại diện của ' + (profile()?.fullName || 'sinh viên')"
+              class="avatar-image"
+            />
+            <ng-template #avatarInitial>
+              {{ profile()?.fullName ? profile()!.fullName[0] : 'S' }}
+            </ng-template>
+            <button
+              type="button"
+              class="avatar-upload-trigger"
+              (click)="fileInput?.click()"
+              [disabled]="isUploadingAvatar()"
+              aria-label="Đổi ảnh đại diện"
+              title="Đổi ảnh đại diện"
+            >
+              <ng-icon name="lucideCamera" size="14"></ng-icon>
+            </button>
+            <span class="avatar-uploading" *ngIf="isUploadingAvatar()">Đang lưu...</span>
           </div>
+          <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" class="hidden" (change)="onFileSelected($event)" />
           <div class="avatar-info">
             <h3 class="student-name">{{ profile()?.fullName }}</h3>
             <span class="student-code-badge">{{ profile()?.studentCode }}</span>
           </div>
         </div>
+
+        <p class="avatar-feedback avatar-feedback-error" *ngIf="avatarError()">{{ avatarError() }}</p>
+        <p class="avatar-feedback avatar-feedback-success" *ngIf="avatarSuccess()">{{ avatarSuccess() }}</p>
 
         <div class="info-list">
           <div class="info-row">

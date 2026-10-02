@@ -7,7 +7,8 @@ const app: Application = express();
 
 // Global Middlewares
 app.use(cors());
-app.use(express.json());
+// Avatar data URL có thể lớn hơn 2MB sau khi mã hóa base64.
+app.use(express.json({ limit: '3mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Root welcome route

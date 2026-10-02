@@ -117,6 +117,22 @@ export class AuthService {
     return t ? `Bearer ${t}` : null;
   }
 
+  updateCurrentUser(patch: Partial<AuthUser>): void {
+    const user = this.currentUser();
+    const accessToken = this.token();
+    if (!user) return;
+
+    const updatedUser = { ...user, ...patch };
+    this.currentUser.set(updatedUser);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
+    }
+
+    if (accessToken) {
+      this.token.set(accessToken);
+    }
+  }
+
   private clearStorage(): void {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem(this.TOKEN_KEY);
