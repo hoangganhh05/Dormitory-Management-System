@@ -4,8 +4,61 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma';
 import { ENV } from '../config/env';
 import { Gender, Role } from '@prisma/client';
+import { AuthenticatedRequest } from '../middlewares/auth.middleware';
+
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+const AVATAR_DATA_URL_PATTERN = /^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=\s]+)$/i;
 
 export class StudentController {
+  // [CLIENT] Sinh viên cập nhật ảnh đại diện bằng data URL ảnh đã chọn.
+  static async updateMyAvatar(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const avatar = typeof req.body?.avatar === 'string' ? req.body.avatar.trim() : '';
+
+      if (!req.user?.id) {
+        res.status(401).json({ success: false, message: 'Chưa xác thực người dùng' });
+        return;
+      }
+
+      const match = avatar.match(AVATAR_DATA_URL_PATTERN);
+      if (!match) {
+        res.status(400).json({
+          success: false,
+          message: 'Ảnh đại diện phải có định dạng JPG, PNG hoặc WEBP hợp lệ',
+        });
+        return;
+      }
+
+      const base64Payload = match[2].replace(/\s/g, '');
+      const imageBytes = Buffer.from(base64Payload, 'base64');
+      if (!imageBytes.length || imageBytes.length > MAX_AVATAR_BYTES) {
+        res.status(400).json({
+          success: false,
+          message: 'Dung lượng ảnh đại diện không được vượt quá 2MB',
+        });
+        return;
+      }
+
+      const storedAvatar = `data:${match[1].toLowerCase()};base64,${base64Payload}`;
+      await prisma.user.update({
+        where: { id: req.user.id },
+        data: { avatar: storedAvatar },
+      });
+
+      res.status(200).json({
+        success: true,
+        avatar: storedAvatar,
+        message: 'Cập nhật ảnh đại diện thành công',
+      });
+    } catch (error: any) {
+      console.error('[StudentController.updateMyAvatar Error]', error);
+      res.status(500).json({
+        success: false,
+        message: 'Không thể cập nhật ảnh đại diện. Vui lòng thử lại sau.',
+      });
+    }
+  }
+
   // [ADMIN] Lấy danh sách toàn bộ hồ sơ sinh viên lưu trú (hỗ trợ tìm kiếm, lọc)
   static async getAllStudents(req: Request, res: Response): Promise<void> {
     try {

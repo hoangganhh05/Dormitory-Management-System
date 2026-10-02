@@ -87,4 +87,15 @@ export class StudentService {
       })
     );
   }
+
+  // [CLIENT] Sinh viên cập nhật ảnh đại diện của chính mình
+  updateMyAvatar(avatar: string): Observable<{ success: boolean; avatar: string; message: string }> {
+    return this.http.post<{ success: boolean; avatar: string; message: string }>(`${this.apiUrl}/avatar`, { avatar }).pipe(
+      timeout(30000),
+      catchError((error) => {
+        console.error('[StudentService.updateMyAvatar Error]', error);
+        return throwError(() => new Error(getApiErrorMessage(error, 'Lỗi khi cập nhật ảnh đại diện.')));
+      })
+    );
+  }
 }

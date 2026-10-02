@@ -155,9 +155,14 @@
         [class.flex-col]="isSidebarCollapsed()"
         [class.gap-2]="isSidebarCollapsed()"
       >
-        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-semibold uppercase text-slate-700">
-          {{ currentUser()?.fullName ? currentUser()!.fullName[0] : 'U' }}
-        </div>
+        <ng-container *ngIf="currentUser()?.avatar as avatar; else sidebarAvatarInitial">
+          <img [src]="avatar" [alt]="'Ảnh đại diện của ' + (currentUser()?.fullName || 'sinh viên')" class="h-9 w-9 shrink-0 rounded-full border border-slate-200 object-cover" />
+        </ng-container>
+        <ng-template #sidebarAvatarInitial>
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-semibold uppercase text-slate-700">
+            {{ currentUser()?.fullName ? currentUser()!.fullName[0] : 'U' }}
+          </div>
+        </ng-template>
         <div *ngIf="!isSidebarCollapsed()" class="min-w-0 flex-1">
           <p class="truncate text-xs font-medium text-slate-900">{{ currentUser()?.fullName }}</p>
           <p class="mt-0.5 truncate font-mono text-[11px] text-slate-500">{{ currentUser()?.studentCode || 'Sinh viên' }}</p>
@@ -223,6 +228,24 @@
           class="rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
         >
           <ng-icon name="lucideBell" class="h-4 w-4"></ng-icon>
+        </a>
+
+        <a
+          *ngIf="isLoggedIn()"
+          routerLink="/client/profile"
+          aria-label="Mở hồ sơ cá nhân"
+          title="Hồ sơ cá nhân"
+          class="flex items-center gap-2 rounded-md p-1 text-slate-700 transition-colors hover:bg-slate-100"
+        >
+          <ng-container *ngIf="currentUser()?.avatar as avatar; else headerAvatarInitial">
+            <img [src]="avatar" [alt]="'Ảnh đại diện của ' + (currentUser()?.fullName || 'sinh viên')" class="h-8 w-8 rounded-full border border-slate-200 object-cover" />
+          </ng-container>
+          <ng-template #headerAvatarInitial>
+            <span class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-semibold uppercase text-slate-700">
+              {{ currentUser()?.fullName ? currentUser()!.fullName[0] : 'U' }}
+            </span>
+          </ng-template>
+          <span class="hidden max-w-28 truncate text-xs font-medium text-slate-700 sm:inline">{{ currentUser()?.fullName }}</span>
         </a>
 
         <a
