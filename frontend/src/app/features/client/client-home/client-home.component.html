@@ -23,9 +23,8 @@
   </header>
 
   <!-- Residency info strip -->
-  <div class="overflow-x-auto">
-    <section class="grid min-w-[680px] grid-cols-4 divide-x divide-slate-200 rounded-xl border border-slate-200 bg-white p-6 shadow-sm" aria-label="Thông tin cư trú">
-      <div class="flex items-center gap-3 pr-4">
+  <section class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 sm:p-6 lg:grid-cols-4" aria-label="Thông tin cư trú">
+      <div class="flex min-w-0 items-center gap-3 rounded-lg bg-slate-50/70 p-3 lg:bg-transparent lg:p-0 lg:pr-4">
         <ng-icon name="lucideDoorClosed" class="h-5 w-5 shrink-0 text-[#1e3a8a]"></ng-icon>
         <div class="min-w-0">
           <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Phòng</p>
@@ -33,7 +32,7 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-3 px-4">
+      <div class="flex min-w-0 items-center gap-3 rounded-lg bg-slate-50/70 p-3 lg:bg-transparent lg:px-4 lg:py-0">
         <ng-icon name="lucideBed" class="h-5 w-5 shrink-0 text-[#1e3a8a]"></ng-icon>
         <div class="min-w-0">
           <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Giường</p>
@@ -41,7 +40,7 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-3 px-4">
+      <div class="flex min-w-0 items-center gap-3 rounded-lg bg-slate-50/70 p-3 lg:bg-transparent lg:px-4 lg:py-0">
         <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-600"></span>
         <div>
           <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Trạng thái lưu trú</p>
@@ -49,15 +48,14 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-3 pl-4">
+      <div class="flex min-w-0 items-center gap-3 rounded-lg bg-slate-50/70 p-3 lg:bg-transparent lg:py-0 lg:pl-4">
         <ng-icon name="lucideWrench" class="h-5 w-5 shrink-0 text-[#1e3a8a]"></ng-icon>
         <div>
           <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500">Yêu cầu chờ xử lý</p>
           <p class="text-sm font-semibold text-slate-900">{{ pendingRequestsCount }}</p>
         </div>
       </div>
-    </section>
-  </div>
+  </section>
 
   <!-- Main two-column layout -->
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">

@@ -141,7 +141,8 @@
       <span class="mt-2 text-sm text-slate-500 font-medium">Đang tải danh sách yêu cầu bảo trì...</span>
     </div>
 
-    <table class="data-table" *ngIf="!isLoading">
+    <div class="table-scroll overflow-x-auto">
+    <table class="data-table min-w-[1100px]" *ngIf="!isLoading">
       <thead>
         <tr>
           <th style="width: 70px;">Mã số</th>
@@ -242,6 +243,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
 
     <!-- Pagination Footer -->
     <div class="pagination-footer" *ngIf="totalItems > 0">

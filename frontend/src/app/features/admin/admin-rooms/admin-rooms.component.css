@@ -1284,7 +1284,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .rooms-container {
     padding: 1rem;
   }
@@ -1306,5 +1306,28 @@
 
   .building-filter-tabs {
     width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: .25rem;
+  }
+
+  .building-filter-tab,
+  .toolbar-controls .btn-reset {
+    min-height: 44px;
+  }
+
+  .table-header-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: .75rem;
+    padding: 1rem;
+  }
+
+  .table-legends {
+    flex-wrap: wrap;
+  }
+
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
   }
 }

@@ -541,7 +541,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .rooms-header {
     align-items: flex-start;
     flex-direction: column;
@@ -563,6 +563,12 @@
 
   .reload-btn {
     align-self: flex-start;
+    min-height: 44px;
+  }
+
+  .view-toggle-btn,
+  .reset-filter-btn {
+    min-height: 44px;
   }
 
   .filter-controls-grid {

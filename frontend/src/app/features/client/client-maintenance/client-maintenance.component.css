@@ -178,6 +178,35 @@ input:focus, select:focus, textarea:focus {
   font-weight: 600;
 }
 
+@media (max-width: 639px) {
+  .maintenance-grid {
+    gap: 1rem;
+  }
+
+  .maint-card {
+    padding: 1rem;
+  }
+
+  .urgency-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .urgency-option,
+  .btn-submit {
+    min-height: 44px;
+  }
+
+  .req-header,
+  .req-title-grp {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .req-title {
+    overflow-wrap: anywhere;
+  }
+}
+
 .req-title {
   font-size: 14px;
   color: var(--text-main);
