@@ -14,7 +14,7 @@
       'translate-x-0': isMobileSidebarOpen(),
       '-translate-x-full': !isMobileSidebarOpen()
     }"
-    class="group/admin-sidebar fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out xl:static xl:translate-x-0"
+    class="group/admin-sidebar fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col overflow-hidden border-r border-slate-200 bg-white transition-all duration-300 ease-in-out xl:static xl:translate-x-0"
   >
     <!-- Brand -->
     <div class="relative flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-3">
@@ -47,7 +47,7 @@
           'relative': !isSidebarCollapsed(),
           'absolute left-1/2 top-1/2 z-10 h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md border border-slate-200 bg-white shadow-sm': isSidebarCollapsed()
         }"
-        class="pointer-events-auto inline-flex shrink-0 p-1.5 text-slate-500 opacity-100 transition-opacity duration-200 hover:bg-slate-100 hover:text-slate-900 xl:pointer-events-none xl:opacity-0 xl:group-hover/admin-sidebar:pointer-events-auto xl:group-hover/admin-sidebar:opacity-100"
+        class="pointer-events-auto hidden shrink-0 p-1.5 text-slate-500 transition-colors duration-200 hover:bg-slate-100 hover:text-slate-900 xl:inline-flex"
       >
         <ng-icon [name]="isSidebarCollapsed() ? 'lucidePanelLeftOpen' : 'lucidePanelLeftClose'" class="h-4 w-4"></ng-icon>
       </button>
@@ -64,7 +64,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="Điều hướng quản trị">
+    <nav class="min-h-0 flex-1 overflow-y-auto px-3 py-4" aria-label="Điều hướng quản trị">
       <p *ngIf="!isSidebarCollapsed()" class="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
         Điều hành
       </p>
@@ -152,8 +152,13 @@
     </nav>
 
     <!-- Admin account and portal switch -->
-    <div class="shrink-0 border-t border-slate-200 p-3">
-      <div class="mb-3 flex items-center gap-3" [class.justify-center]="isSidebarCollapsed()">
+    <div class="shrink-0 border-t border-slate-200 p-3 pb-4">
+      <div
+        class="mb-3 flex items-center gap-3"
+        [class.justify-center]="isSidebarCollapsed()"
+        [class.flex-col]="isSidebarCollapsed()"
+        [class.gap-2]="isSidebarCollapsed()"
+      >
         <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-slate-100 text-sm font-semibold text-slate-700">
           {{ currentUser()?.fullName ? currentUser()!.fullName[0] : 'A' }}
         </div>
