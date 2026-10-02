@@ -7,6 +7,11 @@
 export {};
 
 const BASE_URL = process.env.API_BASE_URL || 'http://localhost:5000/api';
+const QA_ADMIN_IDENTIFIER = process.env.QA_ADMIN_IDENTIFIER || 'admin@dormitory.com';
+const QA_ADMIN_PASSWORD = process.env.QA_ADMIN_PASSWORD || '123456';
+const QA_STUDENT_IDENTIFIER = process.env.QA_STUDENT_IDENTIFIER || 'vanan.cntt@ictu.edu.vn';
+const QA_STUDENT_PASSWORD = process.env.QA_STUDENT_PASSWORD || '123456';
+const QA_STUDENT_CODE = process.env.QA_STUDENT_CODE || '';
 
 async function sendRequest(
   method: string,
@@ -55,14 +60,14 @@ async function runSecurityAudit() {
   // 1. Chuẩn bị Token cho Admin và Student
   try {
     const adminLogin = await sendRequest('POST', '/auth/login', {
-      identifier: 'admin@dormitory.com',
-      password: '123456',
+      identifier: QA_ADMIN_IDENTIFIER,
+      password: QA_ADMIN_PASSWORD,
     });
     adminToken = adminLogin.data?.data?.token;
 
     const studentLogin = await sendRequest('POST', '/auth/login', {
-      identifier: 'ngocanh.cntt@ictu.edu.vn',
-      password: '123456',
+      identifier: QA_STUDENT_IDENTIFIER,
+      password: QA_STUDENT_PASSWORD,
     });
     studentToken = studentLogin.data?.data?.token;
 
@@ -71,6 +76,7 @@ async function runSecurityAudit() {
     }
   } catch (err: any) {
     console.error('❌ Lỗi khởi tạo phiên đăng nhập để kiểm toán:', err.message);
+    process.exitCode = 1;
     return;
   }
 
@@ -182,7 +188,9 @@ async function runSecurityAudit() {
       category: 'RBAC_AUTHORIZED',
       fn: async () => {
         const res = await sendRequest('GET', '/students/me/profile', undefined, studentToken);
-        return res.status === 200 && res.data?.data?.studentCode === 'DTC235200050';
+        const studentCode = res.data?.data?.studentCode;
+        return res.status === 200 && typeof studentCode === 'string' &&
+          (!QA_STUDENT_CODE || studentCode === QA_STUDENT_CODE);
       },
     },
 

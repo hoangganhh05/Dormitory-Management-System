@@ -87,7 +87,7 @@
 
   <!-- Tab Bar & Filter Controls -->
   <div class="filter-wrapper bg-white rounded-xl border border-slate-200/80 p-4 shadow-xs space-y-4">
-    <div class="tab-list flex gap-6 border-b border-slate-100 pb-2 text-sm">
+    <div class="tab-list flex min-w-0 gap-6 overflow-x-auto whitespace-nowrap border-b border-slate-100 pb-2 text-sm no-scrollbar">
       <button class="tab-btn" [class.active]="activeTab === 'ALL'" (click)="switchTab('ALL')">
         Tất cả thông báo
       </button>
@@ -105,13 +105,13 @@
       </button>
     </div>
 
-    <div class="filter-controls-row flex flex-wrap items-center gap-3">
+    <div class="filter-controls-row flex w-full flex-col gap-3 md:flex-row md:items-center">
       <!-- Search Input -->
       <div class="search-box">
         <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
         <input
           type="text"
-          class="form-input search-input h-10 min-w-[240px] flex-1 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
+           class="form-input search-input h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm"
           placeholder="Tìm tiêu đề, nội dung tóm tắt..."
           [(ngModel)]="searchKeyword"
           (keyup.enter)="onFilterChange()"
@@ -119,7 +119,7 @@
       </div>
 
       <!-- Select Category -->
-      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+      <select class="form-select h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm md:w-44" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
         <option value="">Tất cả chuyên mục</option>
         <option value="GENERAL">Chung</option>
         <option value="URGENT">Khẩn cấp</option>
@@ -130,7 +130,7 @@
       </select>
 
       <!-- Select Target Audience -->
-      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedTargetRole" (change)="onFilterChange()">
+      <select class="form-select h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm md:w-44" [(ngModel)]="selectedTargetRole" (change)="onFilterChange()">
         <option value="">Tất cả đối tượng</option>
         <option value="ALL">Toàn bộ KTX</option>
         <option value="STUDENT">Chỉ sinh viên</option>
@@ -138,14 +138,14 @@
       </select>
 
       <!-- Select Building Scope -->
-      <select class="form-select h-10 rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm" [(ngModel)]="selectedBuilding" (change)="onFilterChange()">
+      <select class="form-select h-10 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm md:w-44" [(ngModel)]="selectedBuilding" (change)="onFilterChange()">
         <option value="">Tất cả các tòa</option>
         <option value="Tòa A">Tòa A (Nam)</option>
         <option value="Tòa B">Tòa B (Nữ)</option>
       </select>
 
       <!-- Apply filter button -->
-      <button class="btn btn-secondary h-10 rounded-lg px-3 text-sm" (click)="onFilterChange()">
+      <button class="btn btn-secondary h-10 w-full rounded-lg px-3 text-sm md:w-auto" (click)="onFilterChange()">
         Lọc
       </button>
     </div>
@@ -286,7 +286,7 @@
   </div>
 
   <!-- Modal Soạn thảo / Chỉnh sửa Thông báo -->
-  <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-backdrop" *ngIf="isModalOpen">
     <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -400,7 +400,7 @@
   </div>
 
   <!-- Modal Xem trước / Chi tiết Thông báo -->
-  <div class="modal-backdrop" *ngIf="isPreviewOpen" (click)="closePreview()">
+  <div class="modal-backdrop" *ngIf="isPreviewOpen">
     <div class="modal-card modal-md" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -454,7 +454,7 @@
   </div>
 
   <!-- Modal Xác nhận Xóa -->
-  <div class="modal-backdrop" *ngIf="isDeleteConfirmOpen" (click)="closeDeleteConfirm()">
+  <div class="modal-backdrop" *ngIf="isDeleteConfirmOpen">
     <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="modal-title text-red-600">Xác Nhận Xóa Thông Báo</h3>

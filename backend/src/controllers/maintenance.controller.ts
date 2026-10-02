@@ -274,7 +274,7 @@ export class MaintenanceController {
   static async createRequest(req: Request, res: Response): Promise<void> {
     try {
       const authUser = await MaintenanceController.extractAuthUser(req);
-      const { roomNumber, title, description, urgency, studentCode } = req.body;
+      const { roomNumber, title, description, urgency } = req.body;
 
       if (!description || !description.trim()) {
         res.status(400).json({
@@ -284,11 +284,11 @@ export class MaintenanceController {
         return;
       }
 
-      // Xác định phòng: lấy từ param gửi lên, hoặc tự động lấy từ phòng sinh viên đang ở
-      let targetRoomNumber = roomNumber?.trim();
-      if (!targetRoomNumber && authUser?.occupiedBed?.room?.roomNumber) {
-        targetRoomNumber = authUser.occupiedBed.room.roomNumber;
-      }
+      // Sinh viên luôn phải báo đúng phòng đang được phân trong CSDL.
+      // Chỉ tài khoản quản trị mới được chỉ định phòng khác trong request.
+      let targetRoomNumber = authUser?.role === Role.STUDENT
+        ? authUser.occupiedBed?.room?.roomNumber
+        : roomNumber?.trim() || authUser?.occupiedBed?.room?.roomNumber;
 
       if (!targetRoomNumber) {
         res.status(400).json({
@@ -312,20 +312,7 @@ export class MaintenanceController {
       }
 
       // Xác định user gửi yêu cầu
-      let targetUserId: number | null = authUser?.id || null;
-
-      if (!targetUserId && studentCode) {
-        const found = await prisma.user.findFirst({
-          where: { studentCode: String(studentCode).trim() },
-        });
-        if (found) targetUserId = found.id;
-      }
-
-      if (!targetUserId) {
-        // Fallback: Tìm sinh viên đầu tiên trong CSDL
-        const defaultStudent = await prisma.user.findFirst({ where: { role: Role.STUDENT } });
-        if (defaultStudent) targetUserId = defaultStudent.id;
-      }
+      const targetUserId: number | null = authUser?.id || null;
 
       if (!targetUserId) {
         res.status(400).json({

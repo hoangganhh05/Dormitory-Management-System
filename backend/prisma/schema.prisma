@@ -220,6 +220,16 @@ model NotificationRead {
   @@map("notification_reads")
 }
 
+model DormitorySetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("dormitory_settings")
+}
+
 model ChatLog {
   id          Int      @id @default(autoincrement())
   userId      Int?

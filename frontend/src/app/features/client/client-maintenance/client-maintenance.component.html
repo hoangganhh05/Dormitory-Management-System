@@ -9,6 +9,13 @@
     <div class="maint-card w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:col-span-5">
       <h2 class="card-title">Tạo phiếu báo hỏng mới</h2>
 
+      <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" *ngIf="isRoomContextLoading()">
+        Đang tải thông tin phòng lưu trú...
+      </div>
+      <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800" *ngIf="!isRoomContextLoading() && !hasAssignedRoom()">
+        {{ roomContextError() }}
+      </div>
+
       <div class="alert-success" *ngIf="submitSuccess()">
         <ng-icon name="lucideCheck" size="16"></ng-icon> Gửi phiếu báo hỏng thành công. Kỹ thuật viên sẽ tiếp nhận và xử lý sớm nhất.
       </div>
@@ -101,7 +108,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
+        <button type="submit" class="btn-submit" [disabled]="isSubmitting() || isRoomContextLoading() || !hasAssignedRoom()">
           <span *ngIf="!isSubmitting()"><ng-icon name="lucideWrench" size="16"></ng-icon> Gửi phiếu báo hỏng</span>
           <span *ngIf="isSubmitting()"><ng-icon name="lucideClock3" size="16"></ng-icon> Đang gửi...</span>
         </button>

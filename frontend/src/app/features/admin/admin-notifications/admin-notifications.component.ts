@@ -267,7 +267,7 @@ export class AdminNotificationsComponent implements OnInit {
         },
         error: (err) => {
           this.isSaving = false;
-          alert('Không thể cập nhật thông báo. Vui lòng thử lại sau.');
+          alert(err?.message || 'Không thể cập nhật thông báo. Vui lòng thử lại sau.');
         },
       });
     } else {
@@ -283,7 +283,7 @@ export class AdminNotificationsComponent implements OnInit {
         },
         error: (err) => {
           this.isSaving = false;
-          alert('Không thể đăng thông báo. Vui lòng thử lại sau.');
+          alert(err?.message || 'Không thể đăng thông báo. Vui lòng thử lại sau.');
         },
       });
     }
@@ -302,7 +302,7 @@ export class AdminNotificationsComponent implements OnInit {
           this.loadStats();
         }
       },
-      error: () => alert('Không thể thay đổi trạng thái ghim. Vui lòng thử lại sau.'),
+      error: (err) => alert(err?.message || 'Không thể thay đổi trạng thái ghim. Vui lòng thử lại sau.'),
     });
   }
 
@@ -351,7 +351,7 @@ export class AdminNotificationsComponent implements OnInit {
       },
       error: (err) => {
         this.closeDeleteConfirm();
-        alert('Không thể xóa thông báo. Vui lòng thử lại sau.');
+        alert(err?.message || 'Không thể xóa thông báo. Vui lòng thử lại sau.');
       },
     });
   }

@@ -249,9 +249,9 @@
             <span class="mt-0.5 block md:mt-0 md:inline">Trường Đại học Công nghệ Thông tin và Truyền thông - ICTU</span>
           </div>
           <div class="flex items-center gap-4 text-slate-500">
-            <span>Hỗ trợ: <strong class="font-mono font-semibold text-slate-700">(0280) xxxxxxx</strong></span>
+            <span>Hỗ trợ: <strong class="font-mono font-semibold text-slate-700">{{ hotline || 'Chưa cập nhật' }}</strong></span>
             <span class="text-slate-300">•</span>
-            <span>Giờ đóng cửa: 23h00 hàng ngày</span>
+            <span>Giờ đóng cửa: {{ closingHour ? closingHour + ' hàng ngày' : 'Chưa cập nhật' }}</span>
           </div>
         </div>
       </footer>

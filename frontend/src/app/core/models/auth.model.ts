@@ -22,6 +22,17 @@ export interface LoginResponse {
   };
 }
 
+export interface GoogleLoginResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user?: AuthUser;
+  data?: {
+    token: string;
+    user: AuthUser;
+  };
+}
+
 export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;

@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { getApiErrorMessage } from '../utils/api-error.util';
 import {
   CreateRegistrationDto,
   Registration,
@@ -93,11 +94,10 @@ export class RegistrationService {
   // 5. [CLIENT] Tạo mới đơn đăng ký
   createRegistration(dto: CreateRegistrationDto): Observable<any> {
     return this.http.post<any>(this.apiUrl, dto).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[RegistrationService.createRegistration Error]', error);
-        return throwError(
-          () => new Error(error.error?.message || 'Gửi đơn đăng ký thất bại.')
-        );
+        return throwError(() => new Error(getApiErrorMessage(error, 'Gửi đơn đăng ký thất bại.')));
       })
     );
   }
@@ -107,11 +107,10 @@ export class RegistrationService {
     const normalizedBedId = bedId === undefined || bedId === null ? null : Number(bedId);
 
     return this.http.put<any>(`${this.apiUrl}/${id}/approve`, { bedId: normalizedBedId }).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[RegistrationService.approveRegistration Error]', error);
-        return throwError(
-          () => new Error(error.error?.message || 'Phê duyệt đơn đăng ký thất bại.')
-        );
+        return throwError(() => new Error(getApiErrorMessage(error, 'Phê duyệt đơn đăng ký thất bại.')));
       })
     );
   }
@@ -119,11 +118,10 @@ export class RegistrationService {
   // 7. [ADMIN] Từ chối đơn đăng ký
   rejectRegistration(id: number, rejectionReason: string): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}/reject`, { rejectionReason }).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[RegistrationService.rejectRegistration Error]', error);
-        return throwError(
-          () => new Error(error.error?.message || 'Từ chối đơn đăng ký thất bại.')
-        );
+        return throwError(() => new Error(getApiErrorMessage(error, 'Từ chối đơn đăng ký thất bại.')));
       })
     );
   }
@@ -131,11 +129,10 @@ export class RegistrationService {
   // 8. [CLIENT] Tự hủy đơn đăng ký khi đang PENDING
   cancelMyRegistration(id: number): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}/cancel`, {}).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[RegistrationService.cancelMyRegistration Error]', error);
-        return throwError(
-          () => new Error(error.error?.message || 'Hủy đơn đăng ký thất bại.')
-        );
+        return throwError(() => new Error(getApiErrorMessage(error, 'Hủy đơn đăng ký thất bại.')));
       })
     );
   }

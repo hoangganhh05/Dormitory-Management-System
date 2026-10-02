@@ -5,6 +5,10 @@
  */
 
 const API_BASE = 'http://localhost:5000/api';
+const QA_ADMIN_IDENTIFIER = process.env.QA_ADMIN_IDENTIFIER || 'admin@dormitory.com';
+const QA_ADMIN_PASSWORD = process.env.QA_ADMIN_PASSWORD || '123456';
+const QA_STUDENT_IDENTIFIER = process.env.QA_STUDENT_IDENTIFIER || 'vanan.cntt@ictu.edu.vn';
+const QA_STUDENT_PASSWORD = process.env.QA_STUDENT_PASSWORD || '123456';
 
 interface TestResult {
   step: number;
@@ -57,6 +61,7 @@ async function runTests() {
   let testRoomId = 1;
   let testRoomNumber = 'B101';
   let testRegId = 0;
+  let createdTestRegId = 0;
   let testMaintenanceId = 0;
 
   // TEST 1: Health Check
@@ -87,8 +92,8 @@ async function runTests() {
   // TEST 2: Đăng nhập Admin
   try {
     const res = await sendRequest('POST', '/auth/login', {
-      identifier: 'admin@dormitory.com',
-      password: '123456',
+      identifier: QA_ADMIN_IDENTIFIER,
+      password: QA_ADMIN_PASSWORD,
     });
     const token = res.data?.data?.token;
     const user = res.data?.data?.user;
@@ -118,8 +123,8 @@ async function runTests() {
   // TEST 3: Đăng nhập Sinh viên (Student)
   try {
     const res = await sendRequest('POST', '/auth/login', {
-      identifier: 'ngocanh.cntt@ictu.edu.vn',
-      password: '123456',
+      identifier: QA_STUDENT_IDENTIFIER,
+      password: QA_STUDENT_PASSWORD,
     });
     const token = res.data?.data?.token;
     const user = res.data?.data?.user;
@@ -204,7 +209,10 @@ async function runTests() {
       res.status === 201 ||
       ((res.status === 400 || res.status === 409) &&
         (res.data?.message?.includes('đã có') || res.data?.message?.includes('đơn')));
-    if (res.data?.data?.id) testRegId = res.data.data.id;
+    if (res.data?.data?.id) {
+      testRegId = res.data.data.id;
+      createdTestRegId = testRegId;
+    }
     results.push({
       step: 5,
       flow: 'Đăng ký Lưu trú',
@@ -448,6 +456,14 @@ async function runTests() {
       passed: false,
       notes: e.message,
     });
+  }
+
+  // Dọn dữ liệu do chính E2E tạo ra để chạy lặp lại không làm bẩn CSDL.
+  if (testMaintenanceId && adminToken) {
+    await sendRequest('DELETE', `/maintenance/${testMaintenanceId}`, undefined, adminToken);
+  }
+  if (createdTestRegId && studentToken) {
+    await sendRequest('PATCH', `/registrations/${createdTestRegId}/cancel`, undefined, studentToken);
   }
 
   // BÁO CÁO TỔNG HỢP KẾT QUẢ

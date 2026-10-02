@@ -83,7 +83,9 @@ export class ClientNotificationsComponent implements OnInit {
             this.notifications = [];
             this.totalItems = 0;
             this.totalPages = 1;
-            this.errorMessage = res.message || 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.';
+            this.errorMessage = res.data.length === 0
+              ? 'Không thể tải danh sách thông báo hoặc hệ thống đang bảo trì.'
+              : (res.message || 'Không thể tải danh sách thông báo. Vui lòng thử lại sau.');
           }
           this.isLoading = false;
           this.cdr.markForCheck();

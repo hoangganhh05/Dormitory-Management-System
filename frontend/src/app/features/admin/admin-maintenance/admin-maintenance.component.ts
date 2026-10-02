@@ -213,7 +213,7 @@ export class AdminMaintenanceComponent implements OnInit {
         error: (err) => {
           this.isSaving = false;
           this.cdr.markForCheck();
-          alert('Không thể cập nhật trạng thái. Vui lòng thử lại sau.');
+          alert(err?.message || 'Không thể cập nhật trạng thái. Vui lòng thử lại sau.');
         },
       });
   }
@@ -246,7 +246,7 @@ export class AdminMaintenanceComponent implements OnInit {
       error: (err) => {
         this.closeDeleteConfirm();
         this.cdr.markForCheck();
-        alert('Không thể xóa yêu cầu lúc này. Vui lòng thử lại sau.');
+        alert(err?.message || 'Không thể xóa yêu cầu lúc này. Vui lòng thử lại sau.');
       },
     });
   }

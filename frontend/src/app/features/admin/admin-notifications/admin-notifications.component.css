@@ -834,3 +834,43 @@
     flex-direction: column;
   }
 }
+
+/* Mobile-first filter rhythm: tabs scroll horizontally, controls stack cleanly. */
+.admin-notifications-page .tab-list {
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.admin-notifications-page .tab-list::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .admin-notifications-page .filter-controls-row {
+    align-items: stretch;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .admin-notifications-page .filter-controls-row .search-box,
+  .admin-notifications-page .filter-controls-row .form-select,
+  .admin-notifications-page .filter-controls-row .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-notifications-page .filter-controls-row .search-box {
+    position: relative;
+    display: block;
+    flex: none;
+    height: 2.5rem;
+  }
+
+  .admin-notifications-page .filter-controls-row .search-input {
+    width: 100%;
+    min-width: 0;
+  }
+}
