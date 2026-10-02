@@ -93,7 +93,7 @@
   <div class="toolbar-card">
     <div class="building-filter" *ngIf="stats()?.buildings?.length" role="tablist" aria-label="Lọc theo tòa nhà">
       <span class="building-filter-label">Khu / Tòa nhà</span>
-      <div class="building-filter-tabs">
+      <div class="building-filter-tabs flex flex-wrap gap-2">
         <button
           type="button"
           class="building-filter-tab"
@@ -118,14 +118,14 @@
     </div>
 
     <div class="toolbar-controls">
-    <div class="search-box">
-      <ng-icon name="lucideSearch" size="16" class="search-icon"></ng-icon>
+    <div class="search-box relative">
+      <ng-icon name="lucideSearch" size="16" class="search-icon absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></ng-icon>
       <input
         type="text"
         [value]="searchTerm()"
         (input)="searchTerm.set($any($event.target).value)"
         placeholder="Tìm theo số phòng (VD: A101) hoặc tên tòa nhà..."
-        class="search-input"
+         class="search-input w-full"
       />
       <button class="clear-btn" *ngIf="searchTerm()" (click)="searchTerm.set('')" title="Xóa tìm kiếm"><ng-icon name="lucideX" size="14"></ng-icon></button>
     </div>
@@ -186,7 +186,7 @@
       </div>
     </div>
 
-    <div class="table-responsive">
+    <div class="table-responsive w-full overflow-x-auto">
       <table class="table-b2b">
         <thead>
           <tr>
@@ -317,7 +317,7 @@
   </div>
 
   <!-- MODAL: CREATE ROOM -->
-  <div class="modal-backdrop" *ngIf="isCreateModalOpen()" (click)="closeCreateModal()">
+  <div class="modal-backdrop" *ngIf="isCreateModalOpen()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -422,7 +422,7 @@
   </div>
 
   <!-- MODAL: EDIT ROOM -->
-  <div class="modal-backdrop" *ngIf="isEditModalOpen()" (click)="closeEditModal()">
+  <div class="modal-backdrop" *ngIf="isEditModalOpen()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
@@ -517,7 +517,7 @@
   </div>
 
   <!-- MODAL: ROOM DETAIL & BEDS ALLOCATION -->
-  <div class="modal-backdrop" *ngIf="isDetailModalOpen()" (click)="closeDetailModal()">
+  <div class="modal-backdrop" *ngIf="isDetailModalOpen()">
     <div class="modal-card wide" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="flex items-center gap-3">

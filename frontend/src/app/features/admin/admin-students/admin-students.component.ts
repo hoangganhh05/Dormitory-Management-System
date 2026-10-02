@@ -219,15 +219,18 @@ export class AdminStudentsComponent implements OnInit {
       defaultPassword: val.defaultPassword,
     };
 
+    this.isSubmitting.set(true);
     this.studentService.createStudent(dto).subscribe({
       next: () => {
+        this.isSubmitting.set(false);
         this.showSuccess(`Đã tạo mới thành công hồ sơ sinh viên ${dto.fullName} (${dto.studentCode})!`);
         this.closeCreateModal();
         this.loadStudents();
         this.loadAllocationStats();
       },
       error: (err: Error) => {
-        alert('Không thể tạo hồ sơ sinh viên. Vui lòng thử lại sau.');
+        this.isSubmitting.set(false);
+        alert(err.message || 'Không thể tạo hồ sơ sinh viên. Vui lòng thử lại sau.');
       },
     });
   }
@@ -277,14 +280,17 @@ export class AdminStudentsComponent implements OnInit {
       gender: val.gender,
     };
 
+    this.isSubmitting.set(true);
     this.studentService.updateStudent(val.id, dto).subscribe({
       next: () => {
+        this.isSubmitting.set(false);
         this.showSuccess(`Đã cập nhật hồ sơ sinh viên ${dto.fullName} thành công!`);
         this.closeEditModal();
         this.loadStudents();
       },
       error: (err: Error) => {
-        alert('Không thể cập nhật hồ sơ sinh viên. Vui lòng thử lại sau.');
+        this.isSubmitting.set(false);
+        alert(err.message || 'Không thể cập nhật hồ sơ sinh viên. Vui lòng thử lại sau.');
       },
     });
   }
@@ -338,7 +344,7 @@ export class AdminStudentsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert('Không thể phân bổ giường. Vui lòng thử lại sau.');
+        alert(err.message || 'Không thể phân bổ giường. Vui lòng thử lại sau.');
       },
     });
   }
@@ -390,7 +396,7 @@ export class AdminStudentsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert('Không thể điều chuyển giường. Vui lòng thử lại sau.');
+        alert(err.message || 'Không thể điều chuyển giường. Vui lòng thử lại sau.');
       },
     });
   }
@@ -413,7 +419,7 @@ export class AdminStudentsComponent implements OnInit {
         this.loadStudents();
         this.loadAllocationStats();
       },
-      error: () => alert('Không thể hoàn tất thủ tục trả phòng. Vui lòng thử lại sau.'),
+      error: (err: Error) => alert(err.message || 'Không thể hoàn tất thủ tục trả phòng. Vui lòng thử lại sau.'),
     });
   }
 

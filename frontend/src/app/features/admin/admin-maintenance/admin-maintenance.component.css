@@ -732,3 +732,43 @@
     gap: 2px;
   }
 }
+
+/* Keep the mobile filter controls in one predictable vertical rhythm. */
+.admin-maintenance-page .tab-list {
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.admin-maintenance-page .tab-list::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .admin-maintenance-page .filter-controls-row {
+    align-items: stretch;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .admin-maintenance-page .filter-controls-row .search-box,
+  .admin-maintenance-page .filter-controls-row .form-select,
+  .admin-maintenance-page .filter-controls-row .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-maintenance-page .filter-controls-row .search-box {
+    position: relative;
+    display: block;
+    flex: none;
+    height: 2.5rem;
+  }
+
+  .admin-maintenance-page .filter-controls-row .search-input {
+    width: 100%;
+    min-width: 0;
+  }
+}

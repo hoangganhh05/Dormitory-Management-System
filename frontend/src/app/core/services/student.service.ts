@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateStudentDto, StudentApiResponse, StudentProfile, UpdateStudentDto } from '../models/student.model';
+import { getApiErrorMessage } from '../utils/api-error.util';
 
 @Injectable({
   providedIn: 'root',
@@ -47,9 +48,10 @@ export class StudentService {
   // [ADMIN] Tạo mới một hồ sơ sinh viên
   createStudent(dto: CreateStudentDto): Observable<any> {
     return this.http.post<any>(this.apiUrl, dto).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[StudentService.createStudent Error]', error);
-        return throwError(() => new Error(error.error?.message || 'Lỗi khi tạo mới hồ sơ sinh viên.'));
+        return throwError(() => new Error(getApiErrorMessage(error, 'Lỗi khi tạo mới hồ sơ sinh viên.')));
       })
     );
   }
@@ -57,9 +59,10 @@ export class StudentService {
   // [ADMIN] Cập nhật hồ sơ sinh viên
   updateStudent(id: number, dto: UpdateStudentDto): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, dto).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[StudentService.updateStudent Error]', error);
-        return throwError(() => new Error(error.error?.message || 'Lỗi khi cập nhật hồ sơ sinh viên.'));
+        return throwError(() => new Error(getApiErrorMessage(error, 'Lỗi khi cập nhật hồ sơ sinh viên.')));
       })
     );
   }

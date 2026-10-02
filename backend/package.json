@@ -11,6 +11,7 @@
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node-dev prisma/seed.ts",
+    "prisma:seed:settings": "ts-node-dev prisma/seed-settings.ts",
     "test:e2e": "ts-node-dev src/scripts/run-e2e-tests.ts",
     "test:security": "ts-node-dev src/scripts/run-security-audit-tests.ts"
   },
@@ -36,6 +37,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "google-auth-library": "^11.1.0",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^6.4.1",
     "typescript": "^5.8.2"

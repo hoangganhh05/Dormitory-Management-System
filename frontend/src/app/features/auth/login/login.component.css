@@ -41,45 +41,6 @@
   margin-bottom: 24px;
 }
 
-.brand-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  padding: 3px 10px;
-  border-radius: 6px;
-  margin-bottom: 12px;
-}
-
-.brand-icon {
-  width: 15px;
-  height: 15px;
-  color: #0f172a;
-}
-
-.brand-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #334155;
-}
-
-.auth-heading {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.02em;
-  margin: 0 0 6px 0;
-}
-
-.auth-subtext {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-  line-height: 1.4;
-}
-
 /* Feedback Alerts */
 .alert {
   display: flex;
@@ -292,6 +253,46 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.google-login-section {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.google-login-hidden {
+  display: none;
+}
+
+.google-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #94a3b8;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.google-divider::before,
+.google-divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: #e2e8f0;
+}
+
+.google-login-label {
+  margin: 12px 0 8px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.google-button {
+  display: flex;
+  justify-content: center;
+  min-height: 40px;
 }
 
 .spinner-sm {

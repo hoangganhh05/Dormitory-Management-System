@@ -165,7 +165,7 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
       rateLimitInfo: {
         freeTierRPM: 15,
         freeTierRPD: 1500,
-        recommendedModel: 'gemini-2.5-flash',
+        recommendedModel: ENV.GEMINI_MODEL,
       },
     };
   }
@@ -225,7 +225,7 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
         ? `Xin chào **${userContext.fullName}**! Mình là Trợ lý AI Ký túc xá ICTU 🤖. Hôm nay bạn cần kiểm tra thông tin phòng ở, bạn cùng phòng, hay cần hỗ trợ gì không?`
         : 'Xin chào! Mình là Trợ lý AI Ký túc xá ICTU. Bạn cần hỗ trợ thông tin gì về nội quy, giờ giấc, phòng ở hay thủ tục đăng ký KTX hôm nay?';
       return {
-        answer: greeting,
+        answer: GeminiService.cleanMarkdownText(greeting),
         source: 'KNOWLEDGE_BASE_FALLBACK',
         modelUsed: 'system-default',
         isAiGenerated: false,
@@ -241,11 +241,14 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
       try {
         // 1. Lấy thời gian thực tế của hệ thống
         const now = new Date();
-        const currentTimeStr = now.toLocaleDateString('vi-VN', {
+        const currentTimeStr = now.toLocaleString('vi-VN', {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
           day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
         });
 
         // 2. Thiết kế lại System Prompt linh hoạt, tự nhiên với thời gian thực và dữ liệu phòng
@@ -303,11 +306,9 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
         }
 
         const candidateModels = [
-          (ENV.GEMINI_MODEL && ENV.GEMINI_MODEL !== 'gemini-1.5-flash' && ENV.GEMINI_MODEL !== 'gemini-1.5-pro')
-            ? ENV.GEMINI_MODEL.trim()
-            : 'gemini-2.5-flash',
-          'gemini-3.5-flash',
-        ];
+          ENV.GEMINI_MODEL.trim() || 'gemini-1.5-flash',
+          'gemini-2.5-flash',
+        ].filter((model, index, models) => models.indexOf(model) === index);
 
         let responseText = '';
         let successfulModel = '';
@@ -453,9 +454,21 @@ ${GeminiService.DORMITORY_KNOWLEDGE}
     // Helper khớp nhiều từ khóa (hỗ trợ cả tiếng Việt có dấu và không dấu)
     const hasKeyword = (...keywords: string[]) => keywords.some(k => q.includes(k));
 
-    // 0. TRA CỨU DANH SÁCH PHÒNG CÒN CHỖ / GIƯỜNG TRỐNG THỰC TẾ TỪ CSDL
-    if (hasKeyword('phòng nào còn', 'phong nao con', 'còn phòng', 'con phong', 'còn chỗ', 'con cho', 'giường trống', 'giuong trong', 'tìm phòng', 'tim phong', 'tra cứu phòng', 'tra cuu phong', 'chỗ ở', 'cho o', 'danh sách phòng', 'danh sach phong')) {
-      answer = `🏢 Tình trạng các phòng lưu trú còn chỗ tại KTX ICTU:\n\n${roomSummary || 'Hiện tại các phòng tại Tòa A và Tòa B đều có giường trống cho học kỳ mới. Mời bạn vào mục Tra cứu phòng để xem chi tiết.'}\n\nBạn có thể truy cập mục "Đăng ký lưu trú" để chọn phòng và nộp đơn online ngay nhé!`;
+    // 0. TRẢ VỀ NGÀY GIỜ THỰC TẾ CỦA SERVER, KHÔNG DÙNG GIÁ TRỊ TĨNH
+    if (hasKeyword('mấy giờ', 'may gio', 'bây giờ', 'bay gio', 'hiện tại là mấy', 'hien tai la may', 'ngày hôm nay', 'ngay hom nay', 'thời gian hiện tại', 'thoi gian hien tai')) {
+      answer = `Thời gian hiện tại của hệ thống là ${new Date().toLocaleString('vi-VN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })}.`;
+    }
+    // 1. TRA CỨU DANH SÁCH PHÒNG CÒN CHỖ / GIƯỜNG TRỐNG THỰC TẾ TỪ CSDL
+    else if (hasKeyword('phòng nào còn', 'phong nao con', 'còn phòng', 'con phong', 'còn chỗ', 'con cho', 'giường trống', 'giuong trong', 'tìm phòng', 'tim phong', 'tra cứu phòng', 'tra cuu phong', 'chỗ ở', 'cho o', 'danh sách phòng', 'danh sach phong')) {
+      answer = `🏢 Tình trạng các phòng lưu trú tại KTX ICTU:\n\n${roomSummary || 'Chưa thể truy vấn dữ liệu phòng từ cơ sở dữ liệu lúc này. Vui lòng mở mục Tra cứu phòng để xem trạng thái mới nhất.'}\n\nBạn có thể truy cập mục "Đăng ký lưu trú" để chọn phòng và nộp đơn online ngay nhé!`;
     }
     // 1. CÁ NHÂN HÓA: Tra cứu thông tin phòng của bản thân
     else if (hasKeyword('phòng tôi', 'phong toi', 'tôi ở phòng', 'toi o phong', 'phòng của tôi', 'phong cua toi', 'giường của tôi', 'giuong cua toi', 'tôi ở đâu', 'toi o dau', 'số phòng của tôi', 'so phong cua toi', 'tôi ở phòng nào', 'toi o phong nao')) {
@@ -615,11 +628,9 @@ Bạn đang quan tâm đến nội dung nào ở trên? Hãy gõ câu hỏi đ�
     if (client) {
       try {
         const candidateModels = [
-          (ENV.GEMINI_MODEL && ENV.GEMINI_MODEL !== 'gemini-1.5-flash' && ENV.GEMINI_MODEL !== 'gemini-1.5-pro')
-            ? ENV.GEMINI_MODEL.trim()
-            : 'gemini-2.5-flash',
-          'gemini-3.5-flash',
-        ];
+          ENV.GEMINI_MODEL.trim() || 'gemini-1.5-flash',
+          'gemini-2.5-flash',
+        ].filter((model, index, models) => models.indexOf(model) === index);
 
         const prompt = `Bạn là chuyên gia thẩm định và phân loại sự cố kỹ thuật Ký túc xá ICTU.
 Nhiệm vụ: Phân tích tiêu đề và mô tả sự cố sau đây để xác định mức độ khẩn cấp và lý do an toàn.
@@ -672,7 +683,9 @@ Yêu cầu: Trả về JSON duy nhất, không markdown:
             }
           } catch (modelErr: any) {
             console.warn(`[GeminiService.classify] Thử mô hình ${modelName} thất bại:`, modelErr.message);
-            break; // Tránh lặp lại khi gặp 429 quota
+            if (modelErr.message?.includes('429') || modelErr.message?.includes('Quota') || modelErr.message?.includes('Timeout')) {
+              break;
+            }
           }
         }
       } catch (err: any) {

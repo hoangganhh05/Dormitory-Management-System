@@ -4,6 +4,7 @@ import { ClientLayoutComponent } from './features/client/client-layout/client-la
 import { ClientHomeComponent } from './features/client/client-home/client-home.component';
 import { ClientRoomsComponent } from './features/client/client-rooms/client-rooms.component';
 import { ClientRegisterRoomComponent } from './features/client/client-register-room/client-register-room.component';
+import { ClientRegistrationResultComponent } from './features/client/client-registration-result/client-registration-result.component';
 import { ClientMaintenanceComponent } from './features/client/client-maintenance/client-maintenance.component';
 import { ClientProfileComponent } from './features/client/client-profile/client-profile.component';
 import { ClientNotificationsComponent } from './features/client/client-notifications/client-notifications.component';
@@ -15,7 +16,7 @@ import { AdminStudentsComponent } from './features/admin/admin-students/admin-st
 import { AdminRegistrationsComponent } from './features/admin/admin-registrations/admin-registrations.component';
 import { AdminMaintenanceComponent } from './features/admin/admin-maintenance/admin-maintenance.component';
 import { AdminNotificationsComponent } from './features/admin/admin-notifications/admin-notifications.component';
-import { adminGuard } from './core/guards/auth.guard';
+import { adminGuard, authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -32,11 +33,14 @@ export const routes: Routes = [
   {
     path: 'client',
     component: ClientLayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: ClientHomeComponent },
+      { path: 'home', component: ClientHomeComponent },
       { path: 'rooms', component: ClientRoomsComponent },
       { path: 'register-room', component: ClientRegisterRoomComponent },
+      { path: 'registration-result', component: ClientRegistrationResultComponent },
       { path: 'maintenance', component: ClientMaintenanceComponent },
       { path: 'notifications', component: ClientNotificationsComponent },
       { path: 'profile', component: ClientProfileComponent },

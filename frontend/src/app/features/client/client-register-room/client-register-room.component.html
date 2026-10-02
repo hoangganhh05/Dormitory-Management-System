@@ -22,7 +22,7 @@
         Kết quả xét duyệt sẽ được thông báo trực tiếp trên Cổng thông tin sinh viên và qua email trong vòng 24 - 48 giờ làm việc.
       </p>
       <div class="success-actions">
-        <a routerLink="/client/profile" class="btn-primary">Xem hồ sơ & kết quả</a>
+        <a routerLink="/client/registration-result" class="btn-primary">Xem kết quả đăng ký</a>
         <button class="btn-secondary" (click)="resetForm()">Nộp đơn khác</button>
       </div>
     </div>
@@ -145,10 +145,9 @@
         <!-- Semester -->
         <div class="form-field">
           <label for="semester">Học kỳ đăng ký</label>
-          <select id="semester" formControlName="semester">
-            <option value="Học kỳ 1 (2026 - 2027)">Học kỳ 1 (Tháng 9 - Tháng 1)</option>
-            <option value="Học kỳ 2 (2026 - 2027)">Học kỳ 2 (Tháng 2 - Tháng 6)</option>
-            <option value="Cả năm học (2026 - 2027)">Cả năm học (10 tháng)</option>
+          <select id="semester" formControlName="semester" [disabled]="isLoadingSettings() || !currentSemesterValue">
+            <option value="" disabled>{{ isLoadingSettings() ? 'Đang tải học kỳ...' : 'Chưa cấu hình học kỳ' }}</option>
+            <option *ngIf="currentSemesterValue" [value]="currentSemesterValue">{{ currentSemesterValue }}</option>
           </select>
         </div>
 
@@ -201,7 +200,7 @@
           <tbody>
             <tr *ngFor="let reg of myRegistrations()">
               <td class="font-mono font-bold">#REG-{{ reg.id }}</td>
-              <td>{{ reg.semester }}</td>
+              <td>{{ formatSemester(reg.semester) }}</td>
               <td>
                 <span *ngIf="reg.preferredRoom">Phòng {{ reg.preferredRoom.roomNumber }} ({{ reg.preferredRoom.building }})</span>
                 <span *ngIf="!reg.preferredRoom" class="text-slate-400">Chưa xếp</span>

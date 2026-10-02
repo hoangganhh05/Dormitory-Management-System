@@ -212,7 +212,20 @@ export class AdminRegistrationsComponent implements OnInit {
               ? responseError.message
               : 'Không thể phê duyệt đơn đăng ký lúc này. Vui lòng thử lại sau.';
 
-        alert(message);
+        // Nếu transaction đã commit nhưng response bị ngắt, đọc lại trạng thái
+        // để không báo lỗi giả cho quản trị viên.
+        this.registrationService.getRegistrationById(reg.id).subscribe({
+          next: (latest) => {
+            if (latest.status === 'APPROVED') {
+              this.closeApproveModal();
+              this.showSuccess(`Đơn đăng ký #${reg.id} đã được phê duyệt và đã ghi nhận trên hệ thống.`);
+              this.loadData();
+              return;
+            }
+            alert(message);
+          },
+          error: () => alert(message),
+        });
       },
     });
   }
@@ -257,7 +270,19 @@ export class AdminRegistrationsComponent implements OnInit {
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
-        alert('Không thể cập nhật quyết định cho đơn đăng ký. Vui lòng thử lại sau.');
+        const message = err?.message || 'Không thể cập nhật quyết định cho đơn đăng ký. Vui lòng thử lại sau.';
+        this.registrationService.getRegistrationById(reg.id).subscribe({
+          next: (latest) => {
+            if (latest.status === 'REJECTED') {
+              this.closeRejectModal();
+              this.showSuccess(`Đơn đăng ký #${reg.id} đã được ghi nhận là từ chối.`);
+              this.loadData();
+              return;
+            }
+            alert(message);
+          },
+          error: () => alert(message),
+        });
       },
     });
   }
@@ -266,6 +291,14 @@ export class AdminRegistrationsComponent implements OnInit {
     this.currentTab.set('PENDING');
     this.searchTerm.set('');
     this.selectedSemester.set('ALL');
+  }
+
+  formatSemester(semester: string | null | undefined): string {
+    if (!semester || semester === 'H?c k? 1') {
+      return 'Học kỳ 1';
+    }
+
+    return semester.replace(/\s*\((\d{4}\s*-\s*\d{4})\)\s*\(\d{4}\s*-\s*\d{4}\)\s*$/, ' ($1)');
   }
 
   private showSuccess(msg: string): void {

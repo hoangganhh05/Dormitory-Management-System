@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RoomService } from '../../../core/services/room.service';
 import { RegistrationService } from '../../../core/services/registration.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { SettingsService, DormitorySettings } from '../../../core/services/settings.service';
 import { Room } from '../../../core/models/room.model';
 import { Registration } from '../../../core/models/registration.model';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -28,6 +29,7 @@ export class ClientRegisterRoomComponent implements OnInit {
   private roomService = inject(RoomService);
   private registrationService = inject(RegistrationService);
   private authService = inject(AuthService);
+  private settingsService = inject(SettingsService);
   private route = inject(ActivatedRoute);
 
   registerForm: FormGroup;
@@ -37,6 +39,9 @@ export class ClientRegisterRoomComponent implements OnInit {
   submitError = signal('');
   isLoadingRooms = signal(false);
   availableRooms: RoomOption[] = [];
+  currentSemesterValue = '';
+  currentAcademicYear = '';
+  isLoadingSettings = signal(true);
 
   // My existing registrations list
   myRegistrations = signal<Registration[]>([]);
@@ -53,14 +58,15 @@ export class ClientRegisterRoomComponent implements OnInit {
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       gender: ['FEMALE', Validators.required],
       preferredRoomId: ['', Validators.required],
-      semester: ['Học kỳ 1 (2026 - 2027)', Validators.required],
-      academicYear: ['2026-2027', Validators.required],
+      semester: ['', Validators.required],
+      academicYear: ['', Validators.required],
       note: ['']
     });
   }
 
   ngOnInit(): void {
     this.autoFillUserData();
+    this.loadSettings();
     this.loadAvailableRooms();
     if (this.isLoggedIn()) {
       this.loadMyRegistrations();
@@ -145,6 +151,30 @@ export class ClientRegisterRoomComponent implements OnInit {
     return this.registerForm.controls;
   }
 
+  private loadSettings(): void {
+    this.settingsService.getPublicSettings().subscribe((response) => {
+      const settings: DormitorySettings = response.success ? response.data : {};
+      const semester = settings['CURRENT_SEMESTER'] || '';
+      this.currentAcademicYear = settings['CURRENT_ACADEMIC_YEAR'] || '';
+      this.currentSemesterValue = semester && this.currentAcademicYear
+        ? `${semester} (${this.currentAcademicYear})`
+        : semester;
+      this.registerForm.patchValue({
+        semester: this.currentSemesterValue,
+        academicYear: this.currentAcademicYear,
+      });
+      this.isLoadingSettings.set(false);
+    });
+  }
+
+  formatSemester(semester: string | null | undefined): string {
+    if (!semester || semester === 'H?c k? 1') {
+      return 'Học kỳ 1';
+    }
+
+    return semester.replace(/\s*\((\d{4}\s*-\s*\d{4})\)\s*\(\d{4}\s*-\s*\d{4}\)\s*$/, ' ($1)');
+  }
+
   onSubmit(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
@@ -162,7 +192,8 @@ export class ClientRegisterRoomComponent implements OnInit {
       phone: formVal.phone,
       gender: formVal.gender,
       roomId: parseInt(formVal.preferredRoomId, 10),
-      semester: `${formVal.semester} (${formVal.academicYear})`,
+      semester: formVal.semester,
+      academicYear: formVal.academicYear,
       notes: formVal.note || undefined,
     };
 
@@ -204,8 +235,8 @@ export class ClientRegisterRoomComponent implements OnInit {
     this.isSuccess.set(false);
     this.submitError.set('');
     this.registerForm.reset({
-      semester: 'Học kỳ 1 (2026 - 2027)',
-      academicYear: '2026-2027'
+      semester: this.currentSemesterValue,
+      academicYear: this.currentAcademicYear,
     });
     this.autoFillUserData();
   }

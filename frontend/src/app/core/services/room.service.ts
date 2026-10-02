@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   CreateRoomDto,
@@ -10,6 +10,7 @@ import {
   UpdateRoomDto,
   Bed,
 } from '../models/room.model';
+import { getApiErrorMessage } from '../utils/api-error.util';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +41,7 @@ export class RoomService {
     }
 
     return this.http.get<RoomApiResponse>(this.apiUrl, { params }).pipe(
+      timeout(4000),
       map((response) => response.data || []),
       catchError((error) => {
         console.error('[RoomService.getRooms Error]', error);
@@ -57,6 +59,7 @@ export class RoomService {
   // 2. Lấy chi tiết phòng theo ID
   getRoomById(id: number): Observable<Room> {
     return this.http.get<{ success: boolean; data: Room }>(`${this.apiUrl}/${id}`).pipe(
+      timeout(4000),
       map((response) => response.data),
       catchError((error) => {
         console.error('[RoomService.getRoomById Error]', error);
@@ -77,6 +80,7 @@ export class RoomService {
         `${this.apiUrl}/stats/summary`
       )
       .pipe(
+        timeout(4000),
         map((res) => res.data),
         catchError((error) => {
           console.error('[RoomService.getRoomStats Error]', error);
@@ -94,11 +98,10 @@ export class RoomService {
   // 4. [ADMIN] Tạo mới phòng
   createRoom(dto: CreateRoomDto): Observable<any> {
     return this.http.post<any>(this.apiUrl, dto).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[RoomService.createRoom Error]', error);
-        return throwError(
-          () => new Error(error.error?.message || 'Lỗi khi tạo phòng mới.')
-        );
+        return throwError(() => new Error(getApiErrorMessage(error, 'Lỗi khi tạo phòng mới.')));
       })
     );
   }
@@ -106,11 +109,10 @@ export class RoomService {
   // 5. [ADMIN] Cập nhật phòng
   updateRoom(id: number, dto: UpdateRoomDto): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, dto).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[RoomService.updateRoom Error]', error);
-        return throwError(
-          () => new Error(error.error?.message || 'Lỗi khi cập nhật phòng.')
-        );
+        return throwError(() => new Error(getApiErrorMessage(error, 'Lỗi khi cập nhật phòng.')));
       })
     );
   }
@@ -118,11 +120,10 @@ export class RoomService {
   // 6. [ADMIN] Xóa phòng
   deleteRoom(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`).pipe(
+      timeout(30000),
       catchError((error) => {
         console.error('[RoomService.deleteRoom Error]', error);
-        return throwError(
-          () => new Error(error.error?.message || 'Lỗi khi xóa phòng.')
-        );
+        return throwError(() => new Error(getApiErrorMessage(error, 'Lỗi khi xóa phòng.')));
       })
     );
   }
@@ -139,15 +140,11 @@ export class RoomService {
         { status }
       )
       .pipe(
+        timeout(30000),
         map((res) => res.data),
         catchError((error) => {
           console.error('[RoomService.updateBedStatus Error]', error);
-          return throwError(
-            () =>
-              new Error(
-                error.error?.message || 'Lỗi khi cập nhật trạng thái giường.'
-              )
-          );
+          return throwError(() => new Error(getApiErrorMessage(error, 'Lỗi khi cập nhật trạng thái giường.')));
         })
       );
   }

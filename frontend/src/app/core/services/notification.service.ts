@@ -2,16 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, of, throwError, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { getApiErrorMessage } from '../utils/api-error.util';
 import {
   NotificationItem,
   NotificationStats,
   NotificationQueryParams,
   CreateNotificationDto,
   UpdateNotificationDto,
-  NotificationCategory,
-  NotificationPriority,
-  NotificationStatus,
-  NotificationTargetRole,
 } from '../models/notification.model';
 
 export interface ApiResponse<T> {
@@ -52,52 +49,16 @@ export class NotificationService {
     return this.http.get<ApiResponse<NotificationItem[]>>(this.apiUrl, { params: httpParams }).pipe(
       timeout(3000),
       catchError((err) => {
-        console.warn('Backend chưa phản hồi kịp, nạp dữ liệu thông báo mặc định:', err);
+        console.warn('Không thể tải dữ liệu thông báo từ backend:', err);
         return of({
-          success: true,
-          data: [
-            {
-              id: 1,
-              title: 'Quy chế giờ giấc mở cửa Ký túc xá ICTU',
-              summary: 'Ký túc xá mở cửa từ 05h30 và đóng cửa lúc 23h00 hàng ngày.',
-              content: 'Ký túc xá mở cửa từ 05h30 và đóng cửa lúc 23h00 hàng ngày. Sinh viên có việc gấp cần thông báo trước cho cán bộ trực bàn qua ứng dụng.',
-              category: 'REGULATION' as NotificationCategory,
-              priority: 'IMPORTANT' as NotificationPriority,
-              targetRole: 'ALL' as NotificationTargetRole,
-              targetBuilding: null,
-              isPinned: true,
-              status: 'PUBLISHED' as NotificationStatus,
-              viewCount: 12,
-              readsCount: 8,
-              isRead: false,
-              author: { id: 1, fullName: 'Ban Quản lý Ký túc xá', role: 'ADMIN' },
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            {
-              id: 2,
-              title: 'Thông báo nộp tiền phòng Học kỳ 1 Năm học 2026 - 2027',
-              summary: 'Ban Quản lý KTX thông báo hạn nộp phí lưu trú học kỳ 1 theo quy định...',
-              content: 'Ban Quản lý KTX thông báo hạn nộp phí lưu trú học kỳ 1 theo quy định. Sinh viên hoàn tất thanh toán trước hạn để ổn định chỗ ở.',
-              category: 'FINANCE' as NotificationCategory,
-              priority: 'NORMAL' as NotificationPriority,
-              targetRole: 'ALL' as NotificationTargetRole,
-              targetBuilding: null,
-              isPinned: true,
-              status: 'PUBLISHED' as NotificationStatus,
-              viewCount: 45,
-              readsCount: 30,
-              isRead: false,
-              author: { id: 1, fullName: 'Ban Quản lý Ký túc xá', role: 'ADMIN' },
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-          ] as NotificationItem[],
+          success: false,
+          message: 'Không thể tải danh sách thông báo hoặc hệ thống đang bảo trì.',
+          data: [],
           pagination: {
-            total: 2,
-            page: params?.page || 1,
-            limit: params?.limit || 10,
-            totalPages: 1,
+            total: 0,
+            page: 1,
+            limit: 10,
+            totalPages: 0,
           },
         });
       }),
@@ -150,28 +111,52 @@ export class NotificationService {
    * [Admin] Đăng tải thông báo mới
    */
   createNotification(dto: CreateNotificationDto): Observable<ApiResponse<NotificationItem>> {
-    return this.http.post<ApiResponse<NotificationItem>>(this.apiUrl, dto);
+    return this.http.post<ApiResponse<NotificationItem>>(this.apiUrl, dto).pipe(
+      timeout(30000),
+      catchError((error) => {
+        console.error('[NotificationService.createNotification] failed:', error);
+        return throwError(() => new Error(getApiErrorMessage(error, 'Không thể đăng thông báo.')));
+      }),
+    );
   }
 
   /**
    * [Admin] Cập nhật thông báo
    */
   updateNotification(id: number, dto: UpdateNotificationDto): Observable<ApiResponse<NotificationItem>> {
-    return this.http.put<ApiResponse<NotificationItem>>(`${this.apiUrl}/${id}`, dto);
+    return this.http.put<ApiResponse<NotificationItem>>(`${this.apiUrl}/${id}`, dto).pipe(
+      timeout(30000),
+      catchError((error) => {
+        console.error('[NotificationService.updateNotification] failed:', error);
+        return throwError(() => new Error(getApiErrorMessage(error, 'Không thể cập nhật thông báo.')));
+      }),
+    );
   }
 
   /**
    * [Admin] Bật/tắt ghim thông báo
    */
   togglePin(id: number): Observable<ApiResponse<NotificationItem>> {
-    return this.http.patch<ApiResponse<NotificationItem>>(`${this.apiUrl}/${id}/pin`, {});
+    return this.http.patch<ApiResponse<NotificationItem>>(`${this.apiUrl}/${id}/pin`, {}).pipe(
+      timeout(30000),
+      catchError((error) => {
+        console.error('[NotificationService.togglePin] failed:', error);
+        return throwError(() => new Error(getApiErrorMessage(error, 'Không thể thay đổi trạng thái ghim.')));
+      }),
+    );
   }
 
   /**
    * [Admin] Xóa thông báo
    */
   deleteNotification(id: number): Observable<ApiResponse<null>> {
-    return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/${id}`);
+    return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/${id}`).pipe(
+      timeout(30000),
+      catchError((error) => {
+        console.error('[NotificationService.deleteNotification] failed:', error);
+        return throwError(() => new Error(getApiErrorMessage(error, 'Không thể xóa thông báo.')));
+      }),
+    );
   }
 
   /**
